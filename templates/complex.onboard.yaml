@@ -1,0 +1,78 @@
+# .onboard.yaml - Complex example with all features
+# Demonstrates advanced manifest configuration
+
+name: enterprise-microservices-platform
+description: Enterprise-grade microservices platform with multiple tech stacks
+
+dependencies:
+  system:
+    - docker
+    - docker-compose
+    - nodejs
+    - python3
+    - git
+    - postgresql
+    - redis
+  
+  npm:
+    - eslint
+    - prettier
+    - typescript
+    - jest
+    - nodemon
+    - pm2
+  
+  python:
+    - django
+    - djangorestframework
+    - celery
+    - pytest
+    - black
+    - pylint
+
+  environment:
+    required:
+      - DATABASE_URL
+      - REDIS_URL
+      - JWT_SECRET
+      - API_KEY
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+    optional:
+      - SENTRY_DSN
+      - DATADOG_API_KEY
+      - SLACK_WEBHOOK_URL
+      - LOG_LEVEL
+
+setup_steps:
+  - name: Install Node.js dependencies
+    command: npm install
+    description: Install all Node.js packages
+  
+  - name: Install Python dependencies
+    command: pip install -r requirements.txt
+    description: Install Python packages for backend services
+  
+  - name: Setup Docker containers
+    command: docker-compose up -d
+    description: Start PostgreSQL and Redis containers
+  
+  - name: Run database migrations
+    command: npm run db:migrate
+    description: Initialize database schema
+  
+  - name: Seed test data
+    command: npm run db:seed
+    description: Populate database with test data
+  
+  - name: Build frontend assets
+    command: npm run build
+    description: Compile TypeScript and bundle frontend
+  
+  - name: Run test suite
+    command: npm test && python -m pytest
+    description: Verify installation with full test suite
+  
+  - name: Start development servers
+    command: npm run dev
+    description: Launch development environment with hot reload

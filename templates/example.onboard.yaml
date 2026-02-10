@@ -1,0 +1,34 @@
+# .onboard.yaml - Repository onboarding configuration
+# Simple example with basic requirements
+
+name: my-awesome-project
+description: Full-stack web application with Node.js backend
+
+dependencies:
+  system:
+    - docker
+    - nodejs
+    - git
+  
+  npm:
+    - eslint
+    - prettier
+    - typescript
+
+  environment:
+    - DATABASE_URL
+    - API_KEY
+    - JWT_SECRET
+
+setup_steps:
+  - name: Install dependencies
+    command: npm install
+    description: Install all Node.js dependencies
+  
+  - name: Setup database
+    command: npm run db:migrate
+    description: Run database migrations
+  
+  - name: Run tests
+    command: npm test
+    description: Verify installation with test suite
