@@ -293,14 +293,71 @@ class Orchestrator {
    * Step 7: Verify Setup
    */
   async verifySetup(repoUrl, environment, options) {
-    // Placeholder: In real implementation, run verification checks
-    logger.info('  → Setup verification would happen here');
-    logger.info('  → Running health checks on installed dependencies');
+    const VerificationOrchestrator = require('../verification/core/VerificationOrchestrator');
     
-    return {
-      verified: true,
-      checks: []
-    };
+    // Get manifest from previous step
+    const manifestResult = this.getStepResult(options, 'Parse Manifest');
+    
+    if (!manifestResult || !manifestResult.manifest) {
+      logger.warning('  → No manifest available for verification');
+      return {
+        verified: false,
+        skipped: true,
+        reason: 'Manifest not available'
+      };
+    }
+    
+    const manifest = manifestResult.manifest;
+    
+    // Check if verification is enabled in manifest
+    if (!manifest.verification || !manifest.verification.checks || manifest.verification.checks.length === 0) {
+      logger.info('  → No verification checks configured in manifest');
+      return {
+        verified: true,
+        skipped: true,
+        reason: 'No checks configured'
+      };
+    }
+    
+    logger.info('  → Running verification checks...');
+    
+    try {
+      const verifier = new VerificationOrchestrator();
+      const result = await verifier.verifySetup(manifest.verification, {
+        environment,
+        cwd: process.cwd(),
+        verbose: options.verbose || false
+      });
+      
+      // Log results
+      const summary = result.summary;
+      logger.info(`  → Completed: ${summary.passed}/${summary.total} checks passed`);
+      
+      if (result.hasCriticalFailures) {
+        const p0Failed = summary.byPriority.P0.failed;
+        logger.warning(`  → ⚠️  ${p0Failed} critical (P0) check(s) failed`);
+        logger.info('  → Continuing despite failures (lenient mode)');
+      }
+      
+      if (summary.failed > 0) {
+        logger.info(`  → ${summary.failed} check(s) failed (non-critical)`);
+      }
+      
+      return {
+        verified: result.success,
+        hasCriticalFailures: result.hasCriticalFailures,
+        summary: summary,
+        details: result
+      };
+      
+    } catch (error) {
+      logger.error(`  → Verification error: ${error.message}`);
+      return {
+        verified: false,
+        error: error.message,
+        hasCriticalFailures: true
+      };
+    }
   }
 }
 

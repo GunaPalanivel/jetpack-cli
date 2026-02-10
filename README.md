@@ -110,17 +110,20 @@ jetpack-cli/
 │   └── ui/
 │       └── logger.js               # Formatted output
 ├── tests/
-│   ├── test-manifest-parser.js     # Parser test suite (8 tests)
-│   ├── test-edge-cases.js          # Edge case tests (5 tests)
-│   ├── test-manifest-fetcher.js    # Fetcher tests (14 tests)
-│   ├── test-dependency-installer.js # Dependency tests (5 tests)
-│   ├── test-setup-executor.js      # Setup executor tests (12 tests)
-│   ├── test-phase4-integration.js  # Phase 4 integration (5 tests)
-│   └── test-config-generator-p0.js # ✨ NEW: Phase 5 tests (3 tests)
+│   ├── manifest-parser.test.js     # Parser test suite (8 tests)
+│   ├── edge-cases.test.js          # Edge case tests (5 tests)
+│   ├── manifest-fetcher.test.js    # Fetcher tests (14 tests)
+│   ├── dependency-installer.test.js # Dependency tests (5 tests)
+│   ├── setup-executor.test.js      # Setup executor tests (12 tests)
+│   ├── integration-setup.test.js   # Setup integration (5 tests)
+│   ├── integration-verification.test.js # Verification tests (20 tests)
+│   └── config-generator.test.js    # Config generation tests (3 tests)
 ├── templates/
-│   ├── example.onboard.yaml        # Simple manifest example
-│   ├── complex.onboard.yaml        # Advanced manifest example
-│   └── full-config.onboard.yaml    # ✨ NEW: Complete example with ssh/git (Phase 5)
+│   ├── basic-example.yaml         # Simple manifest example
+│   ├── complex-example.yaml       # Advanced manifest example
+│   ├── complete-config.yaml       # Complete example with ssh/git
+│   ├── verification-basic.yaml    # Verification checks example
+│   └── verification-advanced.yaml # Advanced verification example
 ├── package.json
 └── README.md
 ```
@@ -166,7 +169,7 @@ console.log(manifest.git); // Git configuration (Phase 5)
 ✅ **Git Configuration** - Git user identity settings (Phase 5)  
 ✅ **Error Handling** - Clear, actionable error messages
 
-See `templates/example.onboard.yaml`, `templates/complex.onboard.yaml`, and `templates/full-config.onboard.yaml` for manifest examples.
+See `templates/basic-example.yaml`, `templates/complex-example.yaml`, and `templates/complete-config.yaml` for manifest examples.
 
 ---
 

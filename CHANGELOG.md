@@ -139,7 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Testing
 
-- **Test Suite** (`tests/test-manifest-fetcher.js`)
+- **Test Suite** (`tests/manifest-fetcher.test.js`)
   - 14 comprehensive test cases
   - All tests passing ✅
   - Tests for: URL parsing, cache operations, error handling, gh CLI availability
@@ -184,7 +184,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ```
 src/core/manifest-fetcher.js   - GitHub fetch logic (220 LOC)
 src/core/manifest-cache.js     - Cache management (120 LOC)
-tests/test-manifest-fetcher.js - Test suite (14 tests)
+tests/manifest-fetcher.test.js - Test suite (14 tests)
 ```
 
 ---
@@ -216,13 +216,13 @@ tests/test-manifest-fetcher.js - Test suite (14 tests)
 
 #### Testing & Examples
 
-- **Test Suite** (`tests/test-manifest-parser.js`)
+- **Test Suite** (`tests/manifest-parser.test.js`)
   - 8 comprehensive test cases
   - All tests passing ✅
   - Coverage for success and error scenarios
 - **Example Manifests**
-  - `templates/example.onboard.yaml` - Simple manifest with basic dependencies
-  - `templates/complex.onboard.yaml` - Advanced multi-tech stack manifest
+  - `templates/basic-example.yaml` - Simple manifest with basic dependencies
+  - `templates/complex-example.yaml` - Advanced multi-tech stack manifest
 
 #### Documentation
 
@@ -240,9 +240,9 @@ tests/test-manifest-fetcher.js - Test suite (14 tests)
 
 ```
 src/detectors/manifest-parser.js   - Core parser implementation (10KB)
-templates/example.onboard.yaml     - Simple example manifest
-templates/complex.onboard.yaml     - Advanced example manifest
-tests/test-manifest-parser.js      - Comprehensive test suite
+templates/basic-example.yaml     - Simple example manifest
+templates/complex-example.yaml     - Advanced example manifest
+tests/manifest-parser.test.js      - Comprehensive test suite
 ```
 
 **Supported Manifest Schema:**

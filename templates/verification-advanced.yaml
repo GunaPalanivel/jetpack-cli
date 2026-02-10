@@ -1,0 +1,197 @@
+# .onboard.yaml - Advanced Verification Example
+# Demonstrates all check types with advanced features
+
+name: verification-advanced
+description: Advanced verification with HTTP, port, and complex file checks
+
+dependencies:
+  system:
+    - nodejs
+    - docker
+
+setup_steps:
+  - name: Install dependencies
+    command: npm install
+    description: Install all dependencies
+
+# Phase 6: Advanced Verification Examples
+verification:
+  enabled: true
+  
+  settings:
+    serial: false
+    timeout: 300000
+    concurrency:
+      P0: 1   # Serial for critical
+      P1: 3   # 3 concurrent
+      P2: 5   # 5 concurrent
+  
+  checks:
+    # Command checks with retry
+    - name: Node.js v18 or v20
+      type: command
+      priority: P0
+      command: node --version
+      expectedExitCode: 0
+      expectedOutput: ^v(18|20)\.
+      retry:
+        attempts: 2
+        delay: 1000
+        backoff: exponential
+      tags: [runtime, nodejs, critical]
+    
+    - name: npm version check
+      type: command
+      priority: P0
+      command: npm --version
+      expectedExitCode: 0
+      expectedOutput: ^\d+\.\d+\.\d+
+      tags: [runtime, npm, critical]
+    
+    - name: Docker installed
+      type: command
+      priority: P1
+      command: docker --version
+      expectedExitCode: 0
+      expectedOutput: Docker version
+      tags: [docker, container]
+      timeout: 10000
+    
+    - name: Docker daemon running
+      type: command
+      priority: P1
+      command: docker ps
+      expectedExitCode: 0
+      tags: [docker, daemon]
+      timeout: 10000
+      retry:
+        attempts: 1
+        delay: 2000
+    
+    # HTTP checks (if you have a local server)
+    # Uncomment these if testing with a running HTTP server
+    # - name: Local development server
+    #   type: http
+    #   priority: P1
+    #   url: http://localhost:3000
+    #   method: GET
+    #   expectedStatus: 200
+    #   timeout: 5000
+    #   retry:
+    #     attempts: 3
+    #     delay: 2000
+    #     backoff: linear
+    #   tags: [http, server]
+    
+    # - name: API health endpoint
+    #   type: http
+    #   priority: P1
+    #   url: http://localhost:3000/health
+    #   method: GET
+    #   expectedStatus: 200
+    #   expectedBody:
+    #     status: ok
+    #   timeout: 5000
+    #   tags: [http, health]
+    
+    # Port checks (if services are running)
+    # Uncomment if testing with actual services
+    # - name: PostgreSQL port accessible
+    #   type: port
+    #   priority: P1
+    #   host: localhost
+    #   port: 5432
+    #   protocol: tcp
+    #   timeout: 3000
+    #   tags: [database, postgres]
+    
+    # - name: Redis port accessible
+    #   type: port
+    #   priority: P2
+    #   host: localhost
+    #   port: 6379
+    #   protocol: tcp
+    #   timeout: 3000
+    #   tags: [cache, redis]
+    
+    # File checks with advanced features
+    - name: package.json valid structure
+      type: file
+      priority: P0
+      path: package.json
+      exists: true
+      contains:
+        - '"name"'
+        - '"version"'
+        - '"scripts"'
+      size:
+        min: 50
+        max: 100000
+      tags: [config, npm]
+    
+    - name: README.md comprehensive
+      type: file
+      priority: P1
+      path: README.md
+      exists: true
+      contains:
+        - "# "
+        - "## "
+      size:
+        min: 100
+      tags: [documentation]
+    
+    - name: .gitignore configured
+      type: file
+      priority: P1
+      path: .gitignore
+      exists: true
+      contains:
+        - node_modules
+        - .env
+      notContains:
+        - "!important"
+      tags: [git, security]
+    
+    - name: .env file not committed
+      type: file
+      priority: P2
+      path: .env
+      exists: true
+      contains:
+        - "="
+      notContains:
+        - "password123"
+        - "secret123"
+        - "changeme"
+      tags: [security, config]
+    
+    - name: src directory exists
+      type: file
+      priority: P1
+      path: src
+      exists: true
+      tags: [structure]
+    
+    - name: tests directory exists
+      type: file
+      priority: P2
+      path: tests
+      exists: true
+      tags: [testing]
+    
+    # Additional command checks
+    - name: ESLint available
+      type: command
+      priority: P2
+      command: npx eslint --version
+      expectedExitCode: 0
+      tags: [linting, quality]
+      timeout: 10000
+    
+    - name: Git repository initialized
+      type: command
+      priority: P1
+      command: git status
+      expectedExitCode: 0
+      tags: [git, vcs]

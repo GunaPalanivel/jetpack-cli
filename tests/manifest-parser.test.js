@@ -12,10 +12,10 @@ console.log('🧪 Testing Manifest Parser\n');
 console.log('='.repeat(60));
 
 // Test 1: Parse simple example manifest
-console.log('\n📋 Test 1: Parse simple example.onboard.yaml');
+console.log('\n📋 Test 1: Parse simple basic-example.yaml');
 console.log('-'.repeat(60));
 try {
-  const simplePath = path.join(__dirname, '../templates/example.onboard.yaml');
+  const simplePath = path.join(__dirname, '../templates/basic-example.yaml');
   const simpleManifest = manifestParser.parseManifest(simplePath);
   
   console.log('✅ PASSED - Simple manifest parsed successfully');
@@ -34,10 +34,10 @@ try {
 }
 
 // Test 2: Parse complex manifest
-console.log('\n📋 Test 2: Parse complex.onboard.yaml');
+console.log('\n📋 Test 2: Parse complex-example.yaml');
 console.log('-'.repeat(60));
 try {
-  const complexPath = path.join(__dirname, '../templates/complex.onboard.yaml');
+  const complexPath = path.join(__dirname, '../templates/complex-example.yaml');
   const complexManifest = manifestParser.parseManifest(complexPath);
   
   console.log('✅ PASSED - Complex manifest parsed successfully');

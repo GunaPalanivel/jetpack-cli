@@ -17,7 +17,7 @@ async function testPhase5Complete() {
   console.log('='.repeat(60));
   
   // Parse test manifest with ssh and git
-  const manifestPath = path.join(__dirname, '..', 'templates', 'full-config.onboard.yaml');
+  const manifestPath = path.join(__dirname, '..', 'templates', 'complete-config.yaml');
   const manifest = manifestParser.parseManifest(manifestPath);
   
   console.log(`\n✓ Loaded manifest: ${manifest.name}`);
