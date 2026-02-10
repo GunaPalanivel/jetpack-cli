@@ -1,28 +1,28 @@
 #!/usr/bin/env node
 
 /**
- * Integration test for Phase 4 - Setup Step Execution
+ * Integration test for Setup Step Execution
  * Tests the full orchestrator workflow with setup steps
- * Run: node tests/test-phase4-integration.js
+ * Run: node tests/integration-setup.test.js
  */
 
 const path = require('path');
 const manifestParser = require('../src/detectors/manifest-parser');
 const setupExecutor = require('../src/core/setup-executor');
 
-console.log('🧪 Phase 4 Integration Test\n');
+console.log('🧪 Setup Step Execution Integration Test\n');
 console.log('='.repeat(60));
 
 let testsPassed = 0;
 let testsFailed = 0;
 
-// Test 1: Parse example.onboard.yaml and execute setup steps (dry-run)
-console.log('\n📋 Test 1: Execute setup steps from example.onboard.yaml (dry-run)');
+// Test 1: Parse basic-example.yaml and execute setup steps (dry-run)
+console.log('\n📋 Test 1: Execute setup steps from basic-example.yaml (dry-run)');
 console.log('-'.repeat(60));
 
 (async () => {
   try {
-    const manifestPath = path.join(__dirname, '../templates/example.onboard.yaml');
+    const manifestPath = path.join(__dirname, '../templates/basic-example.yaml');
     const manifest = manifestParser.parseManifest(manifestPath);
     
     console.log(`✓ Manifest parsed: ${manifest.name}`);
@@ -45,11 +45,11 @@ console.log('-'.repeat(60));
     testsFailed++;
   }
 
-  // Test 2: Parse complex.onboard.yaml and execute setup steps (dry-run)
-  console.log('\n📋 Test 2: Execute setup steps from complex.onboard.yaml (dry-run)');
+  // Test 2: Parse complex-example.yaml and execute setup steps (dry-run)
+  console.log('\n📋 Test 2: Execute setup steps from complex-example.yaml (dry-run)');
   console.log('-'.repeat(60));
   try {
-    const manifestPath = path.join(__dirname, '../templates/complex.onboard.yaml');
+    const manifestPath = path.join(__dirname, '../templates/complex-example.yaml');
     const manifest = manifestParser.parseManifest(manifestPath);
     
     console.log(`✓ Manifest parsed: ${manifest.name}`);
@@ -79,7 +79,7 @@ console.log('-'.repeat(60));
     const orchestrator = require('../src/core/orchestrator');
     
     // Simulate orchestrator state
-    const manifestPath = path.join(__dirname, '../templates/example.onboard.yaml');
+    const manifestPath = path.join(__dirname, '../templates/basic-example.yaml');
     const manifest = manifestParser.parseManifest(manifestPath);
     
     const options = {

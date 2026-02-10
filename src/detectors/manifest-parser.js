@@ -57,6 +57,7 @@ function parseManifest(filePath) {
     dependencies: extractDependencies(manifest),
     environment: extractEnvironment(manifest),
     setupSteps: extractSetupSteps(manifest),
+    verification: manifest.verification || null,  // Phase 6: Verification checks
     ssh: manifest.ssh || null,
     git: manifest.git || null,
     metadata: {

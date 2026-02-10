@@ -1,0 +1,89 @@
+# .onboard.yaml - Verification Example
+# Demonstrates Phase 6 verification checks
+
+name: verification-example
+description: Example project with comprehensive verification checks
+
+dependencies:
+  system:
+    - nodejs
+    - git
+  
+  npm:
+    - eslint
+
+setup_steps:
+  - name: Install dependencies
+    command: npm install
+    description: Install Node.js dependencies
+
+# Phase 6: Verification & Health Checks
+verification:
+  enabled: true
+  
+  settings:
+    serial: false  # Use batch execution (priority-based)
+    timeout: 300000  # Global timeout: 5 minutes
+  
+  checks:
+    # P0: Critical checks (must pass for system to be usable)
+    - name: Node.js installed
+      type: command
+      priority: P0
+      command: node --version
+      expectedExitCode: 0
+      expectedOutput: ^v\d+\.\d+\.\d+
+      tags: [runtime, critical]
+      timeout: 5000
+    
+    - name: npm installed
+      type: command
+      priority: P0
+      command: npm --version
+      expectedExitCode: 0
+      tags: [runtime, critical]
+      timeout: 5000
+    
+    - name: Git installed
+      type: command
+      priority: P0
+      command: git --version
+      expectedExitCode: 0
+      expectedOutput: ^git version
+      tags: [runtime, critical]
+      timeout: 5000
+    
+    - name: package.json exists
+      type: file
+      priority: P0
+      path: package.json
+      exists: true
+      contains:
+        - '"name"'
+        - '"version"'
+      tags: [config, critical]
+    
+    # P1: Important checks (recommended but not critical)
+    - name: node_modules directory exists
+      type: file
+      priority: P1
+      path: node_modules
+      exists: true
+      tags: [dependencies]
+    
+    - name: README.md exists
+      type: file
+      priority: P1
+      path: README.md
+      exists: true
+      tags: [documentation]
+    
+    # P2: Nice-to-have checks (informational)
+    - name: .gitignore exists
+      type: file
+      priority: P2
+      path: .gitignore
+      exists: true
+      contains:
+        - node_modules
+      tags: [git, configuration]
