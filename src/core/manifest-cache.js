@@ -77,7 +77,7 @@ class ManifestCache {
       fs.writeFileSync(cachePath, content, 'utf8');
     } catch (error) {
       // Silent fail - caching is optional, don't break the flow
-      console.debug(`Warning: Failed to write cache: ${error.message}`);
+      console.error(`Warning: Failed to write cache: ${error.message}`);
     }
   }
 
@@ -104,7 +104,7 @@ class ManifestCache {
         }
       }
     } catch (error) {
-      console.debug(`Warning: Failed to clear cache: ${error.message}`);
+      console.error(`Warning: Failed to clear cache: ${error.message}`);
     }
   }
 
@@ -119,7 +119,7 @@ class ManifestCache {
       }
     } catch (error) {
       // If we can't create cache dir, caching will silently fail
-      console.debug(`Warning: Failed to create cache directory: ${error.message}`);
+      console.error(`Warning: Failed to create cache directory: ${error.message}`);
     }
   }
 

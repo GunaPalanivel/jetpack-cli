@@ -14,6 +14,17 @@ const logger = require('../ui/logger');
 const MANIFEST_FILENAMES = ['.onboard.yaml', '.onboard.yml', 'onboard.yaml'];
 
 /**
+ * Validates branch name to prevent command injection
+ * Allows: alphanumeric, hyphens, underscores, forward slashes, dots
+ * @param {string} branch - Branch name to validate
+ * @returns {boolean} True if branch name is safe
+ * @private
+ */
+function isValidBranchName(branch) {
+  return /^[a-zA-Z0-9/_.-]+$/.test(branch);
+}
+
+/**
  * Fetch manifest from GitHub repository
  * @param {string} repoUrl - GitHub repository URL (https://github.com/owner/repo)
  * @param {object} options - Fetch options
@@ -44,6 +55,11 @@ async function fetchFromGitHub(repoUrl, options = {}) {
 
   // Step 2: Determine branch to fetch from
   const targetBranch = branch || await getDefaultBranch(owner, repo);
+  
+  // Validate branch name to prevent command injection
+  if (!isValidBranchName(targetBranch)) {
+    throw new Error(`Invalid branch name: ${targetBranch}. Branch names must contain only alphanumeric characters, hyphens, underscores, slashes, and dots.`);
+  }
 
   // Step 3: Try to fetch from GitHub
   let result = null;
@@ -97,6 +113,12 @@ async function getDefaultBranch(owner, repo) {
       stdio: ['pipe', 'pipe', 'pipe']
     });
     const branch = result.trim();
+    
+    // Validate branch name to prevent command injection
+    if (!isValidBranchName(branch)) {
+      throw new Error(`Invalid branch name returned from GitHub: ${branch}`);
+    }
+    
     logger.debug(`Default branch: ${branch}`);
     return branch;
   } catch (error) {
