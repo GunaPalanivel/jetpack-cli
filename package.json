@@ -1,6 +1,6 @@
 {
   "name": "jetpack-cli",
-  "version": "1.0.0",
+  "version": "0.3.0",
   "description": "Zero-config developer onboarding orchestrator using GitHub Copilot CLI",
   "main": "bin/jetpack.js",
   "bin": {

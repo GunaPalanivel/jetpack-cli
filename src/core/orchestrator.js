@@ -33,6 +33,9 @@ class Orchestrator {
       installed: false
     };
 
+    // Store state in options for step communication
+    options._state = state;
+
     try {
       for (const step of this.steps) {
         logger.step(step.id, step.name);
@@ -89,13 +92,28 @@ class Orchestrator {
    * Step 2: Parse Manifest
    */
   async parseManifest(repoUrl, environment, options) {
-    // Placeholder: In real implementation, clone repo and parse .onboard.yaml
+    // Manifest already fetched and parsed in init.js
+    // Just return the parsed manifest from options
+    if (options.manifest) {
+      logger.info('  → Using pre-fetched manifest');
+      logger.info(`  → Project: ${options.manifest.name}`);
+      
+      return {
+        parsed: true,
+        manifest: options.manifest,
+        dependencies: options.manifest.dependencies,
+        environment: options.manifest.environment,
+        setupSteps: options.manifest.setupSteps
+      };
+    }
+    
+    // Fallback: placeholder for local manifest files
     logger.info('  → Manifest parsing would happen here');
     logger.info('  → Looking for .onboard.yaml in repository');
     
     return {
-      parsed: true,
-      manifestFile: options.manifest,
+      parsed: false,
+      manifestFile: options.manifest || '.onboard.yaml',
       dependencies: []
     };
   }
@@ -104,9 +122,19 @@ class Orchestrator {
    * Step 3: Install Dependencies
    */
   async installDependencies(repoUrl, environment, options) {
-    // Placeholder: In real implementation, install packages from manifest
-    logger.info('  → Dependency installation would happen here');
-    logger.info('  → Using detected package managers');
+    // Get manifest from previous step if available
+    const manifestResult = this.getStepResult(options, 'Parse Manifest');
+    
+    if (manifestResult && manifestResult.manifest) {
+      const manifest = manifestResult.manifest;
+      logger.info('  → Dependency installation based on manifest');
+      logger.info(`  → System: ${manifest.dependencies.system.length} packages`);
+      logger.info(`  → NPM: ${manifest.dependencies.npm.length} packages`);
+      logger.info(`  → Python: ${manifest.dependencies.python.length} packages`);
+    } else {
+      logger.info('  → Dependency installation would happen here');
+      logger.info('  → Using detected package managers');
+    }
     
     if (options.skipInstall) {
       logger.warning('  → Skipped (--skip-install flag)');
@@ -116,6 +144,16 @@ class Orchestrator {
       installed: !options.skipInstall,
       packages: []
     };
+  }
+
+  /**
+   * Helper: Get result from previous step
+   * @private
+   */
+  getStepResult(options, stepName) {
+    if (!options._state || !options._state.steps) return null;
+    const step = options._state.steps.find(s => s.name === stepName);
+    return step ? step.result : null;
   }
 
   /**

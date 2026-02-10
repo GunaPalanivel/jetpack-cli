@@ -18,6 +18,7 @@ program
   .command('init <repo-url>')
   .description('Initialize developer environment from repository')
   .option('-m, --manifest <file>', 'Path to .onboard.yaml manifest', '.onboard.yaml')
+  .option('--no-cache', 'Skip manifest cache, always fetch fresh')
   .option('--skip-install', 'Skip dependency installation')
   .option('--dry-run', 'Show what would be installed without executing')
   .action(async (repoUrl, options) => {
