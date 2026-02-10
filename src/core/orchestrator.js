@@ -122,27 +122,59 @@ class Orchestrator {
    * Step 3: Install Dependencies
    */
   async installDependencies(repoUrl, environment, options) {
-    // Get manifest from previous step if available
-    const manifestResult = this.getStepResult(options, 'Parse Manifest');
+    const dependencyInstaller = require('./dependency-installer');
     
-    if (manifestResult && manifestResult.manifest) {
-      const manifest = manifestResult.manifest;
-      logger.info('  → Dependency installation based on manifest');
-      logger.info(`  → System: ${manifest.dependencies.system.length} packages`);
-      logger.info(`  → NPM: ${manifest.dependencies.npm.length} packages`);
-      logger.info(`  → Python: ${manifest.dependencies.python.length} packages`);
-    } else {
-      logger.info('  → Dependency installation would happen here');
-      logger.info('  → Using detected package managers');
-    }
-    
+    // Check if installation should be skipped
     if (options.skipInstall) {
       logger.warning('  → Skipped (--skip-install flag)');
+      return {
+        installed: false,
+        skipped: true,
+        packages: []
+      };
     }
     
+    // Get manifest from previous step
+    const manifestResult = this.getStepResult(options, 'Parse Manifest');
+    
+    if (!manifestResult || !manifestResult.manifest) {
+      logger.warning('  → No manifest available');
+      return {
+        installed: false,
+        packages: [],
+        error: 'Manifest not available'
+      };
+    }
+    
+    const manifest = manifestResult.manifest;
+    
+    // Check if there are any dependencies to install
+    const hasDeps = (
+      (manifest.dependencies.system && manifest.dependencies.system.length > 0) ||
+      (manifest.dependencies.npm && manifest.dependencies.npm.length > 0) ||
+      (manifest.dependencies.python && manifest.dependencies.python.length > 0)
+    );
+    
+    if (!hasDeps) {
+      logger.info('  → No dependencies to install');
+      return {
+        installed: false,
+        packages: [],
+        message: 'No dependencies in manifest'
+      };
+    }
+    
+    // Install dependencies
+    const result = await dependencyInstaller.installDependencies(
+      manifest.dependencies,
+      environment,
+      options
+    );
+    
     return {
-      installed: !options.skipInstall,
-      packages: []
+      installed: result.summary.installed > 0,
+      packages: result,
+      summary: result.summary
     };
   }
 
