@@ -330,9 +330,15 @@ function generateSshKey(keyPath, comment = 'jetpack-cli', passphrase = '') {
       return { success: false, publicKey: null, error: 'ssh-keygen not found' };
     }
     
-    // Generate key with ed25519 algorithm
-    const cmd = `ssh-keygen -t ed25519 -f "${keyPath}" -C "${comment}" -N "${passphrase}" -q`;
-    execSync(cmd, { stdio: 'ignore', timeout: 10000 });
+    // Generate key with ed25519 algorithm (using array syntax to prevent command injection)
+    const { execFileSync } = require('child_process');
+    execFileSync('ssh-keygen', [
+      '-t', 'ed25519',
+      '-f', keyPath,
+      '-C', comment,
+      '-N', passphrase,
+      '-q'
+    ], { timeout: 10000 });
     
     // Read public key
     const publicKey = fs.readFileSync(`${keyPath}.pub`, 'utf8').trim();
@@ -355,8 +361,9 @@ function addSshKeyToAgent(keyPath) {
       return { success: false, error: 'ssh-add not found' };
     }
     
-    // Try to add key to agent
-    execSync(`ssh-add "${keyPath}"`, { stdio: 'ignore', timeout: 5000 });
+    // Try to add key to agent (using array syntax to prevent command injection)
+    const { execFileSync } = require('child_process');
+    execFileSync('ssh-add', [keyPath], { timeout: 5000 });
     
     return { success: true, error: null };
   } catch (error) {
@@ -372,10 +379,10 @@ function addSshKeyToAgent(keyPath) {
  */
 function getGitConfig(key, global = true) {
   try {
+    const { execFileSync } = require('child_process');
     const scope = global ? '--global' : '--local';
-    const result = execSync(`git config ${scope} ${key}`, {
+    const result = execFileSync('git', ['config', scope, key], {
       encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'ignore'],
       timeout: 3000
     });
     return result.trim();
@@ -393,9 +400,15 @@ function getGitConfig(key, global = true) {
  */
 function setGitConfig(key, value, global = true) {
   try {
+    // Validate key format (git config keys: section.subsection.variable, case-insensitive)
+    const keyPattern = /^[a-zA-Z][a-zA-Z0-9.-]*$/;
+    if (!keyPattern.test(key)) {
+      return { success: false, error: `Invalid git config key: ${key}` };
+    }
+    
+    const { execFileSync } = require('child_process');
     const scope = global ? '--global' : '--local';
-    execSync(`git config ${scope} ${key} "${value}"`, {
-      stdio: 'ignore',
+    execFileSync('git', ['config', scope, key, value], {
       timeout: 3000
     });
     return { success: true, error: null };

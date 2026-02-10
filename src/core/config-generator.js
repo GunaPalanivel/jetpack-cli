@@ -514,6 +514,20 @@ class ConfigGenerator {
     if (!fs.existsSync(sshDir)) {
       try {
         fs.mkdirSync(sshDir, { recursive: true, mode: 0o700 });
+        
+        // Set restrictive permissions on Windows (mode parameter is ignored on Windows)
+        if (process.platform === 'win32') {
+          try {
+            const { execSync } = require('child_process');
+            // Remove inheritance and grant full control to current user only
+            execSync(`icacls "${sshDir}" /inheritance:r /grant:r "%USERNAME%:(OI)(CI)F"`, { 
+              stdio: 'ignore',
+              timeout: 5000
+            });
+          } catch (error) {
+            logger.warning('  ⚠️  Could not set Windows ACLs on .ssh directory');
+          }
+        }
       } catch (error) {
         logger.error(`  ✗ Failed to create .ssh directory: ${error.message}`);
         results.failed.push({ file: '.ssh', reason: error.message });
@@ -529,6 +543,20 @@ class ConfigGenerator {
       logger.error(`  ✗ Failed to generate SSH key: ${genResult.error}`);
       results.failed.push({ file: 'id_ed25519', reason: genResult.error });
       return results;
+    }
+    
+    // Set restrictive permissions on private key (Windows only, Unix uses ssh-keygen defaults)
+    if (process.platform === 'win32') {
+      try {
+        const { execSync } = require('child_process');
+        // Remove inheritance and grant read permission to current user only
+        execSync(`icacls "${keyPath}" /inheritance:r /grant:r "%USERNAME%:R"`, { 
+          stdio: 'ignore',
+          timeout: 5000
+        });
+      } catch (error) {
+        logger.warning('  ⚠️  Could not set Windows ACLs on private key');
+      }
     }
     
     logger.success(`  ✓ Generated: ${keyPath}`);

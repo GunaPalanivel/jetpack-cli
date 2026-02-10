@@ -288,23 +288,46 @@ function extractEnvironment(manifest) {
 
   const env = manifest.dependencies.environment;
 
+  // Environment variable name validation pattern (uppercase letters, numbers, underscores)
+  const ENV_VAR_PATTERN = /^[A-Z][A-Z0-9_]*$/;
+  
+  // Validate environment variable name (security: prevent command injection in Copilot CLI)
+  function isValidEnvVarName(varName) {
+    if (typeof varName !== 'string' || varName.trim().length === 0) {
+      return false;
+    }
+    return ENV_VAR_PATTERN.test(varName.trim());
+  }
+
   // Handle array format (all are required)
   if (Array.isArray(env)) {
-    environment.required = env.filter(varName => 
-      typeof varName === 'string' && varName.trim().length > 0
-    );
+    environment.required = env.filter(varName => {
+      if (!isValidEnvVarName(varName)) {
+        console.warn(`⚠️  Invalid environment variable name ignored: ${varName} (must match [A-Z][A-Z0-9_]*)`);
+        return false;
+      }
+      return true;
+    });
   }
   // Handle object format with required/optional
   else if (typeof env === 'object') {
     if (env.required && Array.isArray(env.required)) {
-      environment.required = env.required.filter(varName => 
-        typeof varName === 'string' && varName.trim().length > 0
-      );
+      environment.required = env.required.filter(varName => {
+        if (!isValidEnvVarName(varName)) {
+          console.warn(`⚠️  Invalid environment variable name ignored: ${varName} (must match [A-Z][A-Z0-9_]*)`);
+          return false;
+        }
+        return true;
+      });
     }
     if (env.optional && Array.isArray(env.optional)) {
-      environment.optional = env.optional.filter(varName => 
-        typeof varName === 'string' && varName.trim().length > 0
-      );
+      environment.optional = env.optional.filter(varName => {
+        if (!isValidEnvVarName(varName)) {
+          console.warn(`⚠️  Invalid environment variable name ignored: ${varName} (must match [A-Z][A-Z0-9_]*)`);
+          return false;
+        }
+        return true;
+      });
     }
   }
 
