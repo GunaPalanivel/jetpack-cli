@@ -10,9 +10,10 @@ class Orchestrator {
       { id: 1, name: 'Environment Detection', handler: this.detectEnvironment },
       { id: 2, name: 'Parse Manifest', handler: this.parseManifest },
       { id: 3, name: 'Install Dependencies', handler: this.installDependencies },
-      { id: 4, name: 'Generate Configurations', handler: this.generateConfigs },
-      { id: 5, name: 'Create Documentation', handler: this.createDocs },
-      { id: 6, name: 'Verify Setup', handler: this.verifySetup }
+      { id: 4, name: 'Execute Setup Steps', handler: this.executeSetupSteps },
+      { id: 5, name: 'Generate Configurations', handler: this.generateConfigs },
+      { id: 6, name: 'Create Documentation', handler: this.createDocs },
+      { id: 7, name: 'Verify Setup', handler: this.verifySetup }
     ];
   }
 
@@ -189,7 +190,59 @@ class Orchestrator {
   }
 
   /**
-   * Step 4: Generate Configurations
+   * Step 4: Execute Setup Steps
+   */
+  async executeSetupSteps(repoUrl, environment, options) {
+    const setupExecutor = require('./setup-executor');
+    
+    // Get manifest from previous step
+    const manifestResult = this.getStepResult(options, 'Parse Manifest');
+    
+    if (!manifestResult || !manifestResult.manifest) {
+      logger.warning('  → No manifest available');
+      return {
+        executed: false,
+        steps: [],
+        error: 'Manifest not available'
+      };
+    }
+    
+    const manifest = manifestResult.manifest;
+    
+    // Check if there are setup steps to execute
+    if (!manifest.setupSteps || manifest.setupSteps.length === 0) {
+      logger.info('  → No setup steps to execute');
+      return {
+        executed: false,
+        steps: [],
+        message: 'No setup steps in manifest'
+      };
+    }
+    
+    // Execute setup steps
+    const result = await setupExecutor.executeSteps(
+      manifest.setupSteps,
+      options
+    );
+    
+    // Stop workflow if setup steps failed
+    if (!result.success) {
+      throw new Error(`Setup failed: ${result.error}`);
+    }
+    
+    return {
+      executed: result.executed > 0,
+      steps: result,
+      summary: {
+        executed: result.executed,
+        skipped: result.skipped,
+        failed: result.failed
+      }
+    };
+  }
+
+  /**
+   * Step 5: Generate Configurations
    */
   async generateConfigs(repoUrl, environment, options) {
     // Placeholder: In real implementation, create .env, SSH keys, etc.
@@ -203,7 +256,7 @@ class Orchestrator {
   }
 
   /**
-   * Step 5: Create Documentation
+   * Step 6: Create Documentation
    */
   async createDocs(repoUrl, environment, options) {
     // Placeholder: In real implementation, generate custom README
@@ -217,7 +270,7 @@ class Orchestrator {
   }
 
   /**
-   * Step 6: Verify Setup
+   * Step 7: Verify Setup
    */
   async verifySetup(repoUrl, environment, options) {
     // Placeholder: In real implementation, run verification checks
