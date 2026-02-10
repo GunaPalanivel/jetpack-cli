@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const { program } = require('commander');
-const path = require('path');
 
 // Import commands
 const initCommand = require('../src/cli/commands/init');
