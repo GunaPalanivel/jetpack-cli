@@ -7,6 +7,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-02-10
+
+### Added - Phase 2: GitHub Integration
+
+#### Core Features
+- **GitHub Manifest Fetcher** (`src/core/manifest-fetcher.js`)
+  - `fetchFromGitHub(repoUrl, options)` - Fetch manifests from GitHub repositories
+  - `parseRepoUrl(url)` - Parse GitHub URLs (supports multiple formats)
+  - `isGhCliAvailable()` - Check gh CLI availability
+  - `clearCache(repoUrl)` - Clear manifest cache
+  - Tries multiple manifest filenames: `.onboard.yaml`, `.onboard.yml`, `onboard.yaml`
+  - Intelligent fallback: gh CLI → raw.githubusercontent.com
+
+- **Manifest Cache Manager** (`src/core/manifest-cache.js`)
+  - `read(owner, repo)` - Read manifest from cache
+  - `write(owner, repo, content)` - Write manifest to cache
+  - `clear(owner, repo)` - Clear specific or all cache
+  - `getStats()` - Get cache statistics
+  - 24-hour TTL (time-to-live) for cached manifests
+  - Cache directory: `~/.jetpack/cache/`
+
+#### CLI Enhancements
+- **New flag:** `--no-cache` - Skip cache, always fetch fresh manifest
+- Enhanced `init` command workflow:
+  1. Fetch manifest from GitHub
+  2. Parse and validate manifest
+  3. Display manifest summary in dry-run mode
+  4. Pass parsed manifest to orchestrator
+
+#### Authentication Support
+- **Primary:** GitHub CLI (`gh`) authentication (preserves existing auth)
+- **Fallback:** GITHUB_TOKEN environment variable
+- **Public repos:** No authentication required (uses raw.githubusercontent.com)
+
+#### Testing
+- **Test Suite** (`tests/test-manifest-fetcher.js`)
+  - 14 comprehensive test cases
+  - All tests passing ✅
+  - Tests for: URL parsing, cache operations, error handling, gh CLI availability
+
+#### Integration
+- Updated `src/cli/commands/init.js` to use manifest fetcher
+- Updated `src/core/orchestrator.js` to handle parsed manifests
+- Enhanced dry-run mode to show detailed manifest summary
+
+#### Documentation
+- Added GitHub Authentication section to README
+- Added Cache Management documentation
+- Updated project structure with new modules
+- Updated usage examples with new flags
+
+### Changed
+
+- `bin/jetpack.js` - Added `--no-cache` flag to init command
+- `src/cli/commands/init.js` - Integrated manifest fetcher
+- `src/core/orchestrator.js` - Enhanced to use parsed manifests from init
+- `README.md` - Comprehensive documentation updates
+
+### Technical Details
+
+**Dependencies:**
+- No new dependencies required (uses existing Node.js built-ins)
+- Leverages `curl` for raw.githubusercontent.com fallback
+- Uses `gh` CLI if available (optional, but recommended)
+
+**Architecture:**
+- Pragmatic balance: 2 focused modules (~340 LOC)
+- Clear separation: fetcher (business logic) + cache (storage)
+- Graceful degradation: multiple fetch strategies
+- Error resilience: continues on cache failures
+
+**File Structure:**
+```
+src/core/manifest-fetcher.js   - GitHub fetch logic (220 LOC)
+src/core/manifest-cache.js     - Cache management (120 LOC)
+tests/test-manifest-fetcher.js - Test suite (14 tests)
+```
+
+---
+
 ## [0.2.0] - 2026-02-10
 
 ### Added - Phase 1: Manifest Parser Implementation

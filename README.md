@@ -44,11 +44,14 @@ jetpack --help
 #### Initialize Onboarding
 
 ```bash
-# Basic usage
+# Basic usage - fetches manifest from GitHub repository
 jetpack init https://github.com/owner/repo
 
-# With custom manifest
+# With custom manifest filename
 jetpack init https://github.com/owner/repo --manifest custom-onboard.yaml
+
+# Skip cache - always fetch fresh manifest
+jetpack init https://github.com/owner/repo --no-cache
 
 # Dry run (see what would be installed)
 jetpack init https://github.com/owner/repo --dry-run
@@ -56,6 +59,13 @@ jetpack init https://github.com/owner/repo --dry-run
 # Skip dependency installation
 jetpack init https://github.com/owner/repo --skip-install
 ```
+
+**Note:** The `init` command will:
+1. Fetch the `.onboard.yaml` manifest from the GitHub repository
+2. Try multiple filenames: `.onboard.yaml`, `.onboard.yml`, `onboard.yaml`
+3. Cache the manifest locally for 24 hours (use `--no-cache` to bypass)
+4. Parse and validate the manifest
+5. Execute the onboarding workflow
 
 #### Verify Installation
 
@@ -80,22 +90,26 @@ jetpack-cli/
 ├── src/
 │   ├── cli/
 │   │   └── commands/
-│   │       ├── init.js             # Init command
+│   │       ├── init.js             # Init command (with GitHub fetch)
 │   │       ├── verify.js           # Verify command
 │   │       └── rollback.js         # Rollback command
 │   ├── core/
 │   │   ├── orchestrator.js         # Main workflow engine
-│   │   └── state-manager.js        # State tracking
+│   │   ├── state-manager.js        # State tracking
+│   │   ├── manifest-fetcher.js     # ✨ NEW: GitHub manifest fetcher
+│   │   └── manifest-cache.js       # ✨ NEW: Cache management
 │   ├── detectors/
 │   │   ├── env-analyzer.js         # Environment detection
-│   │   └── manifest-parser.js      # ✨ NEW: .onboard.yaml parser
+│   │   └── manifest-parser.js      # .onboard.yaml parser
 │   └── ui/
 │       └── logger.js               # Formatted output
 ├── tests/
-│   └── test-manifest-parser.js     # ✨ NEW: Parser test suite
+│   ├── test-manifest-parser.js     # Parser test suite (8 tests)
+│   ├── test-edge-cases.js          # Edge case tests (5 tests)
+│   └── test-manifest-fetcher.js    # ✨ NEW: Fetcher tests (14 tests)
 ├── templates/
-│   ├── example.onboard.yaml        # ✨ NEW: Simple manifest example
-│   └── complex.onboard.yaml        # ✨ NEW: Advanced manifest example
+│   ├── example.onboard.yaml        # Simple manifest example
+│   └── complex.onboard.yaml        # Advanced manifest example
 ├── docs/
 ├── package.json
 └── README.md
@@ -146,13 +160,21 @@ See `templates/example.onboard.yaml` and `templates/complex.onboard.yaml` for ma
 
 ### Current Implementation
 
+#### ✅ Phase 2: GitHub Integration (COMPLETED)
+- ✅ **GitHub Manifest Fetcher** - Fetch `.onboard.yaml` from GitHub repositories
+- ✅ **Multiple Fetch Methods** - Try gh CLI first, fallback to raw.githubusercontent.com
+- ✅ **Intelligent Caching** - 24-hour TTL cache in `~/.jetpack/cache/`
+- ✅ **Multiple Filenames** - Tries `.onboard.yaml`, `.onboard.yml`, `onboard.yaml`
+- ✅ **Private Repository Support** - Works with gh CLI authentication
+- ✅ **Cache Control** - `--no-cache` flag to force fresh fetch
+
 #### ✅ Phase 1: Core Parser Implementation (COMPLETED)
 - ✅ **Manifest Parser** - Full-featured `.onboard.yaml` parser with schema validation
 - ✅ **Dependency Extraction** - Supports system, npm, and python dependencies
 - ✅ **Environment Variables** - Handles required and optional env vars
 - ✅ **Setup Steps** - Parses multi-step setup commands
 - ✅ **Error Handling** - Comprehensive validation and clear error messages
-- ✅ **Test Suite** - 8/8 tests passing with full coverage
+- ✅ **Test Suite** - 14/14 tests passing with full coverage
 
 #### ✅ Foundation (Previously Implemented)
 - ✅ CLI framework with Commander.js
@@ -164,13 +186,14 @@ See `templates/example.onboard.yaml` and `templates/complex.onboard.yaml` for ma
 
 ### Planned Features (Roadmap)
 
-- 🔄 GitHub repository integration (fetch manifests from remote repos)
 - 🔄 Dependency installation (npm, Chocolatey, Scoop, Homebrew)
 - 🔄 Configuration file generation (.env, SSH keys)
 - 🔄 GitHub Copilot CLI integration for intelligent suggestions
 - 🔄 TUI dashboard with Blessed
 - 🔄 Custom documentation generation
 - 🔄 Full rollback functionality
+- 🔄 Branch/tag support for manifest fetching
+- 🔄 Support for GitLab and other git providers
 
 ---
 
@@ -203,6 +226,53 @@ npm test
 - **blessed**: Terminal UI widgets
 - **dotenv**: Environment variable management
 - **yaml**: YAML parsing
+
+---
+
+## 🔐 GitHub Authentication
+
+Jetpack CLI fetches manifests from GitHub repositories and supports both public and private repos.
+
+### Authentication Methods (in order of priority):
+
+1. **GitHub CLI (`gh`)** - Recommended
+   ```bash
+   # Authenticate with gh CLI
+   gh auth login
+   
+   # Verify authentication
+   gh auth status
+   ```
+   - ✅ Preserves your GitHub authentication
+   - ✅ Works with private repositories
+   - ✅ No token management needed
+
+2. **GITHUB_TOKEN environment variable** - Fallback
+   ```bash
+   # Set GITHUB_TOKEN
+   export GITHUB_TOKEN=ghp_your_token_here
+   
+   # Run jetpack init
+   jetpack init https://github.com/owner/repo
+   ```
+   - ✅ Works in CI/CD pipelines
+   - ✅ No gh CLI dependency
+   - ⚠️ Requires manual token creation
+
+### For Public Repositories:
+- No authentication required
+- Fetches directly from raw.githubusercontent.com
+
+### Cache Management:
+```bash
+# Manifests are cached in ~/.jetpack/cache/ for 24 hours
+
+# Force fresh fetch
+jetpack init https://github.com/owner/repo --no-cache
+
+# Clear cache manually
+rm -rf ~/.jetpack/cache/
+```
 
 ---
 
