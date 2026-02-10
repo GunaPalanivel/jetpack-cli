@@ -97,8 +97,6 @@ function validateManifestSchema(manifest) {
     if (manifest.dependencies.system) {
       if (!Array.isArray(manifest.dependencies.system)) {
         errors.push('"dependencies.system" must be an array');
-      } else if (manifest.dependencies.system.length === 0) {
-        errors.push('"dependencies.system" cannot be empty');
       }
     }
 
@@ -106,8 +104,6 @@ function validateManifestSchema(manifest) {
     if (manifest.dependencies.npm) {
       if (!Array.isArray(manifest.dependencies.npm)) {
         errors.push('"dependencies.npm" must be an array');
-      } else if (manifest.dependencies.npm.length === 0) {
-        errors.push('"dependencies.npm" cannot be empty');
       }
     }
 
@@ -115,8 +111,6 @@ function validateManifestSchema(manifest) {
     if (manifest.dependencies.python) {
       if (!Array.isArray(manifest.dependencies.python)) {
         errors.push('"dependencies.python" must be an array');
-      } else if (manifest.dependencies.python.length === 0) {
-        errors.push('"dependencies.python" cannot be empty');
       }
     }
 
@@ -126,9 +120,7 @@ function validateManifestSchema(manifest) {
       
       // Allow both array format and object format
       if (Array.isArray(env)) {
-        if (env.length === 0) {
-          errors.push('"dependencies.environment" cannot be empty');
-        }
+        // Empty array is valid - means no environment variables needed
       } else if (typeof env === 'object') {
         // Validate required/optional structure
         if (env.required && !Array.isArray(env.required)) {
