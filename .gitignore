@@ -44,6 +44,7 @@ temp/
 *.tmp
 
 # State files
+.jetpack
 .jetpack-state.json
 
 # Jetpack CLI - Auto-generated
