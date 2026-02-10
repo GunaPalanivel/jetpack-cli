@@ -245,13 +245,33 @@ class Orchestrator {
    * Step 5: Generate Configurations
    */
   async generateConfigs(repoUrl, environment, options) {
-    // Placeholder: In real implementation, create .env, SSH keys, etc.
-    logger.info('  → Configuration generation would happen here');
-    logger.info('  → Creating .env templates and SSH keys');
+    const configGenerator = require('./config-generator');
+    
+    // Get manifest from previous step
+    const manifestResult = this.getStepResult(options, 'Parse Manifest');
+    
+    if (!manifestResult || !manifestResult.manifest) {
+      logger.warning('  → No manifest available');
+      return {
+        generated: false,
+        files: {},
+        error: 'Manifest not available'
+      };
+    }
+    
+    const manifest = manifestResult.manifest;
+    
+    // Generate configurations
+    const result = await configGenerator.generateConfigs(
+      manifest,
+      environment,
+      options
+    );
     
     return {
-      generated: true,
-      files: []
+      generated: result.generated,
+      files: result.files,
+      summary: result.summary
     };
   }
 
