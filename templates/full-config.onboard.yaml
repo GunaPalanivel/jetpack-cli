@@ -1,0 +1,48 @@
+# .onboard.yaml - Full Configuration Example
+# Demonstrates all Jetpack CLI features including Phase 5 (SSH + Git)
+
+name: full-stack-application
+description: Complete onboarding manifest with all configuration options
+
+dependencies:
+  system:
+    - docker
+    - nodejs
+  
+  npm:
+    - eslint
+    - prettier
+  
+  environment:
+    required:
+      - DATABASE_URL
+      - API_KEY
+      - JWT_SECRET
+    optional:
+      - DEBUG_MODE
+      - LOG_LEVEL
+    defaults:
+      DEBUG_MODE: "false"
+      LOG_LEVEL: "info"
+
+# Phase 5: SSH Key Generation (Optional)
+ssh:
+  generate: true                    # Generate SSH keys for git/deployment access
+  comment: "jetpack-onboarding"     # Comment for SSH key identification
+  algorithm: "ed25519"               # Recommended: ed25519 (most secure)
+
+# Phase 5: Git Configuration (Optional)
+git:
+  configure: true                   # Auto-configure git identity if missing
+  user:
+    name: "Your Name"               # Git commit author name
+    email: "your.email@example.com" # Git commit author email
+
+setup_steps:
+  - name: Install dependencies
+    command: npm install
+    description: Install all Node.js dependencies
+  
+  - name: Run tests
+    command: npm test
+    description: Verify installation with test suite

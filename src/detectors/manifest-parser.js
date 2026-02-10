@@ -57,6 +57,8 @@ function parseManifest(filePath) {
     dependencies: extractDependencies(manifest),
     environment: extractEnvironment(manifest),
     setupSteps: extractSetupSteps(manifest),
+    ssh: manifest.ssh || null,
+    git: manifest.git || null,
     metadata: {
       parsedAt: new Date().toISOString(),
       filePath: filePath
@@ -163,6 +165,34 @@ function validateManifestSchema(manifest) {
     });
   }
 
+  // Optional: ssh section validation (Phase 5 - P1)
+  if (manifest.ssh && typeof manifest.ssh === 'object') {
+    if (typeof manifest.ssh.generate !== 'undefined' && typeof manifest.ssh.generate !== 'boolean') {
+      errors.push('ssh.generate must be a boolean');
+    }
+    if (manifest.ssh.comment && typeof manifest.ssh.comment !== 'string') {
+      errors.push('ssh.comment must be a string');
+    }
+    if (manifest.ssh.algorithm && typeof manifest.ssh.algorithm !== 'string') {
+      errors.push('ssh.algorithm must be a string');
+    }
+  }
+  
+  // Optional: git section validation (Phase 5 - P2)
+  if (manifest.git && typeof manifest.git === 'object') {
+    if (typeof manifest.git.configure !== 'undefined' && typeof manifest.git.configure !== 'boolean') {
+      errors.push('git.configure must be a boolean');
+    }
+    if (manifest.git.user && typeof manifest.git.user === 'object') {
+      if (manifest.git.user.name && typeof manifest.git.user.name !== 'string') {
+        errors.push('git.user.name must be a string');
+      }
+      if (manifest.git.user.email && typeof manifest.git.user.email !== 'string') {
+        errors.push('git.user.email must be a string');
+      }
+    }
+  }
+
   return errors;
 }
 
@@ -258,23 +288,46 @@ function extractEnvironment(manifest) {
 
   const env = manifest.dependencies.environment;
 
+  // Environment variable name validation pattern (uppercase letters, numbers, underscores)
+  const ENV_VAR_PATTERN = /^[A-Z][A-Z0-9_]*$/;
+  
+  // Validate environment variable name (security: prevent command injection in Copilot CLI)
+  function isValidEnvVarName(varName) {
+    if (typeof varName !== 'string' || varName.trim().length === 0) {
+      return false;
+    }
+    return ENV_VAR_PATTERN.test(varName.trim());
+  }
+
   // Handle array format (all are required)
   if (Array.isArray(env)) {
-    environment.required = env.filter(varName => 
-      typeof varName === 'string' && varName.trim().length > 0
-    );
+    environment.required = env.filter(varName => {
+      if (!isValidEnvVarName(varName)) {
+        console.warn(`⚠️  Invalid environment variable name ignored: ${varName} (must match [A-Z][A-Z0-9_]*)`);
+        return false;
+      }
+      return true;
+    });
   }
   // Handle object format with required/optional
   else if (typeof env === 'object') {
     if (env.required && Array.isArray(env.required)) {
-      environment.required = env.required.filter(varName => 
-        typeof varName === 'string' && varName.trim().length > 0
-      );
+      environment.required = env.required.filter(varName => {
+        if (!isValidEnvVarName(varName)) {
+          console.warn(`⚠️  Invalid environment variable name ignored: ${varName} (must match [A-Z][A-Z0-9_]*)`);
+          return false;
+        }
+        return true;
+      });
     }
     if (env.optional && Array.isArray(env.optional)) {
-      environment.optional = env.optional.filter(varName => 
-        typeof varName === 'string' && varName.trim().length > 0
-      );
+      environment.optional = env.optional.filter(varName => {
+        if (!isValidEnvVarName(varName)) {
+          console.warn(`⚠️  Invalid environment variable name ignored: ${varName} (must match [A-Z][A-Z0-9_]*)`);
+          return false;
+        }
+        return true;
+      });
     }
   }
 
@@ -334,6 +387,8 @@ function parseManifestFromString(content) {
     dependencies: extractDependencies(manifest),
     environment: extractEnvironment(manifest),
     setupSteps: extractSetupSteps(manifest),
+    ssh: manifest.ssh || null,
+    git: manifest.git || null,
     metadata: {
       parsedAt: new Date().toISOString(),
       source: 'string'

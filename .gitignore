@@ -45,3 +45,6 @@ temp/
 
 # State files
 .jetpack-state.json
+
+# Jetpack CLI - Auto-generated
+.env.backup.*

@@ -101,10 +101,12 @@ jetpack-cli/
 │   │   ├── manifest-cache.js       # Cache management (Phase 2)
 │   │   ├── package-managers.js     # Package manager utils (Phase 3)
 │   │   ├── dependency-installer.js # Dependency installation (Phase 3)
-│   │   └── setup-executor.js       # ✨ NEW: Setup step executor (Phase 4)
+│   │   ├── setup-executor.js       # Setup step executor (Phase 4)
+│   │   ├── config-generator.js     # ✨ NEW: Configuration orchestrator (Phase 5)
+│   │   └── config-utils.js         # ✨ NEW: Config utilities (Phase 5)
 │   ├── detectors/
 │   │   ├── env-analyzer.js         # Environment detection
-│   │   └── manifest-parser.js      # .onboard.yaml parser
+│   │   └── manifest-parser.js      # .onboard.yaml parser (updated for ssh/git)
 │   └── ui/
 │       └── logger.js               # Formatted output
 ├── tests/
@@ -112,12 +114,13 @@ jetpack-cli/
 │   ├── test-edge-cases.js          # Edge case tests (5 tests)
 │   ├── test-manifest-fetcher.js    # Fetcher tests (14 tests)
 │   ├── test-dependency-installer.js # Dependency tests (5 tests)
-│   ├── test-setup-executor.js      # ✨ NEW: Setup executor tests (12 tests)
-│   └── test-phase4-integration.js  # ✨ NEW: Phase 4 integration (5 tests)
+│   ├── test-setup-executor.js      # Setup executor tests (12 tests)
+│   ├── test-phase4-integration.js  # Phase 4 integration (5 tests)
+│   └── test-config-generator-p0.js # ✨ NEW: Phase 5 tests (3 tests)
 ├── templates/
 │   ├── example.onboard.yaml        # Simple manifest example
-│   └── complex.onboard.yaml        # Advanced manifest example
-├── docs/
+│   ├── complex.onboard.yaml        # Advanced manifest example
+│   └── full-config.onboard.yaml    # ✨ NEW: Complete example with ssh/git (Phase 5)
 ├── package.json
 └── README.md
 ```
@@ -149,6 +152,8 @@ console.log(manifest.dependencies.python); // Python packages
 console.log(manifest.environment.required); // Required env vars
 console.log(manifest.environment.optional); // Optional env vars
 console.log(manifest.setupSteps); // Setup commands
+console.log(manifest.ssh); // SSH key configuration (Phase 5)
+console.log(manifest.git); // Git configuration (Phase 5)
 ```
 
 ### Supported Features
@@ -157,15 +162,40 @@ console.log(manifest.setupSteps); // Setup commands
 ✅ **Multi-Language Support** - System, NPM, and Python dependencies  
 ✅ **Environment Variables** - Required and optional configurations  
 ✅ **Setup Steps** - Multi-step setup commands with descriptions  
+✅ **SSH Configuration** - SSH key generation settings (Phase 5)  
+✅ **Git Configuration** - Git user identity settings (Phase 5)  
 ✅ **Error Handling** - Clear, actionable error messages
 
-See `templates/example.onboard.yaml` and `templates/complex.onboard.yaml` for manifest examples.
+See `templates/example.onboard.yaml`, `templates/complex.onboard.yaml`, and `templates/full-config.onboard.yaml` for manifest examples.
 
 ---
 
 ## 🎯 Features
 
 ### Current Implementation
+
+#### ✅ Phase 5: Configuration Generation (COMPLETED)
+
+- ✅ **Environment Files (P0)** - Automated .env generation from manifests
+  - Smart merge mode preserves existing values while adding new variables
+  - Generates .env.template (version control), .env.example (documentation), .env (actual values)
+  - Copilot CLI integration for secure random values (API keys, JWT secrets)
+  - Automatic .gitignore updates (.env, .env.backup.*, .jetpack-state.json)
+  - Timestamped backups with auto-cleanup (keeps last 3)
+  - Environment variable validation (URLs, emails, ports, booleans)
+- ✅ **SSH Key Generation (P1)** - Secure ed25519 SSH keys
+  - Generates ~/.ssh/id_ed25519 and id_ed25519.pub
+  - Automatic addition to ssh-agent (graceful Windows fallback)
+  - Skip-if-exists protection (never overwrites user's existing keys)
+  - Configurable comment and algorithm via manifest
+- ✅ **Git Configuration (P2)** - Global git identity setup
+  - Auto-configures user.name and user.email if missing
+  - Sets init.defaultBranch = main for modern workflows
+  - Preserves existing git identity (no overwrite)
+- ✅ **Cross-Platform Support** - Windows + Unix path handling
+- ✅ **Continue-on-Failure** - Collects all errors, shows comprehensive summary
+- ✅ **Dry-Run Mode** - Preview all generated files and configurations
+- ✅ **Test Coverage** - 3/3 tests passing (P0, P1, P2 validation)
 
 #### ✅ Phase 4: Setup Step Execution (COMPLETED)
 
@@ -219,12 +249,11 @@ See `templates/example.onboard.yaml` and `templates/complex.onboard.yaml` for ma
 
 - ✅ ~~Dependency installation (npm, Chocolatey, Scoop, Homebrew)~~ **COMPLETED in Phase 3**
 - ✅ ~~Setup step execution with live output~~ **COMPLETED in Phase 4**
-- 🔄 Configuration file generation (.env, SSH keys) - **Phase 5: Next**
-- 🔄 Setup verification and health checks - **Phase 6: Planned**
+- ✅ ~~Configuration file generation (.env, SSH keys, Git config)~~ **COMPLETED in Phase 5**
+- 🔄 Setup verification and health checks - **Phase 6: Next**
 - 🔄 Custom documentation generation - **Phase 7: Planned**
-- 🔄 GitHub Copilot CLI integration for intelligent suggestions
+- 🔄 GitHub Copilot CLI integration enhancements (explanations, validations)
 - 🔄 TUI dashboard with Blessed
-- 🔄 Custom documentation generation
 - 🔄 Full rollback functionality
 - 🔄 Branch/tag support for manifest fetching
 - 🔄 Support for GitLab and other git providers

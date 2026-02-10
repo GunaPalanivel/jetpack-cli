@@ -9,6 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Phase 5: Configuration Generation** - Automated configuration file generation
+  - **P0: Environment Files** (.env, .env.template, .env.example)
+    - Smart merge mode preserves existing .env values
+    - Copilot CLI integration for secure value generation (API keys, JWT secrets)
+    - Automatic .gitignore updates (.env, .env.backup.*, .jetpack-state.json)
+    - Timestamped backups with auto-cleanup (keeps last 3)
+    - Comprehensive .env.example with Copilot-generated explanations
+    - Environment variable validation (URLs, emails, ports, booleans)
+  - **P1: SSH Key Generation** (ed25519 algorithm)
+    - Secure SSH key generation at ~/.ssh/id_ed25519
+    - Automatic addition to ssh-agent (with graceful Windows fallback)
+    - Skip-if-exists protection (never overwrites existing keys)
+    - Configurable comment and algorithm via manifest
+  - **P2: Git Configuration** (global scope)
+    - Auto-configure user.name and user.email if missing
+    - Sets init.defaultBranch = main for modern workflows
+    - Preserves existing git identity (no overwrite)
+    - Warnings for placeholder emails
+- New modules: `src/core/config-generator.js` (640 LOC) and `src/core/config-utils.js` (390 LOC)
+  - ConfigGenerator with P0, P1, P2 orchestration
+  - File merge utilities (preserve existing .env values)
+  - Backup management with timestamp and cleanup
+  - SSH key generation with ed25519 security
+  - Git config management (get/set with validation)
+  - Cross-platform path handling (Windows + Unix)
+  - Copilot CLI integration with crypto fallbacks
+- Enhanced `src/detectors/manifest-parser.js`
+  - New manifest sections: `ssh` and `git`
+  - Validation for ssh.generate, ssh.comment, ssh.algorithm
+  - Validation for git.configure, git.user.name, git.user.email
+- Test suite for config generation (3 comprehensive tests)
+  - P0+P1+P2 dry-run validation
+  - Actual P0 generation with file verification
+  - Manifest parsing for ssh/git sections
+- Updated `.onboard.yaml` schema with ssh/git examples
+
 - **Phase 4: Setup Step Execution** - Automated execution of setup commands
   - Sequential step execution from `.onboard.yaml` manifests
   - Stop-on-failure error handling (workflow halts on any step failure)
