@@ -167,6 +167,29 @@ function validateManifestSchema(manifest) {
 }
 
 /**
+ * Validate package name for security
+ * Prevents command injection by allowing only safe characters
+ * @param {string} packageName - Package name to validate
+ * @returns {boolean} True if valid
+ * @throws {Error} If package name contains unsafe characters
+ */
+function validatePackageName(packageName) {
+  // Allow: letters, numbers, hyphens, underscores, dots, @ (for scoped packages), forward slashes
+  // Disallow: shell metacharacters like ; && || | $ ` etc.
+  const validPattern = /^[@a-zA-Z0-9._/-]+$/;
+  
+  if (!validPattern.test(packageName)) {
+    throw new Error(
+      `Invalid package name: "${packageName}". ` +
+      `Package names can only contain letters, numbers, hyphens, underscores, dots, @ and /. ` +
+      `Shell metacharacters are not allowed for security reasons.`
+    );
+  }
+  
+  return true;
+}
+
+/**
  * Extract and categorize dependencies from manifest
  * @param {object} manifest - Parsed manifest object
  * @returns {object} Categorized dependencies object
@@ -182,25 +205,37 @@ function extractDependencies(manifest) {
     return dependencies;
   }
 
-  // Extract system dependencies
+  // Extract and validate system dependencies
   if (manifest.dependencies.system && Array.isArray(manifest.dependencies.system)) {
-    dependencies.system = manifest.dependencies.system.filter(dep => 
-      typeof dep === 'string' && dep.trim().length > 0
-    );
+    dependencies.system = manifest.dependencies.system
+      .filter(dep => typeof dep === 'string' && dep.trim().length > 0)
+      .map(dep => {
+        const trimmed = dep.trim();
+        validatePackageName(trimmed);
+        return trimmed;
+      });
   }
 
-  // Extract npm dependencies
+  // Extract and validate npm dependencies
   if (manifest.dependencies.npm && Array.isArray(manifest.dependencies.npm)) {
-    dependencies.npm = manifest.dependencies.npm.filter(dep => 
-      typeof dep === 'string' && dep.trim().length > 0
-    );
+    dependencies.npm = manifest.dependencies.npm
+      .filter(dep => typeof dep === 'string' && dep.trim().length > 0)
+      .map(dep => {
+        const trimmed = dep.trim();
+        validatePackageName(trimmed);
+        return trimmed;
+      });
   }
 
-  // Extract python dependencies
+  // Extract and validate python dependencies
   if (manifest.dependencies.python && Array.isArray(manifest.dependencies.python)) {
-    dependencies.python = manifest.dependencies.python.filter(dep => 
-      typeof dep === 'string' && dep.trim().length > 0
-    );
+    dependencies.python = manifest.dependencies.python
+      .filter(dep => typeof dep === 'string' && dep.trim().length > 0)
+      .map(dep => {
+        const trimmed = dep.trim();
+        validatePackageName(trimmed);
+        return trimmed;
+      });
   }
 
   return dependencies;
