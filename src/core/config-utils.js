@@ -316,6 +316,94 @@ function checkCommand(command) {
   }
 }
 
+/**
+ * Generate SSH key pair (ed25519)
+ * @param {string} keyPath - Path to private key (e.g., ~/.ssh/id_ed25519)
+ * @param {string} comment - SSH key comment
+ * @param {string} passphrase - Passphrase (empty for no passphrase)
+ * @returns {object} { success: boolean, publicKey: string, error: string }
+ */
+function generateSshKey(keyPath, comment = 'jetpack-cli', passphrase = '') {
+  try {
+    // Check if ssh-keygen exists
+    if (!checkCommand('ssh-keygen')) {
+      return { success: false, publicKey: null, error: 'ssh-keygen not found' };
+    }
+    
+    // Generate key with ed25519 algorithm
+    const cmd = `ssh-keygen -t ed25519 -f "${keyPath}" -C "${comment}" -N "${passphrase}" -q`;
+    execSync(cmd, { stdio: 'ignore', timeout: 10000 });
+    
+    // Read public key
+    const publicKey = fs.readFileSync(`${keyPath}.pub`, 'utf8').trim();
+    
+    return { success: true, publicKey, error: null };
+  } catch (error) {
+    return { success: false, publicKey: null, error: error.message };
+  }
+}
+
+/**
+ * Add SSH key to ssh-agent
+ * @param {string} keyPath - Path to private key
+ * @returns {object} { success: boolean, error: string }
+ */
+function addSshKeyToAgent(keyPath) {
+  try {
+    // Check if ssh-add exists
+    if (!checkCommand('ssh-add')) {
+      return { success: false, error: 'ssh-add not found' };
+    }
+    
+    // Try to add key to agent
+    execSync(`ssh-add "${keyPath}"`, { stdio: 'ignore', timeout: 5000 });
+    
+    return { success: true, error: null };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Get git config value
+ * @param {string} key - Config key (e.g., 'user.name')
+ * @param {boolean} global - Get from global config
+ * @returns {string|null} Config value or null if not set
+ */
+function getGitConfig(key, global = true) {
+  try {
+    const scope = global ? '--global' : '--local';
+    const result = execSync(`git config ${scope} ${key}`, {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+      timeout: 3000
+    });
+    return result.trim();
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Set git config value
+ * @param {string} key - Config key (e.g., 'user.name')
+ * @param {string} value - Config value
+ * @param {boolean} global - Set in global config
+ * @returns {object} { success: boolean, error: string }
+ */
+function setGitConfig(key, value, global = true) {
+  try {
+    const scope = global ? '--global' : '--local';
+    execSync(`git config ${scope} ${key} "${value}"`, {
+      stdio: 'ignore',
+      timeout: 3000
+    });
+    return { success: true, error: null };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 module.exports = {
   mergeEnvFile,
   validateEnvVar,
@@ -323,5 +411,9 @@ module.exports = {
   getCopilotExplanation,
   backupFile,
   updateGitignore,
-  checkCommand
+  checkCommand,
+  generateSshKey,
+  addSshKeyToAgent,
+  getGitConfig,
+  setGitConfig
 };

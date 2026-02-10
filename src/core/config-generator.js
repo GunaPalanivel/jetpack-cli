@@ -1,6 +1,7 @@
 const logger = require('../ui/logger');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const utils = require('./config-utils');
 
 /**
@@ -52,8 +53,29 @@ class ConfigGenerator {
         logger.info('  → No environment variables defined');
       }
       
-      // TODO: P1 - SSH key generation (Commit 2)
-      // TODO: P2 - Git config setup (Commit 3)
+      // P1: SSH key generation
+      if (manifest.ssh && manifest.ssh.generate) {
+        logger.step(2, 'SSH Key Generation');
+        const sshResults = await this.generateSshKey(
+          manifest.ssh,
+          options
+        );
+        Object.assign(results.ssh, sshResults);
+      } else {
+        logger.info('  → SSH key generation not requested');
+      }
+      
+      // P2: Git config setup
+      if (manifest.git && manifest.git.configure) {
+        logger.step(3, 'Git Configuration');
+        const gitResults = await this.setupGitConfig(
+          manifest.git,
+          options
+        );
+        Object.assign(results.git, gitResults);
+      } else {
+        logger.info('  → Git configuration not requested');
+      }
       
     } catch (error) {
       results.env.failed.push({
@@ -447,6 +469,170 @@ class ConfigGenerator {
       logger.warning('⚠️  Some configurations failed to generate');
       logger.info('   Review errors above and fix manually if needed');
     }
+  }
+  
+  /**
+   * P1: Generate SSH key pair
+   * @param {object} sshConfig - SSH configuration from manifest
+   * @param {object} options - Command options
+   * @returns {Promise<object>} SSH generation results
+   * @private
+   */
+  async generateSshKey(sshConfig, options) {
+    const results = { created: [], failed: [], warnings: [] };
+    const { dryRun } = options;
+    
+    // Normalize SSH config
+    const config = {
+      generate: sshConfig.generate !== false,
+      comment: sshConfig.comment || `jetpack-cli-${Date.now()}`,
+      algorithm: sshConfig.algorithm || 'ed25519'
+    };
+    
+    const keyPath = path.join(os.homedir(), '.ssh', 'id_ed25519');
+    const publicKeyPath = `${keyPath}.pub`;
+    
+    // Check if key already exists
+    if (fs.existsSync(keyPath)) {
+      logger.info('  → SSH key already exists, skipping generation');
+      logger.info(`    Path: ${keyPath}`);
+      results.warnings.push('SSH key already exists');
+      return results;
+    }
+    
+    if (dryRun) {
+      logger.info(`  [DRY RUN] Would generate: ${keyPath}`);
+      logger.info(`  [DRY RUN] Would generate: ${publicKeyPath}`);
+      logger.info(`  [DRY RUN] Algorithm: ${config.algorithm}, Comment: ${config.comment}`);
+      logger.info(`  [DRY RUN] Would add key to ssh-agent`);
+      results.created.push('id_ed25519', 'id_ed25519.pub');
+      return results;
+    }
+    
+    // Ensure .ssh directory exists
+    const sshDir = path.dirname(keyPath);
+    if (!fs.existsSync(sshDir)) {
+      try {
+        fs.mkdirSync(sshDir, { recursive: true, mode: 0o700 });
+      } catch (error) {
+        logger.error(`  ✗ Failed to create .ssh directory: ${error.message}`);
+        results.failed.push({ file: '.ssh', reason: error.message });
+        return results;
+      }
+    }
+    
+    // Generate SSH key
+    logger.info(`  → Generating ${config.algorithm} key pair...`);
+    const genResult = utils.generateSshKey(keyPath, config.comment, '');
+    
+    if (!genResult.success) {
+      logger.error(`  ✗ Failed to generate SSH key: ${genResult.error}`);
+      results.failed.push({ file: 'id_ed25519', reason: genResult.error });
+      return results;
+    }
+    
+    logger.success(`  ✓ Generated: ${keyPath}`);
+    logger.success(`  ✓ Generated: ${publicKeyPath}`);
+    logger.warning('  ⚠️  SSH key generated without passphrase for automation');
+    logger.info('     To add passphrase later: ssh-keygen -p -f ~/.ssh/id_ed25519');
+    results.created.push('id_ed25519', 'id_ed25519.pub');
+    
+    // Display public key
+    logger.newLine();
+    logger.info('  Public Key:');
+    logger.info(`  ${genResult.publicKey.substring(0, 60)}...`);
+    
+    // Try to add to ssh-agent
+    logger.newLine();
+    logger.info('  → Adding key to ssh-agent...');
+    const addResult = utils.addSshKeyToAgent(keyPath);
+    
+    if (addResult.success) {
+      logger.success('  ✓ Added to ssh-agent');
+    } else {
+      logger.warning(`  ⚠️  Could not add to ssh-agent: ${addResult.error}`);
+      logger.info('     Manually add with: ssh-add ~/.ssh/id_ed25519');
+      results.warnings.push('Could not add to ssh-agent');
+    }
+    
+    return results;
+  }
+  
+  /**
+   * P2: Setup Git configuration
+   * @param {object} gitConfig - Git configuration from manifest
+   * @param {object} options - Command options
+   * @returns {Promise<object>} Git config results
+   * @private
+   */
+  async setupGitConfig(gitConfig, options) {
+    const results = { created: [], failed: [], warnings: [] };
+    const { dryRun } = options;
+    
+    const configsToSet = [];
+    
+    // Check user.name
+    const userName = utils.getGitConfig('user.name');
+    if (!userName) {
+      const suggestedName = gitConfig.user?.name || 'Jetpack User';
+      configsToSet.push({ key: 'user.name', value: suggestedName, current: null });
+    } else {
+      logger.info(`  → user.name already set: ${userName}`);
+    }
+    
+    // Check user.email
+    const userEmail = utils.getGitConfig('user.email');
+    if (!userEmail) {
+      const suggestedEmail = gitConfig.user?.email || 'user@example.com';
+      configsToSet.push({ key: 'user.email', value: suggestedEmail, current: null });
+      results.warnings.push('user.email not configured - using placeholder');
+    } else {
+      logger.info(`  → user.email already set: ${userEmail}`);
+    }
+    
+    // Check init.defaultBranch
+    const defaultBranch = utils.getGitConfig('init.defaultBranch');
+    if (!defaultBranch) {
+      configsToSet.push({ key: 'init.defaultBranch', value: 'main', current: null });
+    } else {
+      logger.info(`  → init.defaultBranch already set: ${defaultBranch}`);
+    }
+    
+    if (configsToSet.length === 0) {
+      logger.success('  ✓ All git config already set');
+      return results;
+    }
+    
+    if (dryRun) {
+      logger.info('  [DRY RUN] Would set git config:');
+      configsToSet.forEach(cfg => {
+        logger.info(`    ${cfg.key} = ${cfg.value}`);
+      });
+      results.created.push(...configsToSet.map(c => c.key));
+      return results;
+    }
+    
+    // Set git configs
+    logger.info('  → Setting git configuration...');
+    for (const cfg of configsToSet) {
+      const setResult = utils.setGitConfig(cfg.key, cfg.value, true);
+      
+      if (setResult.success) {
+        logger.success(`  ✓ Set ${cfg.key} = ${cfg.value}`);
+        results.created.push(cfg.key);
+      } else {
+        logger.error(`  ✗ Failed to set ${cfg.key}: ${setResult.error}`);
+        results.failed.push({ file: cfg.key, reason: setResult.error });
+      }
+    }
+    
+    if (results.warnings.length > 0 && results.warnings.includes('user.email not configured - using placeholder')) {
+      logger.newLine();
+      logger.warning('  ⚠️  Please update your git email:');
+      logger.info('     git config --global user.email "your@email.com"');
+    }
+    
+    return results;
   }
 }
 

@@ -57,6 +57,8 @@ function parseManifest(filePath) {
     dependencies: extractDependencies(manifest),
     environment: extractEnvironment(manifest),
     setupSteps: extractSetupSteps(manifest),
+    ssh: manifest.ssh || null,
+    git: manifest.git || null,
     metadata: {
       parsedAt: new Date().toISOString(),
       filePath: filePath
@@ -161,6 +163,34 @@ function validateManifestSchema(manifest) {
         errors.push(`setup_steps[${index}].command is required and must be a string`);
       }
     });
+  }
+
+  // Optional: ssh section validation (Phase 5 - P1)
+  if (manifest.ssh && typeof manifest.ssh === 'object') {
+    if (typeof manifest.ssh.generate !== 'undefined' && typeof manifest.ssh.generate !== 'boolean') {
+      errors.push('ssh.generate must be a boolean');
+    }
+    if (manifest.ssh.comment && typeof manifest.ssh.comment !== 'string') {
+      errors.push('ssh.comment must be a string');
+    }
+    if (manifest.ssh.algorithm && typeof manifest.ssh.algorithm !== 'string') {
+      errors.push('ssh.algorithm must be a string');
+    }
+  }
+  
+  // Optional: git section validation (Phase 5 - P2)
+  if (manifest.git && typeof manifest.git === 'object') {
+    if (typeof manifest.git.configure !== 'undefined' && typeof manifest.git.configure !== 'boolean') {
+      errors.push('git.configure must be a boolean');
+    }
+    if (manifest.git.user && typeof manifest.git.user === 'object') {
+      if (manifest.git.user.name && typeof manifest.git.user.name !== 'string') {
+        errors.push('git.user.name must be a string');
+      }
+      if (manifest.git.user.email && typeof manifest.git.user.email !== 'string') {
+        errors.push('git.user.email must be a string');
+      }
+    }
   }
 
   return errors;
@@ -334,6 +364,8 @@ function parseManifestFromString(content) {
     dependencies: extractDependencies(manifest),
     environment: extractEnvironment(manifest),
     setupSteps: extractSetupSteps(manifest),
+    ssh: manifest.ssh || null,
+    git: manifest.git || null,
     metadata: {
       parsedAt: new Date().toISOString(),
       source: 'string'
