@@ -279,14 +279,58 @@ class Orchestrator {
    * Step 6: Create Documentation
    */
   async createDocs(repoUrl, environment, options) {
-    // Placeholder: In real implementation, generate custom README
-    logger.info('  → Documentation generation would happen here');
-    logger.info('  → Creating personalized getting-started guide');
+    const documentGenerator = require('../docs/core/DocumentGenerator');
     
-    return {
-      created: true,
-      docs: []
-    };
+    // Get manifest from previous step
+    const manifestResult = this.getStepResult(options, 'Parse Manifest');
+    
+    if (!manifestResult || !manifestResult.manifest) {
+      logger.warning('  → No manifest available for documentation generation');
+      return {
+        created: false,
+        skipped: true,
+        reason: 'Manifest not available'
+      };
+    }
+    
+    const manifest = manifestResult.manifest;
+    
+    // Check if documentation is disabled
+    if (manifest.documentation && manifest.documentation.enabled === false) {
+      logger.info('  → Documentation generation disabled in manifest');
+      return {
+        created: false,
+        skipped: true,
+        reason: 'Disabled in manifest'
+      };
+    }
+    
+    // Generate documentation
+    logger.info('  → Generating project documentation...');
+    
+    try {
+      const result = await documentGenerator.generate(
+        manifest,
+        options._state,
+        { ...options, environment }
+      );
+      
+      if (result.generated) {
+        logger.success(`  → Generated ${result.files.length} documentation file(s)`);
+        logger.info(`  → Documentation saved to: ${result.outputDir}`);
+      }
+      
+      return result;
+      
+    } catch (error) {
+      logger.warning(`  → Documentation generation failed: ${error.message}`);
+      // Don't fail the entire workflow for documentation errors
+      return {
+        created: false,
+        error: error.message,
+        files: []
+      };
+    }
   }
 
   /**
