@@ -49,3 +49,7 @@ temp/
 
 # Jetpack CLI - Auto-generated
 .env.backup.*
+
+# Test artifacts (examples/ contains committed reference output)
+test-docs-output/
+.onboard-test.yaml
