@@ -1,0 +1,30 @@
+# .onboard.yaml - Advanced documentation example
+# Demonstrates all Phase 7 features with minimal sections
+
+name: minimal-docs-project
+description: Minimal project with selective documentation
+
+dependencies:
+  system:
+    - git
+  
+  npm:
+    - typescript
+
+  environment:
+    required:
+      - API_KEY
+
+setup_steps:
+  - name: Install dependencies
+    command: npm install
+
+# Minimal documentation - only getting started and setup
+documentation:
+  enabled: true
+  output_dir: "./project-docs"
+  sections:
+    - getting-started
+    - setup
+  custom:
+    repo_url: https://github.com/example/minimal-project
