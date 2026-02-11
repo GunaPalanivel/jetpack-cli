@@ -177,7 +177,41 @@ See `templates/basic-example.yaml`, `templates/complex-example.yaml`, and `templ
 
 ### Current Implementation
 
-#### ✅ Phase 5: Configuration Generation (COMPLETED)
+#### ✅ Phase 7: Documentation Generation (COMPLETED)
+
+- ✅ **Modular Documentation System** - Stripe-style developer documentation
+  - Generates 4 sections: getting-started, setup, troubleshooting, verification
+  - Each section contains 2-3 focused markdown files (< 300 lines each)
+  - Context-aware: Only documents what was actually installed/configured
+  - Platform-specific instructions (Windows/macOS/Linux)
+- ✅ **Template Engine** - Variable interpolation with Handlebars-style syntax
+  - Supports `{{variable}}`, `{{#if condition}}`, `{{#each items}}`
+  - Nested variable access with dot notation
+  - Array handling with comma-join
+- ✅ **Content Builders** - Markdown formatting utilities
+  - Dependency tables, command snippets, environment lists
+  - Verification summaries, setup steps, config summaries
+  - Platform-specific notes and navigation
+- ✅ **Documentation Generators** (4 specialized generators)
+  - GettingStartedGenerator: Quickstart & prerequisites
+  - SetupDocsGenerator: Dependencies, configuration, environment
+  - TroubleshootingGenerator: Common issues & verification failures
+  - VerificationDocsGenerator: Health checks & manual testing
+- ✅ **Manifest Schema Extension** - `documentation` section in `.onboard.yaml`
+  - Enable/disable documentation generation
+  - Custom output directory
+  - Selective sections
+  - Project metadata (repo_url, docs_url, support_url)
+- ✅ **Orchestrator Integration** - Step 6 fully implemented
+  - Generates documentation after verification
+  - Dry-run mode support
+  - Graceful failure handling (continues if docs fail)
+- ✅ **Test Coverage** - 25/25 tests passing
+  - TemplateEngine (8 tests)
+  - ContentBuilder (11 tests)
+  - DocumentGenerator (6 tests)
+
+#### ✅ Phase 6: Verification & Health Checks (COMPLETED)
 
 - ✅ **Environment Files (P0)** - Automated .env generation from manifests
   - Smart merge mode preserves existing values while adding new variables
@@ -253,8 +287,8 @@ See `templates/basic-example.yaml`, `templates/complex-example.yaml`, and `templ
 - ✅ ~~Dependency installation (npm, Chocolatey, Scoop, Homebrew)~~ **COMPLETED in Phase 3**
 - ✅ ~~Setup step execution with live output~~ **COMPLETED in Phase 4**
 - ✅ ~~Configuration file generation (.env, SSH keys, Git config)~~ **COMPLETED in Phase 5**
-- 🔄 Setup verification and health checks - **Phase 6: Next**
-- 🔄 Custom documentation generation - **Phase 7: Planned**
+- ✅ ~~Setup verification and health checks~~ **COMPLETED in Phase 6**
+- ✅ ~~Custom documentation generation~~ **COMPLETED in Phase 7**
 - 🔄 GitHub Copilot CLI integration enhancements (explanations, validations)
 - 🔄 TUI dashboard with Blessed
 - 🔄 Full rollback functionality
@@ -380,6 +414,19 @@ setup_steps:
 
   - name: Run tests
     command: npm test
+
+# Phase 7: Documentation Generation
+documentation:
+  enabled: true
+  output_dir: "./docs"
+  sections:
+    - getting-started
+    - setup
+    - troubleshooting
+    - verification
+  custom:
+    repo_url: https://github.com/owner/repo
+    docs_url: https://docs.example.com
 ```
 
 ---
@@ -399,9 +446,10 @@ setup_steps:
 1. **Environment Detection** → Analyze system capabilities
 2. **Parse Manifest** → Read `.onboard.yaml` from repository
 3. **Install Dependencies** → Execute platform-specific installers
-4. **Generate Configurations** → Create .env files, SSH keys
-5. **Create Documentation** → Generate personalized guides
-6. **Verify Setup** → Run health checks
+4. **Execute Setup Steps** → Run project-specific setup commands
+5. **Generate Configurations** → Create .env files, SSH keys, Git config
+6. **Create Documentation** → Generate personalized developer guides
+7. **Verify Setup** → Run health checks and validation
 
 ---
 

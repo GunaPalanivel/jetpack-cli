@@ -9,7 +9,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Phase 5: Configuration Generation** - Automated configuration file generation
+- **Phase 7: Documentation Generation** - Automated Stripe-style developer documentation
+  - **Modular Documentation System**
+    - Generates 4 sections: getting-started, setup, troubleshooting, verification
+    - Each section contains 2-3 focused markdown files (< 300 lines each)
+    - Total of 9 documentation files generated per project
+  - **Template Engine** (`src/docs/core/TemplateEngine.js`)
+    - Variable interpolation with `{{variable}}` syntax
+    - Conditional blocks with `{{#if condition}}...{{/if}}`
+    - Loop blocks with `{{#each items}}...{{/each}}`
+    - Nested variable access with dot notation (e.g., `{{project.name}}`)
+    - Array handling with comma-join formatting
+  - **Content Builder** (`src/docs/core/ContentBuilder.js`)
+    - Dependency tables (system, npm, python)
+    - Command snippets with platform-specific shell detection
+    - Environment variable lists (required/optional)
+    - Verification summaries with pass/fail counts
+    - Setup steps lists with descriptions
+    - Configuration summaries (.env, SSH, Git)
+    - Platform-specific notes (Windows/macOS/Linux)
+  - **Document Generator** (`src/docs/core/DocumentGenerator.js`)
+    - Main orchestration engine for documentation generation
+    - Context-aware: Only documents what was actually installed
+    - Platform-specific instructions
+    - Dry-run mode support (preview without writing files)
+    - Custom output directory support
+    - Selective section generation
+  - **4 Specialized Generators**
+    - `GettingStartedGenerator`: Quickstart guide & prerequisites
+    - `SetupDocsGenerator`: Dependencies, configuration, environment
+    - `TroubleshootingGenerator`: Common issues & verification failures
+    - `VerificationDocsGenerator`: Health checks & manual testing
+  - **Manifest Schema Extension**
+    - New `documentation` section in `.onboard.yaml`
+    - `enabled`: Enable/disable documentation generation (default: true)
+    - `output_dir`: Custom output directory (default: ./docs)
+    - `sections`: Selective section generation
+    - `custom`: Project metadata (repo_url, docs_url, support_url)
+  - **Orchestrator Integration**
+    - Updated Step 6 (createDocs) to use DocumentGenerator
+    - Graceful failure handling (continues if docs generation fails)
+    - State-aware documentation (uses install/config/verify results)
+    - Dry-run mode integration
+  - **Test Coverage**
+    - New test file: `tests/doc-generator.test.js` (25 tests, all passing)
+    - TemplateEngine tests (8 tests): variables, conditionals, loops
+    - ContentBuilder tests (11 tests): tables, snippets, summaries
+    - DocumentGenerator tests (6 tests): config parsing, state extraction
+    - Example manifests: `templates/docs-example-basic.yaml`, `templates/docs-example-minimal.yaml`
+
+- **Phase 6: Verification & Health Checks** - Comprehensive verification system (COMPLETED)
   - **P0: Environment Files** (.env, .env.template, .env.example)
     - Smart merge mode preserves existing .env values
     - Copilot CLI integration for secure value generation (API keys, JWT secrets)
