@@ -24,7 +24,7 @@ cat .env
 ```
 
 
-{{#if config.sshKey}}
+
 ### SSH Keys
 
 SSH key generated at: **~/.ssh/id_ed25519**
@@ -35,9 +35,9 @@ cat ~/.ssh/id_ed25519.pub
 ```
 
 Add this key to your GitHub/GitLab account for repository access.
-{{/if}}
 
-{{#if config.gitUser}}
+
+
 ### Git Configuration
 
 Git identity configured as: **Test User <test@example.com>**
@@ -47,34 +47,46 @@ View your git config:
 git config --global user.name
 git config --global user.email
 ```
-{{/if}}
+
 {{/if}}
 
 ## Manual Configuration
 
-{{#if environment.required}}
+
 ### Required Variables
 
 Ensure these environment variables are set in your `.env`:
 
-{{#each environment.required}}
-```bash
-=your_value_here
-```
-{{/each}}
-{{/if}}
 
-{{#if environment.optional}}
+```bash
+DATABASE_URL=your_value_here
+```
+
+```bash
+API_KEY=your_value_here
+```
+
+```bash
+JWT_SECRET=your_value_here
+```
+
+
+
+
 ### Optional Variables
 
 You may also configure these optional variables:
 
-{{#each environment.optional}}
+
 ```bash
-=your_value_here
+DEBUG_MODE=your_value_here
 ```
-{{/each}}
-{{/if}}
+
+```bash
+LOG_LEVEL=your_value_here
+```
+
+
 
 ## Configuration Files
 

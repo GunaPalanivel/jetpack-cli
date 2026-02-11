@@ -30,19 +30,27 @@ This command automatically verifies:
 Verifies that required commands are available and executable.
 
 Example checks:
-{{#if dependencies.system}}
-{{#each dependencies.system}}
-```bash
- --version
-```
-{{/each}}
-{{/if}}
 
-{{#if dependencies.npm}}
+
+```bash
+docker --version
+```
+
+```bash
+nodejs --version
+```
+
+```bash
+git --version
+```
+
+
+
+
 ```bash
 npm list -g --depth=0
 ```
-{{/if}}
+
 
 ### HTTP Checks
 
@@ -74,12 +82,12 @@ test -f .env && echo ".env exists"
 ```
 
 
-{{#if config.sshKey}}
+
 ```bash
 # Check SSH key
 test -f ~/.ssh/id_ed25519 && echo "SSH key exists"
 ```
-{{/if}}
+
 {{/if}}
 
 ## Interpreting Results

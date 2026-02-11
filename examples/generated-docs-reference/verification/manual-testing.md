@@ -6,34 +6,44 @@ Manual verification procedures for **example-docs-project**.
 
 Before running the application, verify:
 
-{{#if dependencies.system}}
+
 ### System Dependencies
 
-{{#each dependencies.system}}
-- [ ] `` is installed and in PATH
-  ```bash
-   --version
-  ```
-{{/each}}
-{{/if}}
 
-{{#if dependencies.npm}}
+- [ ] `docker` is installed and in PATH
+  ```bash
+  docker --version
+  ```
+
+- [ ] `nodejs` is installed and in PATH
+  ```bash
+  nodejs --version
+  ```
+
+- [ ] `git` is installed and in PATH
+  ```bash
+  git --version
+  ```
+
+
+
+
 ### Node.js Dependencies
 
 - [ ] npm packages are installed globally
   ```bash
   npm list -g --depth=0
   ```
-{{/if}}
 
-{{#if dependencies.python}}
+
+
 ### Python Dependencies
 
 - [ ] Python packages are installed
   ```bash
   pip list
   ```
-{{/if}}
+
 
 
 ### Configuration
@@ -45,31 +55,41 @@ Before running the application, verify:
   ```
 
 
-{{#if config.sshKey}}
+
 - [ ] SSH key is generated and loaded
   ```bash
   ssh-add -l
   ```
-{{/if}}
 
-{{#if config.gitUser}}
+
+
 - [ ] Git user is configured
   ```bash
   git config user.name && git config user.email
   ```
-{{/if}}
+
 {{/if}}
 
-{{#if environment.required}}
+
 ### Environment Variables
 
-{{#each environment.required}}
-- [ ] `` is set
+
+- [ ] `DATABASE_URL` is set
   ```bash
-  echo $
+  echo $DATABASE_URL
   ```
-{{/each}}
-{{/if}}
+
+- [ ] `API_KEY` is set
+  ```bash
+  echo $API_KEY
+  ```
+
+- [ ] `JWT_SECRET` is set
+  ```bash
+  echo $JWT_SECRET
+  ```
+
+
 
 ## Setup Steps Testing
 

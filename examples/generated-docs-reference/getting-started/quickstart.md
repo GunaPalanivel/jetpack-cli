@@ -10,36 +10,44 @@ Full-stack web application with comprehensive documentation
 
 ### 1. Install Dependencies
 
-{{#if dependencies.system}}
-System dependencies:
-{{#each dependencies.system}}
-- ``
-{{/each}}
-{{/if}}
 
-{{#if dependencies.npm}}
+System dependencies:
+
+- `docker`
+
+- `nodejs`
+
+- `git`
+
+
+
+
 npm packages:
 ```bash
 npm install eslint, prettier, typescript
 ```
-{{/if}}
 
-{{#if dependencies.python}}
+
+
 Python packages:
 ```bash
 pip install black, pytest
 ```
-{{/if}}
+
 
 ### 2. Configure Environment
 
-{{#if environment.required}}
+
 Set up required environment variables in `.env`:
 
-{{#each environment.required}}
-- ``
-{{/each}}
-{{/if}}
+
+- `DATABASE_URL`
+
+- `API_KEY`
+
+- `JWT_SECRET`
+
+
 
 
 Configuration files created:

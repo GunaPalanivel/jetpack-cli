@@ -29,14 +29,18 @@ How to fix failed verification checks for **example-docs-project**.
    ```
 
 2. **Tool not installed**:
-   {{#if dependencies.system}}
+   
    ```bash
    # Reinstall system dependencies
-   {{#each dependencies.system}}
-   # Install 
-   {{/each}}
+   
+   # Install docker
+   
+   # Install nodejs
+   
+   # Install git
+   
    ```
-   {{/if}}
+   
 
 3. **Version mismatch**:
    ```bash
@@ -131,9 +135,13 @@ How to fix failed verification checks for **example-docs-project**.
 Check your `.env` file contains all required variables:
 
 {{#if environment.required}}
-{{#each environment.required}}
-- ``
-{{/each}}
+
+- `DATABASE_URL`
+
+- `API_KEY`
+
+- `JWT_SECRET`
+
 
 
 ```bash
@@ -143,7 +151,7 @@ cp .env.template .env
 ```
 {{/if}}
 
-{{#if config.sshKey}}
+
 ### SSH key issues
 
 Verify SSH key:
@@ -151,7 +159,7 @@ Verify SSH key:
 ssh-add -l  # List loaded keys
 ssh -T git@github.com  # Test GitHub connection
 ```
-{{/if}}
+
 {{/if}}
 
 ## Debugging Verification
@@ -213,4 +221,4 @@ jetpack init https://github.com/example/example-docs-project
 
 ---
 
-_Last updated: 2026-02-11T08:38:12.033Z_
+_Last updated: 2026-02-11T08:59:57.072Z_

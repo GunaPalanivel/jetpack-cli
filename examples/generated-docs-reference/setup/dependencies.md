@@ -10,82 +10,102 @@ Complete list of dependencies installed for **example-docs-project**.
 | npm | eslint, prettier, typescript |
 | Python | black, pytest |
 
-{{#if dependencies.system}}
+
 ## System Dependencies
 
 These tools were installed at the system level:
 
-{{#each dependencies.system}}
-### ``
+
+### `docker`
 
 Check installation:
 ```bash
- --version
+docker --version
 ```
-{{/each}}
-{{/if}}
 
-{{#if dependencies.npm}}
+### `nodejs`
+
+Check installation:
+```bash
+nodejs --version
+```
+
+### `git`
+
+Check installation:
+```bash
+git --version
+```
+
+
+
+
 ## npm Packages
 
 Global npm packages installed:
 
-{{#each dependencies.npm}}
-- **``**
-{{/each}}
+
+- **`eslint`**
+
+- **`prettier`**
+
+- **`typescript`**
+
 
 Check installations:
 ```bash
 npm list -g --depth=0
 ```
-{{/if}}
 
-{{#if dependencies.python}}
+
+
 ## Python Packages
 
 Python packages installed via pip:
 
-{{#each dependencies.python}}
-- **``**
-{{/each}}
+
+- **`black`**
+
+- **`pytest`**
+
 
 Check installations:
 ```bash
 pip list
 ```
-{{/if}}
+
 
 ## Updating Dependencies
 
 To update dependencies in the future:
 
-{{#if dependencies.npm}}
+
 ```bash
 npm update -g
 ```
-{{/if}}
 
-{{#if dependencies.python}}
+
+
 ```bash
 pip install --upgrade black, pytest
 ```
-{{/if}}
+
 
 ## Uninstalling
 
 If you need to remove dependencies:
 
-{{#if dependencies.npm}}
+
 ```bash
 npm uninstall -g eslint, prettier, typescript
 ```
-{{/if}}
 
-{{#if dependencies.python}}
+
+
 ```bash
 pip uninstall black, pytest
 ```
-{{/if}}
+
 
 ---
 

@@ -11,10 +11,10 @@ Platform-specific setup instructions for **example-docs-project**.
 
 > **Note for Windows users**: Use PowerShell or Command Prompt to run commands.
 
-{{#if platform.os}}
+
 ### Windows_NT Setup
 
-{{/if}}
+
 
 ### Package Managers
 
@@ -66,9 +66,9 @@ echo 'export VAR_NAME=value' >> ~/.bashrc
 
 ## Permissions
 
-{{#if platform.os}}
+
 **Windows_NT** users may need elevated permissions for system-level changes.
-{{/if}}
+
 
 **Windows**: Run PowerShell as Administrator
 **macOS/Linux**: Use `sudo` for system commands
@@ -85,11 +85,15 @@ echo $SHELL
 echo $PATH
 
 # Check environment variables
-{{#if environment.required}}
-{{#each environment.required}}
-echo $
-{{/each}}
-{{/if}}
+
+
+echo $DATABASE_URL
+
+echo $API_KEY
+
+echo $JWT_SECRET
+
+
 ```
 
 ---

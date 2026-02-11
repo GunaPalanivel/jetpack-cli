@@ -34,7 +34,7 @@ Solutions to common problems when setting up **example-docs-project**.
    npm config set registry https://registry.npmjs.org/
    ```
 
-{{#if dependencies.python}}
+
 ### Python package installation fails
 
 **Problem**: `pip install` fails with version conflicts or missing dependencies.
@@ -57,9 +57,9 @@ Solutions to common problems when setting up **example-docs-project**.
    ```bash
    sudo apt-get install python3-dev build-essential
    ```
-{{/if}}
 
-{{#if dependencies.system}}
+
+
 ### System packages not found
 
 **Problem**: System dependencies are not recognized after installation.
@@ -74,18 +74,28 @@ Solutions to common problems when setting up **example-docs-project**.
    ```
 
 2. **Verify installation**:
-   {{#each dependencies.system}}
+   
    ```bash
-   which   # Unix
-   where.exe   # Windows
+   which docker  # Unix
+   where.exe docker  # Windows
    ```
-   {{/each}}
+   
+   ```bash
+   which nodejs  # Unix
+   where.exe nodejs  # Windows
+   ```
+   
+   ```bash
+   which git  # Unix
+   where.exe git  # Windows
+   ```
+   
 
 3. **Reinstall package manager**:
    - Windows: Reinstall Chocolatey/Scoop
    - macOS: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
    - Linux: `sudo apt update && sudo apt upgrade`
-{{/if}}
+
 
 ## Configuration Issues
 
@@ -114,7 +124,7 @@ Solutions to common problems when setting up **example-docs-project**.
 
 3. **Restart your terminal** after setting variables.
 
-{{#if config.sshKey}}
+
 ### SSH key not working
 
 **Problem**: SSH authentication fails despite key generation.
@@ -139,9 +149,9 @@ Solutions to common problems when setting up **example-docs-project**.
    cat ~/.ssh/id_ed25519.pub
    # Copy output and add to your account settings
    ```
-{{/if}}
 
-{{#if config.gitUser}}
+
+
 ### Git commands fail with identity errors
 
 **Problem**: Git operations fail due to missing user configuration.
@@ -159,7 +169,7 @@ Solutions to common problems when setting up **example-docs-project**.
    git config --global user.name "Your Name"
    git config --global user.email "your.email@example.com"
    ```
-{{/if}}
+
 
 ## Platform-Specific Issues
 
@@ -206,4 +216,4 @@ cat .jetpack-state.json
 
 ---
 
-_Last updated: 2026-02-11T08:38:12.033Z_
+_Last updated: 2026-02-11T08:59:57.072Z_

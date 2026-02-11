@@ -17,15 +17,15 @@ Your system: **Windows_NT**
 
 The following software must be installed:
 
-{{#if dependencies.system}}
+
 | Type | Packages |
 |------|----------|
 | System | docker, nodejs, git |
 | npm | eslint, prettier, typescript |
 | Python | black, pytest |
-{{/if}}
 
-{{#if dependencies.npm}}
+
+
 #### Node.js & npm
 
 - **Node.js**: 16.x or higher
@@ -36,9 +36,9 @@ Check your versions:
 node --version
 npm --version
 ```
-{{/if}}
 
-{{#if dependencies.python}}
+
+
 #### Python
 
 - **Python**: 3.8 or higher
@@ -49,29 +49,35 @@ Check your version:
 python --version
 pip --version
 ```
-{{/if}}
+
 
 ## Environment Setup
 
-{{#if environment.required}}
+
 ### Required Environment Variables
 
 You'll need to configure these variables:
 
-{{#each environment.required}}
-- **``** - (Description needed)
-{{/each}}
-{{/if}}
 
-{{#if environment.optional}}
+- **`DATABASE_URL`** - (Description needed)
+
+- **`API_KEY`** - (Description needed)
+
+- **`JWT_SECRET`** - (Description needed)
+
+
+
+
 ### Optional Environment Variables
 
 These variables are optional but recommended:
 
-{{#each environment.optional}}
-- **``** - (Description needed)
-{{/each}}
-{{/if}}
+
+- **`DEBUG_MODE`** - (Description needed)
+
+- **`LOG_LEVEL`** - (Description needed)
+
+
 
 ## Verification
 
@@ -84,12 +90,16 @@ node --version
 # Check npm
 npm --version
 
-{{#if dependencies.system}}
+
 # Check system dependencies
-{{#each dependencies.system}}
- --version
-{{/each}}
-{{/if}}
+
+docker --version
+
+nodejs --version
+
+git --version
+
+
 ```
 
 ## Troubleshooting
