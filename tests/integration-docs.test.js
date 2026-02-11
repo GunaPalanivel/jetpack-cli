@@ -49,8 +49,8 @@ function assert(condition, message) {
 // Phase 1: Manifest Parsing
 // ============================================================================
 
-await runTest('Phase 1: Parse test manifest (.onboard-test.yaml)', async () => {
-  const manifestPath = path.resolve('.onboard-test.yaml');
+await runTest('Phase 1: Parse test manifest (examples/sample-manifest.yaml)', async () => {
+  const manifestPath = path.resolve('examples/sample-manifest.yaml');
   const exists = await fs.access(manifestPath).then(() => true).catch(() => false);
   assert(exists, 'Test manifest not found');
   
@@ -70,7 +70,7 @@ await runTest('Phase 1: Parse test manifest (.onboard-test.yaml)', async () => {
 // ============================================================================
 
 await runTest('Phase 2: Create mock orchestrator state', async () => {
-  const manifest = manifestParser.parseManifest('.onboard-test.yaml');
+  const manifest = manifestParser.parseManifest('examples/sample-manifest.yaml');
   
   // Simulate orchestrator state after all phases
   const mockState = {
