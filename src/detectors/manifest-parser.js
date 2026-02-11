@@ -60,6 +60,7 @@ function parseManifest(filePath) {
     verification: manifest.verification || null,  // Phase 6: Verification checks
     ssh: manifest.ssh || null,
     git: manifest.git || null,
+    documentation: manifest.documentation || null,  // Phase 7: Documentation config
     metadata: {
       parsedAt: new Date().toISOString(),
       filePath: filePath
