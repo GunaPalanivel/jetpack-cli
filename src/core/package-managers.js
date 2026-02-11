@@ -231,11 +231,53 @@ function parsePackageName(packageString) {
   };
 }
 
+/**
+ * Get uninstall command for a package
+ * @param {string} type - Package type ('npm', 'pip', 'system')
+ * @param {string} packageName - Package name
+ * @param {string} platform - Platform for system packages (win32, darwin, linux)
+ * @returns {string|null} Uninstall command or null
+ */
+function getUninstallCommand(type, packageName, platform = process.platform) {
+  switch (type) {
+    case 'npm':
+      return `npm uninstall -g ${packageName}`;
+      
+    case 'pip':
+      return `pip uninstall -y ${packageName}`;
+      
+    case 'system':
+      if (platform === 'win32') {
+        return `choco uninstall ${packageName} -y`;
+      } else if (platform === 'darwin') {
+        return `brew uninstall ${packageName}`;
+      } else if (platform === 'linux') {
+        // Try to detect which package manager to use
+        try {
+          execSync('which apt-get', { stdio: 'ignore' });
+          return `sudo apt-get remove -y ${packageName}`;
+        } catch {
+          try {
+            execSync('which yum', { stdio: 'ignore' });
+            return `sudo yum remove -y ${packageName}`;
+          } catch {
+            return null;
+          }
+        }
+      }
+      return null;
+      
+    default:
+      return null;
+  }
+}
+
 module.exports = {
   isPackageInstalled,
   getSystemPackageCommand,
   detectSystemPackageManager,
   executeCommand,
   isPackageManagerAvailable,
-  parsePackageName
+  parsePackageName,
+  getUninstallCommand
 };
