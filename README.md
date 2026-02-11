@@ -74,11 +74,68 @@ jetpack init https://github.com/owner/repo --skip-install
 jetpack verify
 ```
 
-#### Rollback
+#### Rollback Changes
+
+Jetpack includes a comprehensive rollback system to undo all changes made during onboarding:
 
 ```bash
+# Preview what will be rolled back (dry run)
+jetpack rollback --dry-run
+
+# Rollback everything (safe operations only)
 jetpack rollback
+
+# Rollback specific components
+jetpack rollback --partial=docs,config
+
+# Rollback including package uninstallation (use with caution)
+jetpack rollback --unsafe
+
+# Force rollback despite warnings
+jetpack rollback --force
 ```
+
+**What Gets Rolled Back:**
+
+- ✅ **Documentation** - Removes `.jetpack/` directory
+- ✅ **Configuration** - Restores `.env` from backup, removes generated files
+- ✅ **Git Config** - Restores original git configuration values
+- ✅ **SSH Keys** - Removes generated SSH keys
+- ✅ **Dependencies** - Uninstalls packages (requires `--unsafe` flag)
+
+**Rollback Options:**
+
+- `--dry-run` - Preview changes without executing
+- `--partial=<phases>` - Rollback specific phases (docs, config, git, ssh, dependencies)
+- `--unsafe` - Allow package uninstallation (disabled by default for safety)
+- `--force` - Skip safety checks and continue despite warnings
+
+**Examples:**
+
+```bash
+# Safe rollback (keeps packages, removes configs and docs)
+jetpack rollback
+
+# Rollback only documentation
+jetpack rollback --partial=docs
+
+# Preview full rollback including packages
+jetpack rollback --unsafe --dry-run
+
+# Complete system cleanup (removes everything)
+jetpack rollback --unsafe
+```
+
+**Safety Features:**
+
+- Packages are **NOT** uninstalled by default (requires `--unsafe`)
+- Original `.env` is restored from backup (not deleted)
+- Git config values are restored to their original state
+- Warnings are shown for packages with dependencies
+- Dry-run mode lets you preview changes before executing
+- State file is only cleared after successful full rollback
+
+
 
 ---
 
