@@ -594,7 +594,7 @@ class ConfigGenerator {
    * @private
    */
   async setupGitConfig(gitConfig, options) {
-    const results = { created: [], failed: [], warnings: [] };
+    const results = { created: [], failed: [], warnings: [], original: {} };
     const { dryRun } = options;
     
     const configsToSet = [];
@@ -604,8 +604,10 @@ class ConfigGenerator {
     if (!userName) {
       const suggestedName = gitConfig.user?.name || 'Jetpack User';
       configsToSet.push({ key: 'user.name', value: suggestedName, current: null });
+      results.original['user.name'] = null; // Didn't exist before
     } else {
       logger.info(`  → user.name already set: ${userName}`);
+      results.original['user.name'] = userName;
     }
     
     // Check user.email
@@ -614,16 +616,20 @@ class ConfigGenerator {
       const suggestedEmail = gitConfig.user?.email || 'user@example.com';
       configsToSet.push({ key: 'user.email', value: suggestedEmail, current: null });
       results.warnings.push('user.email not configured - using placeholder');
+      results.original['user.email'] = null; // Didn't exist before
     } else {
       logger.info(`  → user.email already set: ${userEmail}`);
+      results.original['user.email'] = userEmail;
     }
     
     // Check init.defaultBranch
     const defaultBranch = utils.getGitConfig('init.defaultBranch');
     if (!defaultBranch) {
       configsToSet.push({ key: 'init.defaultBranch', value: 'main', current: null });
+      results.original['init.defaultBranch'] = null; // Didn't exist before
     } else {
       logger.info(`  → init.defaultBranch already set: ${defaultBranch}`);
+      results.original['init.defaultBranch'] = defaultBranch;
     }
     
     if (configsToSet.length === 0) {
