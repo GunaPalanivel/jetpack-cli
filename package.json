@@ -9,7 +9,11 @@
   "scripts": {
     "start": "node bin/jetpack.js",
     "dev": "node bin/jetpack.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run test:unit && npm run test:integration && npm run test:rollback",
+    "test:unit": "node tests/doc-generator.test.js && node tests/manifest-parser.test.js && node tests/manifest-fetcher.test.js",
+    "test:integration": "node tests/integration-docs.test.js && node tests/integration-setup.test.js && node tests/integration-verification.test.js",
+    "test:rollback": "node tests/rollback/rollback-state.test.js && node tests/rollback/rollback-validator.test.js && node tests/rollback/rollback-actions.test.js && node tests/rollback/rollback-diff-generator.test.js",
+    "test:all": "npm test"
   },
   "keywords": [
     "cli",
