@@ -339,7 +339,7 @@ echo $PATH
 # Check environment variables
 {{#if environment.required}}
 {{#each environment.required}}
-echo ${{this}}
+echo \${{this}}
 {{/each}}
 {{/if}}
 \`\`\`

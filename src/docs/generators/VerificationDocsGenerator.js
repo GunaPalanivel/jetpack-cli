@@ -302,7 +302,7 @@ Before running the application, verify:
 {{#each environment.required}}
 - [ ] \`{{this}}\` is set
   \`\`\`bash
-  echo ${{this}}
+  echo \${{this}}
   \`\`\`
 {{/each}}
 {{/if}}

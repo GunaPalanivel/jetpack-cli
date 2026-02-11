@@ -38,6 +38,11 @@ class GettingStartedGenerator {
    * @private
    */
   _generateQuickstart(context) {
+    // Pre-compute content builder results
+    const configSummary = context.config ? contentBuilder.buildConfigSummary(context.config) : '';
+    const verificationSummary = context.verification ? contentBuilder.buildVerificationSummary(context.verification) : '';
+    const platformNote = contentBuilder.buildPlatformNote(context.platform.os);
+    
     const template = `# 🚀 Quickstart Guide
 
 Get started with **{{project.name}}** in 5 minutes.
@@ -83,7 +88,7 @@ Set up required environment variables in \`.env\`:
 
 {{#if config}}
 Configuration files created:
-${contentBuilder.buildConfigSummary(context.config)}
+${configSummary}
 {{/if}}
 
 ### 3. Verify Installation
@@ -95,7 +100,7 @@ jetpack verify
 \`\`\`
 
 {{#if verification}}
-${contentBuilder.buildVerificationSummary(context.verification)}
+${verificationSummary}
 {{/if}}
 
 ## Next Steps
@@ -106,7 +111,7 @@ ${contentBuilder.buildVerificationSummary(context.verification)}
 
 ---
 
-${contentBuilder.buildPlatformNote(context.platform.os)}
+${platformNote}
 `;
 
     return templateEngine.render(template, context);
