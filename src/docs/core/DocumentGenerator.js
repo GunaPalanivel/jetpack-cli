@@ -36,8 +36,8 @@ class DocumentGenerator {
         return this._dryRunPreview(docConfig, context, outputDir);
       }
 
-      // Create output directory structure
-      await this._createDirectories(outputDir);
+      // Create output directory structure (only for enabled sections)
+      await this._createDirectories(outputDir, docConfig.sections);
 
       // Generate documentation files
       const files = [];
@@ -116,8 +116,8 @@ class DocumentGenerator {
         python: manifest.dependencies?.python || []
       },
       environment: {
-        required: manifest.dependencies?.environment?.required || [],
-        optional: manifest.dependencies?.environment?.optional || []
+        required: manifest.environment?.required || [],
+        optional: manifest.environment?.optional || []
       },
       setupSteps: manifest.setup_steps || [],
       config: this._extractConfigInfo(state),
@@ -211,14 +211,13 @@ class DocumentGenerator {
    * Create directory structure for documentation
    * @private
    */
-  async _createDirectories(outputDir) {
-    const dirs = [
-      outputDir,
-      path.join(outputDir, 'getting-started'),
-      path.join(outputDir, 'setup'),
-      path.join(outputDir, 'troubleshooting'),
-      path.join(outputDir, 'verification')
-    ];
+  async _createDirectories(outputDir, sections) {
+    const dirs = [outputDir];
+    
+    // Only create directories for enabled sections
+    for (const section of sections) {
+      dirs.push(path.join(outputDir, section));
+    }
 
     for (const dir of dirs) {
       await fs.mkdir(dir, { recursive: true });

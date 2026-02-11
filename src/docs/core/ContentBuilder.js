@@ -96,6 +96,12 @@ class ContentBuilder {
 
     return setupSteps.map((step, index) => {
       const description = step.description ? ` - ${step.description}` : '';
+      
+      // Handle missing command gracefully
+      if (!step.command) {
+        return `${index + 1}. **${step.name}**${description}\n   _⚠️ No command specified_`;
+      }
+      
       return `${index + 1}. **${step.name}**${description}\n   \`\`\`bash\n   ${step.command}\n   \`\`\``;
     }).join('\n\n');
   }

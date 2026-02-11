@@ -33,7 +33,8 @@ class TemplateEngine {
    * @private
    */
   _processConditionals(template, context) {
-    const conditionalRegex = /\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g;
+    // Support dot notation for nested properties (e.g., {{#if dependencies.system}})
+    const conditionalRegex = /\{\{#if\s+(\w+(?:\.\w+)*)\}\}([\s\S]*?)\{\{\/if\}\}/g;
     
     return template.replace(conditionalRegex, (match, condition, content) => {
       const value = this._getValue(context, condition);
@@ -52,7 +53,8 @@ class TemplateEngine {
    * @private
    */
   _processLoops(template, context) {
-    const loopRegex = /\{\{#each\s+(\w+)\}\}([\s\S]*?)\{\{\/each\}\}/g;
+    // Support dot notation for nested properties (e.g., {{#each environment.required}})
+    const loopRegex = /\{\{#each\s+(\w+(?:\.\w+)*)\}\}([\s\S]*?)\{\{\/each\}\}/g;
     
     return template.replace(loopRegex, (match, arrayName, content) => {
       const array = this._getValue(context, arrayName);
