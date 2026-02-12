@@ -31,7 +31,27 @@ class Orchestrator {
       environment,
       timestamp: new Date().toISOString(),
       steps: [],
-      installed: false
+      installed: false,
+      rollback: {
+        dependencies: {
+          npm: [],
+          pip: [],
+          system: []
+        },
+        config: {
+          backups: {},
+          originalGitConfig: {}
+        },
+        ssh: {
+          keyPath: null,
+          publicKeyPath: null,
+          addedToAgent: false
+        },
+        docs: {
+          outputDir: null,
+          filesCreated: 0
+        }
+      }
     };
 
     // Store state in options for step communication
@@ -52,6 +72,9 @@ class Orchestrator {
         });
         
         logger.success(`✓ ${step.name} completed`);
+        
+        // Enhance rollback tracking after specific steps
+        this.enhanceRollbackTracking(state, step.id, stepResult);
         
         // Save state after each step for recovery
         stateManager.save(state);
@@ -74,6 +97,103 @@ class Orchestrator {
       
       stateManager.save(state);
       throw error;
+    }
+  }
+  
+  /**
+   * Enhance rollback tracking data after each step
+   * @param {object} state - Current state object
+   * @param {number} stepId - Step ID
+   * @param {object} stepResult - Result from the step
+   */
+  enhanceRollbackTracking(state, stepId, stepResult) {
+    switch (stepId) {
+      case 3: // Install Dependencies
+        if (stepResult.packages) {
+          const { system, npm, python } = stepResult.packages;
+          
+          // Track npm packages
+          if (npm && npm.installed) {
+            state.rollback.dependencies.npm = npm.installed.map(pkg => ({
+              name: pkg,
+              installed: true,
+              version: null
+            }));
+          }
+          if (npm && npm.skipped) {
+            state.rollback.dependencies.npm.push(...npm.skipped.map(pkg => ({
+              name: pkg,
+              installed: false,
+              version: null
+            })));
+          }
+          
+          // Track pip packages
+          if (python && python.installed) {
+            state.rollback.dependencies.pip = python.installed.map(pkg => ({
+              name: pkg,
+              installed: true,
+              version: null
+            }));
+          }
+          if (python && python.skipped) {
+            state.rollback.dependencies.pip.push(...python.skipped.map(pkg => ({
+              name: pkg,
+              installed: false,
+              version: null
+            })));
+          }
+          
+          // Track system packages
+          if (system && system.installed) {
+            state.rollback.dependencies.system = system.installed.map(pkg => ({
+              name: pkg,
+              installed: true,
+              platform: state.environment.platform
+            }));
+          }
+          if (system && system.skipped) {
+            state.rollback.dependencies.system.push(...system.skipped.map(pkg => ({
+              name: pkg,
+              installed: false,
+              platform: state.environment.platform
+            })));
+          }
+        }
+        break;
+        
+      case 5: // Generate Configurations
+        if (stepResult.files) {
+          const { env, ssh, git } = stepResult.files;
+          
+          // Track env backups
+          if (env && env.created) {
+            const envFile = env.created.find(f => f.includes('.env.backup'));
+            if (envFile) {
+              state.rollback.config.backups.env = envFile;
+            }
+          }
+          
+          // Track SSH keys
+          if (ssh && ssh.created && ssh.created.length > 0) {
+            state.rollback.ssh.keyPath = '~/.ssh/id_ed25519';
+            state.rollback.ssh.publicKeyPath = '~/.ssh/id_ed25519.pub';
+            state.rollback.ssh.addedToAgent = true;
+          }
+          
+          // Track original git config (will be enhanced in config-generator)
+          if (git && git.original) {
+            state.rollback.config.originalGitConfig = git.original;
+          }
+        }
+        break;
+        
+      case 6: // Create Documentation
+        if (stepResult.generated && stepResult.files) {
+          state.rollback.docs.outputDir = stepResult.outputDir || './docs';
+          state.rollback.docs.filesCreated = stepResult.files.length || 0;
+        }
+        break;
     }
   }
 

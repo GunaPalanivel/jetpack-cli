@@ -46,8 +46,11 @@ program
 // jetpack rollback
 program
   .command('rollback')
-  .description('Rollback the last onboarding session')
-  .option('-s, --state <file>', 'Path to state file', '.jetpack-state.json')
+  .description('Rollback all Jetpack changes')
+  .option('--dry-run', 'Preview changes without executing')
+  .option('--partial <phases>', 'Rollback specific phases (docs,config,ssh,git,dependencies)')
+  .option('--unsafe', 'Allow package uninstallation')
+  .option('--force', 'Skip safety checks (dangerous)')
   .action(async (options) => {
     try {
       await rollbackCommand(options);
