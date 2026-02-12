@@ -34,8 +34,8 @@ coverage/
 .nyc_output/
 
 # Build outputs
-dist/
-build/
+# dist/
+# build/
 *.tgz
 
 # Temporary files
@@ -45,11 +45,11 @@ temp/
 
 # State files
 .jetpack
-.jetpack-state.json
+# .jetpack-state.json
 
 # Jetpack CLI - Auto-generated
-.env.backup.*
+ .env.backup.*
 
 # Test artifacts (examples/ contains committed reference output)
-test-docs-output/
+# test-docs-output/
 .onboard-test.yaml
