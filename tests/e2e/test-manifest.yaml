@@ -1,0 +1,27 @@
+name: test-project
+description: E2E Test Project
+author: Test Bot
+
+environment:
+  files:
+    - .env.example
+  required:
+    - API_KEY
+    - DB_HOST
+
+dependencies:
+  system: []
+  npm:
+    - express
+  python: []
+
+setup_steps:
+  - name: Simple Echo
+    command: echo "Setup step executed"
+    description: Verifies command execution
+
+documentation:
+  outputDir: ./docs
+  sections:
+    - getting-started
+    - setup

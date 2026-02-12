@@ -1,0 +1,37 @@
+name: Review-Pilot
+description: AI-native code reviewer and pre-commit analyzer
+author: Gokul287
+
+environment:
+  required:
+    - OPENAI_API_KEY
+    - GITHUB_TOKEN
+  optional:
+    - DEBUG_MODE
+
+dependencies:
+  system:
+    - node
+    - git
+  npm:
+    - "@babel/parser"
+    - chalk
+    - commander
+    - glob
+  python: []
+
+setup_steps:
+  - name: Install Dependencies
+    command: npm install
+    description: Install Node.js dependencies
+  
+  - name: Run Tests
+    command: npm test
+    description: Execute test suite (142 tests)
+
+documentation:
+  outputDir: ./docs
+  sections:
+    - getting-started
+    - setup
+    - troubleshooting

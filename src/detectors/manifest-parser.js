@@ -89,10 +89,10 @@ function validateManifestSchema(manifest) {
   } else {
     // Validate dependency categories
     const validCategories = ['system', 'npm', 'python', 'environment'];
-    const hasValidCategory = Object.keys(manifest.dependencies).some(key => 
+    const hasValidCategory = Object.keys(manifest.dependencies).some(key =>
       validCategories.includes(key)
     );
-    
+
     if (!hasValidCategory) {
       errors.push(`"dependencies" must contain at least one of: ${validCategories.join(', ')}`);
     }
@@ -121,7 +121,7 @@ function validateManifestSchema(manifest) {
     // Validate environment variables structure
     if (manifest.dependencies.environment) {
       const env = manifest.dependencies.environment;
-      
+
       // Allow both array format and object format
       if (Array.isArray(env)) {
         // Empty array is valid - means no environment variables needed
@@ -156,11 +156,11 @@ function validateManifestSchema(manifest) {
         errors.push(`setup_steps[${index}] must be an object`);
         return;
       }
-      
+
       if (!step.name || typeof step.name !== 'string') {
         errors.push(`setup_steps[${index}].name is required and must be a string`);
       }
-      
+
       if (!step.command || typeof step.command !== 'string') {
         errors.push(`setup_steps[${index}].command is required and must be a string`);
       }
@@ -179,7 +179,7 @@ function validateManifestSchema(manifest) {
       errors.push('ssh.algorithm must be a string');
     }
   }
-  
+
   // Optional: git section validation (Phase 5 - P2)
   if (manifest.git && typeof manifest.git === 'object') {
     if (typeof manifest.git.configure !== 'undefined' && typeof manifest.git.configure !== 'boolean') {
@@ -209,7 +209,7 @@ function validatePackageName(packageName) {
   // Allow: letters, numbers, hyphens, underscores, dots, @ (for scoped packages), forward slashes
   // Disallow: shell metacharacters like ; && || | $ ` etc.
   const validPattern = /^[@a-zA-Z0-9._/-]+$/;
-  
+
   if (!validPattern.test(packageName)) {
     throw new Error(
       `Invalid package name: "${packageName}". ` +
@@ -217,7 +217,7 @@ function validatePackageName(packageName) {
       `Shell metacharacters are not allowed for security reasons.`
     );
   }
-  
+
   return true;
 }
 
@@ -284,15 +284,15 @@ function extractEnvironment(manifest) {
     optional: []
   };
 
-  if (!manifest.dependencies || !manifest.dependencies.environment) {
+  if ((!manifest.dependencies || !manifest.dependencies.environment) && !manifest.environment) {
     return environment;
   }
 
-  const env = manifest.dependencies.environment;
+  const env = manifest.environment || manifest.dependencies.environment;
 
   // Environment variable name validation pattern (uppercase letters, numbers, underscores)
   const ENV_VAR_PATTERN = /^[A-Z][A-Z0-9_]*$/;
-  
+
   // Validate environment variable name (security: prevent command injection in Copilot CLI)
   function isValidEnvVarName(varName) {
     if (typeof varName !== 'string' || varName.trim().length === 0) {
