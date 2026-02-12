@@ -4,10 +4,15 @@
 Current platform: Windows_NT
 
 ### Windows
-> **Note for Windows users**: Commands are executed in PowerShell.
+> **Note for Windows users**: Commands are executed in powershell.
 
 ### macOS
 > **Note for macOS users**: Some commands may require `sudo`.
 
 ### Linux
 > **Note**: Commands are executed in the default shell.
+
+## Check Platform
+```bash
+echo $SHELL
+```

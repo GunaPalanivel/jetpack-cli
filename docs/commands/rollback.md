@@ -24,6 +24,7 @@ Safely undoes changes made during the onboarding process. By default, it perform
 | Option | Description | Default |
 | :--- | :--- | :--- |
 | `--dry-run` | Preview changes without executing. | `false` |
+| `--check-risks` | Analyze rollback risks (e.g., data loss) using Copilot before execution. | `false` |
 | `--partial <phases>` | Rollback only specific phases. Comma-separated list: `docs`, `config`, `git`, `ssh`, `dependencies`. | `all` |
 | `--unsafe` | Allow uninstallation of system packages. **Use with caution.** | `false` |
 | `--force` | Bypass interactive safety confirmations. | `false` |

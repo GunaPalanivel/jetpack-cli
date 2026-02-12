@@ -20,6 +20,7 @@ The `verify` command ensures that the developer environment is correctly set up.
 | Option | Description | Default |
 | :--- | :--- | :--- |
 | `--verbose` | Show detailed output for all verification checks, including successful ones. | `false` |
+| `--copilot-troubleshoot` | Analyze failed checks using GitHub Copilot and suggest fixes. | `false` |
 
 ## Examples
 
@@ -31,4 +32,9 @@ jetpack verify
 **Debug failing checks:**
 ```bash
 jetpack verify --verbose
+```
+
+**Analyze failures with AI:**
+```bash
+jetpack verify --copilot-troubleshoot
 ```

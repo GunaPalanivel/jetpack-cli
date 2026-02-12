@@ -26,10 +26,14 @@ async function init(repoUrl, options) {
   try {
     // Step 1: Validate repository URL
     logger.step(1, 'Validating repository URL');
-    if (!isValidRepoUrl(repoUrl)) {
+    // Allow '.' for local repo if copilot generation is requested
+    if (options.copilotGenerate && (repoUrl === '.' || repoUrl === process.cwd())) {
+      logger.success('✓ Local repository selected');
+    } else if (!isValidRepoUrl(repoUrl)) {
       throw new Error('Invalid repository URL format. Expected: https://github.com/owner/repo');
+    } else {
+      logger.success('✓ Repository URL is valid');
     }
-    logger.success('✓ Repository URL is valid');
 
     let manifestData;
     let manifestContent;
@@ -44,6 +48,22 @@ async function init(repoUrl, options) {
         filename: options.manifest
       };
       logger.info(`  → Using local file: ${options.manifest}`);
+    } else if (options.copilotGenerate) {
+      // Copilot Generation
+      logger.step(2, 'Generating manifest with Copilot');
+      const generator = require('../../core/manifest-generator');
+
+      // Use current directory for generation
+      const repoPath = process.cwd();
+      const yaml = await generator.generateFromRepo(repoPath);
+
+      manifestContent = yaml;
+      manifestData = {
+        content: yaml,
+        source: 'generated',
+        filename: 'copilot-generated.yaml'
+      };
+      logger.success('✓ Manifest generated');
     } else {
       // Step 2: Fetch manifest from GitHub
       logger.step(2, 'Fetching manifest from GitHub');

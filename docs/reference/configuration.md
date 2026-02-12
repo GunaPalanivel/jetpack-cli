@@ -67,6 +67,7 @@ Defines packages to install.
 *   **npm**: Array of global npm packages.
 *   **python**: Array of Python packages installed via `pip`.
 *   **environment**: Object with `required` and `optional` environment variable names. Jetpack will prompt for values or allow generation.
+    *   **Note**: If Copilot is enabled, Jetpack can automatically generate secure values and explanations for these variables.
 
 ### Setup Steps
 

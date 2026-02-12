@@ -10,9 +10,9 @@
     "start": "node bin/jetpack.js",
     "dev": "node bin/jetpack.js",
     "test": "npm run test:unit && npm run test:integration && npm run test:rollback",
-    "test:unit": "node tests/doc-generator.test.js && node tests/manifest-parser.test.js && node tests/manifest-fetcher.test.js",
+    "test:unit": "node tests/doc-generator.test.js && node tests/manifest-parser.test.js && node tests/manifest-fetcher.test.js && node tests/copilot-troubleshooter.test.js && node tests/copilot-resolver.test.js && node tests/manifest-generator.test.js",
     "test:integration": "node tests/integration-docs.test.js && node tests/integration-setup.test.js && node tests/integration-verification.test.js",
-    "test:rollback": "node tests/rollback/rollback-state.test.js && node tests/rollback/rollback-validator.test.js && node tests/rollback/rollback-actions.test.js && node tests/rollback/rollback-diff-generator.test.js && node tests/rollback/rollback-orchestrator.test.js",
+    "test:rollback": "node tests/rollback/rollback-state.test.js && node tests/rollback/rollback-validator.test.js && node tests/rollback/rollback-actions.test.js && node tests/rollback/rollback-diff-generator.test.js && node tests/rollback/rollback-orchestrator.test.js && node tests/rollback/copilot-risk-analyzer.test.js",
     "test:all": "npm test"
   },
   "keywords": [
