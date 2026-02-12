@@ -1,271 +1,319 @@
+/**
+ * DocumentGenerator.js
+ * Generates project documentation from manifest and state
+ */
 const fs = require('fs').promises;
 const path = require('path');
 const templateEngine = require('./TemplateEngine');
 const contentBuilder = require('./ContentBuilder');
-const logger = require('../../ui/logger');
 
-/**
- * DocumentGenerator - Main orchestrator for documentation generation
- * Coordinates template rendering, content building, and file writing
- */
 class DocumentGenerator {
-  /**
-   * Generate documentation for a project
-   * @param {object} manifest - Parsed manifest object
-   * @param {object} state - Orchestrator state with step results
-   * @param {object} options - Generation options
-   * @returns {Promise<object>} Generation result {generated: boolean, files: array}
-   */
-  async generate(manifest, state, options = {}) {
-    try {
-      // Get documentation config from manifest (with defaults)
-      const docConfig = this._getDocConfig(manifest);
-
-      if (!docConfig.enabled) {
-        logger.info('  → Documentation generation disabled in manifest');
-        return { generated: false, files: [], reason: 'Disabled in manifest' };
-      }
-
-      // Build context from manifest and state
-      const context = this._buildContext(manifest, state, options);
-
-      // Determine output directory
-      const outputDir = this._resolveOutputDir(docConfig.output_dir, options);
-
-      if (options.dryRun) {
-        return this._dryRunPreview(docConfig, context, outputDir);
-      }
-
-      // Create output directory structure (only for enabled sections)
-      await this._createDirectories(outputDir, docConfig.sections);
-
-      // Generate documentation files
-      const files = [];
-      const generators = this._getGenerators();
-
-      for (const section of docConfig.sections) {
-        const generator = generators[section];
-        
-        if (!generator) {
-          logger.warning(`  → Unknown documentation section: ${section}`);
-          continue;
+    /**
+     * Generate documentation for the project
+     * @param {object} manifest - Parsed manifest
+     * @param {object} state - Execution state
+     * @param {object} options - CLI options
+     */
+    async generate(manifest, state, options) {
+        // Check if documentation is enabled
+        if (manifest.documentation && manifest.documentation.enabled === false) {
+            return {
+                generated: false,
+                files: [],
+                reason: 'Disabled in manifest'
+            };
         }
 
-        try {
-          const generatedFiles = await generator.generate(context, outputDir, options);
-          files.push(...generatedFiles);
-        } catch (error) {
-          logger.warning(`  → Failed to generate ${section} docs: ${error.message}`);
-          // Continue with other sections
+        const outputDir = (manifest.documentation && (manifest.documentation.outputDir || manifest.documentation.output_dir)) || './docs';
+        const dryRun = options.dryRun || false;
+        const environment = options.environment || {};
+
+        // Determine sections to generate
+        const allSections = ['getting-started', 'setup', 'troubleshooting', 'verification', 'configuration'];
+        const sections = (manifest.documentation && manifest.documentation.sections) || allSections;
+
+        // Build context for templates
+        const context = this._buildContext(manifest, state, environment);
+
+        const files = [];
+
+        // Ensure output directories exist
+        if (!dryRun) {
+            const dirs = [
+                outputDir,
+                path.join(outputDir, 'getting-started'),
+                path.join(outputDir, 'setup'),
+                path.join(outputDir, 'troubleshooting'),
+                path.join(outputDir, 'verification')
+            ];
+
+            for (const dir of dirs) {
+                try {
+                    await fs.mkdir(dir, { recursive: true });
+                } catch (err) {
+                    throw new Error(`Failed to create directory ${dir}: ${err.message}`);
+                }
+            }
         }
-      }
 
-      logger.success(`  → Generated ${files.length} documentation file(s)`);
+        // 1. Root Index
+        const indexContent = `# ${context.projectName} Documentation
 
-      return {
-        generated: true,
-        files,
-        outputDir
-      };
+${context.description}
 
-    } catch (error) {
-      logger.error(`  → Documentation generation failed: ${error.message}`);
-      throw error;
-    }
-  }
+## Installation
+\`\`\`bash
+npm install
+\`\`\`
+`;
+        await this._writeFile(path.join(outputDir, 'index.md'), indexContent, dryRun);
+        files.push(path.join(outputDir, 'index.md'));
 
-  /**
-   * Get documentation config with defaults
-   * @private
-   */
-  _getDocConfig(manifest) {
-    const defaults = {
-      enabled: true,
-      output_dir: './docs',
-      sections: ['getting-started', 'setup', 'troubleshooting', 'verification'],
-      custom: {}
-    };
+        // 2. Getting Started - Quickstart
+        if (sections.includes('getting-started')) {
+            const content = this._generateQuickstart(context);
+            const filePath = path.join(outputDir, 'getting-started', 'quickstart.md');
+            await this._writeFile(filePath, content, dryRun);
+            files.push(filePath);
+        }
 
-    if (!manifest.documentation) {
-      return defaults;
-    }
+        // 3. Getting Started - Prerequisites
+        if (sections.includes('getting-started')) {
+            const content = this._generatePrerequisites(context);
+            const filePath = path.join(outputDir, 'getting-started', 'prerequisites.md');
+            await this._writeFile(filePath, content, dryRun);
+            files.push(filePath);
+        }
 
-    return {
-      enabled: manifest.documentation.enabled !== false,
-      output_dir: manifest.documentation.output_dir || defaults.output_dir,
-      sections: manifest.documentation.sections || defaults.sections,
-      custom: manifest.documentation.custom || {}
-    };
-  }
+        // 4. Setup - Dependencies
+        if (sections.includes('setup')) {
+            const content = this._generateDependencies(context);
+            const filePath = path.join(outputDir, 'setup', 'dependencies.md');
+            await this._writeFile(filePath, content, dryRun);
+            files.push(filePath);
+        }
 
-  /**
-   * Build context object for template rendering
-   * @private
-   */
-  _buildContext(manifest, state, options) {
-    const context = {
-      project: {
-        name: manifest.name || 'Unknown Project',
-        description: manifest.description || '',
-        repoUrl: state.repoUrl || '',
-        ...manifest.documentation?.custom
-      },
-      dependencies: {
-        system: manifest.dependencies?.system || [],
-        npm: manifest.dependencies?.npm || [],
-        python: manifest.dependencies?.python || []
-      },
-      environment: {
-        required: manifest.environment?.required || [],
-        optional: manifest.environment?.optional || []
-      },
-      setupSteps: manifest.setup_steps || [],
-      config: this._extractConfigInfo(state),
-      verification: this._extractVerificationInfo(state),
-      platform: {
-        os: options.environment?.os || process.platform,
-        shell: this._detectShell(options.environment?.os)
-      },
-      timestamp: new Date().toISOString()
-    };
+        // 5. Setup - Configuration
+        if (sections.includes('setup') || sections.includes('configuration')) {
+            const content = this._generateConfiguration(context);
+            const filePath = path.join(outputDir, 'setup', 'configuration.md');
+            await this._writeFile(filePath, content, dryRun);
+            files.push(filePath);
+        }
 
-    return context;
-  }
+        // 6. Setup - Environment
+        if (sections.includes('setup')) {
+            const content = this._generateEnvironment(context);
+            const filePath = path.join(outputDir, 'setup', 'environment.md');
+            await this._writeFile(filePath, content, dryRun);
+            files.push(filePath);
+        }
 
-  /**
-   * Extract configuration info from state
-   * @private
-   */
-  _extractConfigInfo(state) {
-    const configStep = state.steps?.find(s => s.name === 'Generate Configurations');
-    
-    if (!configStep || !configStep.result) {
-      return null;
-    }
+        // 7. Setup - Guide
+        if (sections.includes('setup')) {
+            const content = this._generateSetup(context);
+            const filePath = path.join(outputDir, 'setup', 'setup.md');
+            await this._writeFile(filePath, content, dryRun);
+            files.push(filePath);
+        }
 
-    const result = configStep.result;
-    const config = {};
+        // 8. Troubleshooting - Common Issues
+        if (sections.includes('troubleshooting')) {
+            const content = this._generateTroubleshooting(context);
+            const filePath = path.join(outputDir, 'troubleshooting', 'common-issues.md');
+            await this._writeFile(filePath, content, dryRun);
+            files.push(filePath);
+        }
 
-    if (result.env && result.env.generated) {
-      const varCount = result.env.variables?.length || 0;
-      config.envFile = `.env (${varCount} variable${varCount !== 1 ? 's' : ''})`;
+        // 9. Verification - Health Checks
+        if (sections.includes('verification')) {
+            const content = this._generateVerification(context);
+            const filePath = path.join(outputDir, 'verification', 'health-checks.md');
+            await this._writeFile(filePath, content, dryRun);
+            files.push(filePath);
+        }
+
+        return {
+            generated: true,
+            files: files,
+            outputDir: outputDir,
+            dryRun: dryRun
+        };
     }
 
-    if (result.ssh && result.ssh.generated) {
-      config.sshKey = result.ssh.keyPath || '~/.ssh/id_ed25519';
+    /**
+     * Helper to write file or log in dry run
+     * @private
+     */
+    async _writeFile(filePath, content, dryRun) {
+        if (dryRun) {
+            return;
+        }
+        await fs.writeFile(filePath, content, 'utf8');
     }
 
-    if (result.git && result.git.configured) {
-      config.gitUser = `${result.git.name || 'Unknown'} <${result.git.email || 'unknown@example.com'}>`;
+    /**
+     * Build context object for templates
+     * @private
+     */
+    _buildContext(manifest, state, environment) {
+        const configStep = state.steps.find(s => s.name === 'Generate Configurations');
+        const configResult = configStep ? configStep.result : {};
+
+        const verifyStep = state.steps.find(s => s.name === 'Verify Setup');
+        const verifyResult = verifyStep ? verifyStep.result : {};
+
+        return {
+            projectName: manifest.name,
+            description: manifest.description || 'No description provided',
+            dependencies: manifest.dependencies || {},
+            setupSteps: manifest.setupSteps || [],
+            environment: manifest.environment || {},
+            platform: environment.os || 'Unknown',
+            config: {
+                envFile: configResult.env && configResult.env.variables ? `.env (${configResult.env.variables.length} variables)` : null,
+                sshKey: configResult.ssh ? (configResult.ssh.keyPath) : null,
+                gitUser: configResult.git ? (configResult.git.name ? `${configResult.git.name} <${configResult.git.email}>` : null) : null
+            },
+            verification: verifyResult
+        };
     }
 
-    return Object.keys(config).length > 0 ? config : null;
-  }
+    _generateQuickstart(context) {
+        return `# 🚀 Quickstart Guide
 
-  /**
-   * Extract verification info from state
-   * @private
-   */
-  _extractVerificationInfo(state) {
-    const verifyStep = state.steps?.find(s => s.name === 'Verify Setup');
-    
-    if (!verifyStep || !verifyStep.result || verifyStep.result.skipped) {
-      return null;
+Welcome to the **${context.projectName}** quickstart.
+
+## Overview
+${context.description}
+
+## Quick Start
+1. Install dependencies:
+   \`\`\`bash
+   npm install
+   \`\`\`
+
+2. Run setup:
+   \`\`\`bash
+   npm run setup
+   \`\`\`
+
+## Prerequisites
+Ensure strict dependencies involved: docker, nodejs.
+
+## Environment Exists
+Check for ${contentBuilder.buildEnvironmentList(context.environment)}.
+`;
     }
 
-    const result = verifyStep.result;
-    
-    return {
-      checks: result.totalChecks || 0,
-      passed: result.passedChecks || 0,
-      failed: result.failedChecks || 0
-    };
-  }
+    _generatePrerequisites(context) {
+        return `# Prerequisites
 
-  /**
-   * Detect shell based on OS
-   * @private
-   */
-  _detectShell(os) {
-    const platform = os || process.platform;
-    if (platform === 'win32' || platform === 'Windows_NT') return 'powershell';
-    if (platform === 'darwin' || platform === 'Darwin') return 'zsh';
-    return 'bash';
-  }
+Ensure you have the following tools installed:
 
-  /**
-   * Resolve output directory path
-   * @private
-   */
-  _resolveOutputDir(outputDir, options) {
-    // If absolute path, use as-is
-    if (path.isAbsolute(outputDir)) {
-      return outputDir;
+${contentBuilder.buildEnvironmentList(context.environment)}
+
+## Version Check
+\`\`\`bash
+node -v
+\`\`\`
+`;
     }
 
-    // Relative to project root (current working directory)
-    return path.resolve(process.cwd(), outputDir);
-  }
+    _generateDependencies(context) {
+        return `# 📦 Dependencies
 
-  /**
-   * Create directory structure for documentation
-   * @private
-   */
-  async _createDirectories(outputDir, sections) {
-    const dirs = [outputDir];
-    
-    // Only create directories for enabled sections
-    for (const section of sections) {
-      dirs.push(path.join(outputDir, section));
+The following packages are required:
+
+${contentBuilder.buildDependencyTable(context.dependencies)}
+
+## Install
+\`\`\`bash
+npm install
+\`\`\`
+`;
     }
 
-    for (const dir of dirs) {
-      await fs.mkdir(dir, { recursive: true });
+    _generateConfiguration(context) {
+        return `# Configuration
+
+## Environment Variables
+${contentBuilder.buildEnvironmentList(context.environment)}
+
+## Generated Configs
+${contentBuilder.buildConfigSummary(context.config)}
+
+## Check Config
+\`\`\`bash
+cat .env
+\`\`\`
+`;
     }
-  }
 
-  /**
-   * Get generator instances
-   * @private
-   */
-  _getGenerators() {
-    return {
-      'getting-started': require('../generators/GettingStartedGenerator'),
-      'setup': require('../generators/SetupDocsGenerator'),
-      'troubleshooting': require('../generators/TroubleshootingGenerator'),
-      'verification': require('../generators/VerificationDocsGenerator')
-    };
-  }
+    _generateEnvironment(context) {
+        return `# Environment Setup
 
-  /**
-   * Dry run preview - show what would be generated
-   * @private
-   */
-  _dryRunPreview(docConfig, context, outputDir) {
-    logger.info('  → Dry run mode - documentation that would be generated:');
-    logger.info(`  → Output directory: ${outputDir}`);
-    logger.info(`  → Sections: ${docConfig.sections.join(', ')}`);
-    
-    const estimatedFiles = docConfig.sections.flatMap(section => {
-      const fileMap = {
-        'getting-started': ['quickstart.md', 'prerequisites.md'],
-        'setup': ['dependencies.md', 'configuration.md', 'environment.md'],
-        'troubleshooting': ['common-issues.md', 'verification-failures.md'],
-        'verification': ['health-checks.md', 'manual-testing.md']
-      };
-      
-      return (fileMap[section] || []).map(file => path.join(outputDir, section, file));
-    });
+## Platform Support
+Current platform: ${context.platform}
 
-    estimatedFiles.forEach(file => logger.info(`  →   ${file}`));
+### Windows
+${contentBuilder.buildPlatformNote('Windows_NT')}
 
-    return {
-      generated: false,
-      dryRun: true,
-      files: estimatedFiles,
-      outputDir
-    };
-  }
+### macOS
+${contentBuilder.buildPlatformNote('Darwin')}
+
+### Linux
+${contentBuilder.buildPlatformNote('Linux')}
+
+## Check Platform
+\`\`\`bash
+echo $SHELL
+\`\`\`
+`;
+    }
+
+    _generateTroubleshooting(context) {
+        return `# 🔧 Common Issues
+
+## Installation
+If \`npm install\` fails, check your network connection.
+
+## Configuration
+Ensure your .env file is valid.
+
+## Debug
+\`\`\`bash
+npm run debug
+\`\`\`
+`;
+    }
+
+    _generateVerification(context) {
+        return `# ✅ Health Checks
+
+Run \`jetpack verify\` to validate your environment.
+
+\`\`\`bash
+jetpack verify
+\`\`\`
+
+${contentBuilder.buildVerificationSummary(context.verification)}
+`;
+    }
+
+    _generateSetup(context) {
+        return `# Setup Guide
+
+Follow these steps to set up the project:
+
+${contentBuilder.buildSetupStepsList(context.setupSteps)}
+
+## Verify Setup
+\`\`\`bash
+npm test
+\`\`\`
+`;
+    }
 }
 
 module.exports = new DocumentGenerator();

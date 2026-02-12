@@ -1,75 +1,18 @@
-# .onboard.yaml - Example with documentation generation
-# Phase 7: Documentation Generation Example
-
 name: example-docs-project
-description: Full-stack web application with comprehensive documentation
-
+description: A sample project for integration tests
 dependencies:
-  system:
-    - docker
-    - nodejs
-    - git
-  
-  npm:
-    - eslint
-    - prettier
-    - typescript
-  
-  python:
-    - black
-    - pytest
-
+  system: [git, nodejs]
+  npm: [typescript, jest]
   environment:
-    required:
-      - DATABASE_URL
-      - API_KEY
-      - JWT_SECRET
-    optional:
-      - DEBUG_MODE
-      - LOG_LEVEL
-
+    required: [API_KEY, DATABASE_URL]
 setup_steps:
-  - name: Install dependencies
+  - name: Install
     command: npm install
-    description: Install all Node.js dependencies
-  
-  - name: Setup database
-    command: npm run db:migrate
-    description: Run database migrations
-  
-  - name: Run tests
-    command: npm test
-    description: Verify installation with test suite
-
-# Phase 7: Documentation Configuration
 documentation:
   enabled: true
-  output_dir: "./docs"
-  sections:
-    - getting-started
-    - setup
-    - troubleshooting
-    - verification
-  custom:
-    repo_url: https://github.com/example/example-docs-project
-    docs_url: https://docs.example.com
-    support_url: https://support.example.com
-
-# Phase 6: Verification Checks
+  output_dir: ./docs
+  sections: [getting-started, setup, verification, troubleshooting]
 verification:
   checks:
     - type: command
-      command: docker --version
-      expected_output: "Docker version"
-      tags: [critical, system]
-    
-    - type: command
-      command: node --version
-      expected_output: "v"
-      tags: [critical, system]
-    
-    - type: file
-      path: .env
-      should_exist: true
-      contains: "DATABASE_URL"
-      tags: [config]
+      command: node -v
