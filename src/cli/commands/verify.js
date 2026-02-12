@@ -15,7 +15,7 @@ async function verify(options) {
   try {
     // Load state from last installation
     const state = stateManager.load();
-    
+
     if (!state || !state.installed) {
       logger.warning('⚠️  No installation state found');
       logger.info('Run: jetpack init <repo-url> first');
@@ -55,7 +55,7 @@ async function verify(options) {
     // Step 3: New verification checks (if configured in manifest)
     if (state.manifest && state.manifest.verification && state.manifest.verification.checks) {
       logger.step(3, 'Running verification checks');
-      
+
       const orchestrator = new VerificationOrchestrator();
       const reporter = new VerificationReporter();
 
@@ -106,6 +106,39 @@ async function verify(options) {
         } else {
           logger.warning('⚠️  Some verification checks failed');
         }
+
+        // Copilot Troubleshooting Integration
+        if (options.copilotTroubleshoot) {
+          logger.newLine();
+          logger.header('🤖 Copilot Failure Analysis');
+
+          const troubleshooter = require('../../core/copilot-troubleshooter');
+          // Filter for failed checks
+          const failures = verificationResult.checks.filter(r => !r.success);
+
+          for (const fail of failures) {
+            logger.info(`Analyzing failure: ${fail.name}...`);
+
+            const suggestion = await troubleshooter.analyzeFailed(
+              { type: fail.check.type, message: fail.error ? fail.error.message : 'Check failed' },
+              {
+                os: environment.os,
+                nodeVersion: environment.nodeVersion,
+                failedStep: fail.name
+              }
+            );
+
+            logger.newLine();
+            logger.info(`💡 ${fail.name}:`);
+            logger.info(`   Cause: ${suggestion.cause}`);
+            logger.info(`   Fix: ${suggestion.fix}`);
+            if (suggestion.command) {
+              logger.info(`   Command: ${suggestion.command}`);
+            }
+            logger.newLine();
+          }
+        }
+
         logger.info('Review the failures above and fix them before proceeding.');
         process.exit(1);
       }

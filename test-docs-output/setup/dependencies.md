@@ -7,3 +7,8 @@ The following packages are required:
 | System | git, nodejs |
 | npm | typescript, jest |
 
+
+## Install
+```bash
+npm install
+```

@@ -7,6 +7,7 @@ const path = require('path');
 const templateEngine = require('./TemplateEngine');
 const contentBuilder = require('./ContentBuilder');
 const codebaseAnalyzer = require('../codebase-analyzer');
+const troubleshooter = require('../../core/copilot-troubleshooter');
 
 class DocumentGenerator {
     /**
@@ -36,6 +37,15 @@ class DocumentGenerator {
         // Build context for templates
         const analysis = await codebaseAnalyzer.analyze(process.cwd());
         const context = this._buildContext(manifest, state, environment, analysis);
+
+        // Fetch Copilot Troubleshooting Issues
+        if (sections.includes('troubleshooting')) {
+            try {
+                context.troubleshootingIssues = await troubleshooter.generateCommonIssues(context.dependencies);
+            } catch (e) {
+                context.troubleshootingIssues = [];
+            }
+        }
 
         const files = [];
 
@@ -276,9 +286,17 @@ echo $SHELL
     }
 
     _generateTroubleshooting(context) {
-        return `# 🔧 Common Issues
+        let content = `# 🔧 Common Issues\n\n`;
 
-## Installation
+        if (context.troubleshootingIssues && context.troubleshootingIssues.length > 0) {
+            content += `## 🤖 AI Suggested Solutions\n`;
+            context.troubleshootingIssues.forEach(item => {
+                content += `### ${item.issue}\n${item.fix}\n\n`;
+            });
+            content += `---\n\n`;
+        }
+
+        content += `## Installation
 If \`npm install\` fails, check your network connection.
 
 ## Configuration
@@ -289,6 +307,7 @@ Ensure your .env file is valid.
 npm run debug
 \`\`\`
 `;
+        return content;
     }
 
     _generateVerification(context) {

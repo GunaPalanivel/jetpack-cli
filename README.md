@@ -48,8 +48,19 @@ Automatically detects the OS, installs system/npm/python dependencies, and gener
 # Standard initialization
 jetpack init <repo-url>
 
+# Initialize current directory with Copilot manifest generation
+jetpack init . --copilot-generate
+
 # Dry run (preview changes)
 jetpack init <repo-url> --dry-run
+```
+
+### `jetpack generate-manifest` — AI Setup
+Generate a comprehensive `.onboard.yaml` from your codebase using Copilot.
+
+```bash
+# Analyze repo and generate manifest
+jetpack generate-manifest --copilot
 ```
 
 ### `jetpack verify` — Health Check
@@ -59,6 +70,9 @@ Ensures your environment matches the project requirements.
 # Run all verification checks
 jetpack verify
 
+# Analyze failures with Copilot suggestions
+jetpack verify --copilot-troubleshoot
+
 # Verbose output for debugging
 jetpack verify --verbose
 ```
@@ -67,6 +81,9 @@ jetpack verify --verbose
 Safely revert your system to its previous state.
 
 ```bash
+# Analyze rollback risks with Copilot
+jetpack rollback --check-risks
+
 # Safe rollback (keeps packages, removes configs)
 jetpack rollback
 
@@ -136,6 +153,21 @@ See the [Configuration Guide](docs/reference/configuration.md) for the full sche
 | **IDE Agnostic** | ✅ Any Editor | ✅ Any Editor | ⚠️ VS Code focused |
 | **State Awareness** | ✅ Tracks changes | ❌ No tracking | ❌ Ephemeral |
 | **Rollback** | ✅ One command | ❌ Impossible | ✅ Kill container |
+
+---
+
+## 🤖 AI Capabilities
+
+Jetpack CLI integrates **GitHub Copilot** to automate complex onboarding tasks:
+
+| Feature | Command | Description |
+| :--- | :--- | :--- |
+| **Troubleshooting** | `verify --copilot-troubleshoot` | Analyzes verification failures and suggests fixes. |
+| **Conflict Resolution** | `init` (Automatic) | Resolves dependency version conflicts and peer dep issues. |
+| **Manifest Generation** | `generate-manifest --copilot` | Scans repo to create `.onboard.yaml` automatically. |
+| **Risk Assessment** | `rollback --check-risks` | Identifies data loss risks before rolling back. |
+| **Documentation** | `jetpack doc` (Automatic) | Adds AI-generated troubleshooting tips to docs. |
+| **Config Explainer** | `config` (Automatic) | Generates explanations for `.env` variables. |
 
 ---
 
