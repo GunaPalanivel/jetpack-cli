@@ -6,6 +6,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const templateEngine = require('./TemplateEngine');
 const contentBuilder = require('./ContentBuilder');
+const codebaseAnalyzer = require('../codebase-analyzer');
 
 class DocumentGenerator {
     /**
@@ -33,7 +34,8 @@ class DocumentGenerator {
         const sections = (manifest.documentation && manifest.documentation.sections) || allSections;
 
         // Build context for templates
-        const context = this._buildContext(manifest, state, environment);
+        const analysis = await codebaseAnalyzer.analyze(process.cwd());
+        const context = this._buildContext(manifest, state, environment, analysis);
 
         const files = [];
 
@@ -156,7 +158,7 @@ npm install
      * Build context object for templates
      * @private
      */
-    _buildContext(manifest, state, environment) {
+    _buildContext(manifest, state, environment, analysis = {}) {
         const configStep = state.steps.find(s => s.name === 'Generate Configurations');
         const configResult = configStep ? configStep.result : {};
 
@@ -175,7 +177,8 @@ npm install
                 sshKey: configResult.ssh ? (configResult.ssh.keyPath) : null,
                 gitUser: configResult.git ? (configResult.git.name ? `${configResult.git.name} <${configResult.git.email}>` : null) : null
             },
-            verification: verifyResult
+            verification: verifyResult,
+            analysis: analysis
         };
     }
 

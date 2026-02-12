@@ -22,7 +22,7 @@ function mergeEnvFile(existingContent, newVars) {
   const existing = {};
   const added = [];
   const preserved = [];
-  
+
   // Parse existing variables
   lines.forEach(line => {
     const trimmed = line.trim();
@@ -35,13 +35,13 @@ function mergeEnvFile(existingContent, newVars) {
       }
     }
   });
-  
+
   // Add missing variables
   let newContent = existingContent.trim();
   if (newContent && !newContent.endsWith('\n')) {
     newContent += '\n';
   }
-  
+
   Object.keys(newVars).forEach(varName => {
     if (!existing[varName]) {
       const value = newVars[varName] || '';
@@ -49,7 +49,7 @@ function mergeEnvFile(existingContent, newVars) {
       added.push(varName);
     }
   });
-  
+
   return {
     content: newContent,
     added,
@@ -68,7 +68,7 @@ function validateEnvVar(name, value, type = 'string') {
   if (!value) {
     return { valid: true, error: null }; // Empty is valid (user will fill)
   }
-  
+
   switch (type) {
     case 'url':
       const urlPattern = /^(https?|postgres|mysql|mongodb):\/\/.+/i;
@@ -76,21 +76,21 @@ function validateEnvVar(name, value, type = 'string') {
         return { valid: false, error: 'Invalid URL format' };
       }
       break;
-      
+
     case 'email':
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(value)) {
         return { valid: false, error: 'Invalid email format' };
       }
       break;
-      
+
     case 'port':
       const port = parseInt(value);
       if (isNaN(port) || port < 1 || port > 65535) {
         return { valid: false, error: 'Port must be 1-65535' };
       }
       break;
-      
+
     case 'boolean':
       const boolPattern = /^(true|false|1|0)$/i;
       if (!boolPattern.test(value)) {
@@ -98,7 +98,7 @@ function validateEnvVar(name, value, type = 'string') {
       }
       break;
   }
-  
+
   return { valid: true, error: null };
 }
 
@@ -110,43 +110,29 @@ function validateEnvVar(name, value, type = 'string') {
  */
 async function generateCopilotValue(varName, type = 'string') {
   // Try Copilot CLI first
-  try {
-    const isCopilotAvailable = checkCommand('gh');
-    if (isCopilotAvailable) {
-      let prompt = '';
-      
-      switch (type) {
-        case 'api_key':
-          prompt = 'generate secure 32-character alphanumeric API key';
-          break;
-        case 'jwt_secret':
-          prompt = 'generate secure 64-character random JWT secret key';
-          break;
-        case 'database_url':
-          prompt = `suggest PostgreSQL connection string format for ${varName}`;
-          break;
-        default:
-          prompt = `suggest value for environment variable ${varName}`;
-      }
-      
-      const result = execSync(`gh copilot suggest -t shell "${prompt}"`, {
-        encoding: 'utf8',
-        timeout: 5000,
-        stdio: ['pipe', 'pipe', 'ignore']
-      });
-      
-      // Parse Copilot response (basic extraction)
-      const lines = result.split('\n');
-      for (const line of lines) {
-        if (line.trim() && !line.includes('Suggestion:')) {
-          return line.trim();
-        }
-      }
+  const copilot = require('../integrations/copilot-wrapper');
+
+  if (copilot.isAvailable) {
+    let prompt = '';
+
+    switch (type) {
+      case 'api_key':
+        prompt = 'generate secure 32-character alphanumeric API key';
+        break;
+      case 'jwt_secret':
+        prompt = 'generate secure 64-character random JWT secret key';
+        break;
+      case 'database_url':
+        prompt = `suggest PostgreSQL connection string format for ${varName}`;
+        break;
+      default:
+        prompt = `suggest value for environment variable ${varName}`;
     }
-  } catch (error) {
-    // Copilot unavailable or failed, use fallback
+
+    const suggestion = copilot.suggest(prompt, 'shell');
+    if (suggestion) return suggestion;
   }
-  
+
   // Fallback: Generate using Node crypto
   switch (type) {
     case 'api_key':
@@ -166,28 +152,15 @@ async function generateCopilotValue(varName, type = 'string') {
  * @returns {Promise<string>} Explanation or default description
  */
 async function getCopilotExplanation(varName) {
-  try {
-    const isCopilotAvailable = checkCommand('gh');
-    if (isCopilotAvailable) {
-      const result = execSync(
-        `gh copilot explain "what is ${varName} environment variable used for"`,
-        {
-          encoding: 'utf8',
-          timeout: 5000,
-          stdio: ['pipe', 'pipe', 'ignore']
-        }
-      );
-      
-      // Extract explanation (basic parsing)
-      const lines = result.split('\n').filter(l => l.trim() && !l.includes('Explanation:'));
-      if (lines.length > 0) {
-        return lines.join(' ').slice(0, 120); // Limit to 120 chars
-      }
+  const copilot = require('../integrations/copilot-wrapper');
+
+  if (copilot.isAvailable) {
+    const explanation = copilot.explain(`what is ${varName} environment variable used for`);
+    if (explanation) {
+      return explanation.slice(0, 120); // Limit length
     }
-  } catch (error) {
-    // Copilot unavailable, use fallback
   }
-  
+
   // Fallback descriptions
   const commonVars = {
     'DATABASE_URL': 'Database connection string',
@@ -197,7 +170,7 @@ async function getCopilotExplanation(varName) {
     'NODE_ENV': 'Node environment (development/production)',
     'DEBUG': 'Debug mode flag'
   };
-  
+
   return commonVars[varName] || `Environment variable: ${varName}`;
 }
 
@@ -210,18 +183,18 @@ function backupFile(filePath) {
   if (!fs.existsSync(filePath)) {
     return null;
   }
-  
+
   const timestamp = new Date().toISOString().replace(/[:.]/g, '').slice(0, 15);
   const backupPath = `${filePath}.backup.${timestamp}`;
-  
+
   try {
     fs.copyFileSync(filePath, backupPath);
-    
+
     // Clean old backups (keep last 3)
     const dir = path.dirname(filePath);
     const filename = path.basename(filePath);
     const backupPattern = new RegExp(`^${filename}\\.backup\\.\\d+$`);
-    
+
     const backups = fs.readdirSync(dir)
       .filter(f => backupPattern.test(f))
       .map(f => ({
@@ -230,7 +203,7 @@ function backupFile(filePath) {
         time: fs.statSync(path.join(dir, f)).mtime.getTime()
       }))
       .sort((a, b) => b.time - a.time);
-    
+
     // Delete old backups (keep last 3)
     backups.slice(3).forEach(backup => {
       try {
@@ -239,7 +212,7 @@ function backupFile(filePath) {
         // Ignore deletion errors
       }
     });
-    
+
     return backupPath;
   } catch (error) {
     console.error(`Warning: Failed to backup ${filePath}:`, error.message);
@@ -257,10 +230,10 @@ function updateGitignore(projectRoot, entries) {
   const gitignorePath = path.join(projectRoot, '.gitignore');
   const added = [];
   const skipped = [];
-  
+
   let content = '';
   let existingEntries = new Set();
-  
+
   // Read existing .gitignore
   if (fs.existsSync(gitignorePath)) {
     content = fs.readFileSync(gitignorePath, 'utf8');
@@ -271,12 +244,12 @@ function updateGitignore(projectRoot, entries) {
       }
     });
   }
-  
+
   // Add header if new file or no jetpack section
   if (!content.includes('# Jetpack CLI')) {
     content += '\n# Jetpack CLI - Auto-generated\n';
   }
-  
+
   // Add missing entries
   entries.forEach(entry => {
     if (!existingEntries.has(entry)) {
@@ -286,7 +259,7 @@ function updateGitignore(projectRoot, entries) {
       skipped.push(entry);
     }
   });
-  
+
   // Write updated .gitignore
   if (added.length > 0) {
     try {
@@ -295,7 +268,7 @@ function updateGitignore(projectRoot, entries) {
       console.error('Warning: Failed to update .gitignore:', error.message);
     }
   }
-  
+
   return { added, skipped };
 }
 
@@ -329,7 +302,7 @@ function generateSshKey(keyPath, comment = 'jetpack-cli', passphrase = '') {
     if (!checkCommand('ssh-keygen')) {
       return { success: false, publicKey: null, error: 'ssh-keygen not found' };
     }
-    
+
     // Generate key with ed25519 algorithm (using array syntax to prevent command injection)
     const { execFileSync } = require('child_process');
     execFileSync('ssh-keygen', [
@@ -339,10 +312,10 @@ function generateSshKey(keyPath, comment = 'jetpack-cli', passphrase = '') {
       '-N', passphrase,
       '-q'
     ], { timeout: 10000 });
-    
+
     // Read public key
     const publicKey = fs.readFileSync(`${keyPath}.pub`, 'utf8').trim();
-    
+
     return { success: true, publicKey, error: null };
   } catch (error) {
     return { success: false, publicKey: null, error: error.message };
@@ -360,11 +333,11 @@ function addSshKeyToAgent(keyPath) {
     if (!checkCommand('ssh-add')) {
       return { success: false, error: 'ssh-add not found' };
     }
-    
+
     // Try to add key to agent (using array syntax to prevent command injection)
     const { execFileSync } = require('child_process');
     execFileSync('ssh-add', [keyPath], { timeout: 5000 });
-    
+
     return { success: true, error: null };
   } catch (error) {
     return { success: false, error: error.message };
@@ -405,7 +378,7 @@ function setGitConfig(key, value, global = true) {
     if (!keyPattern.test(key)) {
       return { success: false, error: `Invalid git config key: ${key}` };
     }
-    
+
     const { execFileSync } = require('child_process');
     const scope = global ? '--global' : '--local';
     execFileSync('git', ['config', scope, key, value], {

@@ -12,15 +12,15 @@ const { parseManifestFromString } = require('../../detectors/manifest-parser');
 async function init(repoUrl, options) {
   logger.header('🚀 Jetpack CLI - Developer Onboarding');
   logger.info(`Repository: ${repoUrl}`);
-  
+
   if (options.dryRun) {
     logger.warning('⚠️  DRY RUN MODE - No changes will be made');
   }
-  
+
   if (options.cache === false) {
     logger.info('Cache: Disabled (--no-cache)');
   }
-  
+
   logger.newLine();
 
   try {
@@ -31,14 +31,30 @@ async function init(repoUrl, options) {
     }
     logger.success('✓ Repository URL is valid');
 
-    // Step 2: Fetch manifest from GitHub
-    logger.step(2, 'Fetching manifest from GitHub');
-    const manifestData = await manifestFetcher.fetchFromGitHub(repoUrl, {
-      noCache: options.cache === false
-    });
-    
+    let manifestData;
+    let manifestContent;
+
+    if (options.manifest && require('fs').existsSync(options.manifest)) {
+      logger.step(2, 'Reading local manifest');
+      const fs = require('fs');
+      manifestContent = fs.readFileSync(options.manifest, 'utf8');
+      manifestData = {
+        content: manifestContent,
+        source: 'local',
+        filename: options.manifest
+      };
+      logger.info(`  → Using local file: ${options.manifest}`);
+    } else {
+      // Step 2: Fetch manifest from GitHub
+      logger.step(2, 'Fetching manifest from GitHub');
+      manifestData = await manifestFetcher.fetchFromGitHub(repoUrl, {
+        noCache: options.cache === false
+      });
+      manifestContent = manifestData.content;
+    }
+
     // Parse manifest content
-    const manifest = parseManifestFromString(manifestData.content);
+    const manifest = parseManifestFromString(manifestContent);
     logger.success(`✓ Manifest parsed: ${manifest.name}`);
     logger.info(`  Source: ${manifestData.source}`);
     logger.info(`  File: ${manifestData.filename}`);
@@ -47,7 +63,7 @@ async function init(repoUrl, options) {
     logger.step(3, 'Detecting system environment');
     const environment = await envAnalyzer.detect();
     logger.success(`✓ Detected: ${environment.os} | Node ${environment.nodeVersion} | ${environment.shell}`);
-    
+
     if (options.dryRun) {
       logger.newLine();
       logger.info('📋 DRY RUN - Manifest Summary:');
@@ -61,21 +77,19 @@ async function init(repoUrl, options) {
       logger.info(`  Required Env Vars: ${manifest.environment.required.length}`);
       logger.info(`  Setup Steps: ${manifest.setupSteps.length}`);
       logger.newLine();
-      logger.info('📋 DRY RUN COMPLETE - No actual installation performed');
-      return;
     }
 
     // Step 4: Run orchestrator with parsed manifest
     logger.step(4, 'Starting onboarding workflow');
     await orchestrator.run(repoUrl, environment, { ...options, manifest });
-    
+
     logger.newLine();
     logger.success('🎉 Onboarding complete! Your development environment is ready.');
     logger.info('\nNext steps:');
     logger.info('  • Run: jetpack verify');
     logger.info('  • Check: .env file for required API keys');
     logger.info('  • Review: Generated README-QUICKSTART.md');
-    
+
   } catch (error) {
     logger.error('❌ Onboarding failed:', error.message);
     logger.info('\nRollback available: jetpack rollback');
