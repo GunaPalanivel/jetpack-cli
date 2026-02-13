@@ -26,8 +26,8 @@ async function init(repoUrl, options) {
   try {
     // Step 1: Validate repository URL
     logger.step(1, 'Validating repository URL');
-    // Allow '.' for local repo if copilot generation is requested
-    if (options.copilotGenerate && (repoUrl === '.' || repoUrl === process.cwd())) {
+    // Allow '.' for local repo
+    if (repoUrl === '.' || repoUrl === process.cwd()) {
       logger.success('✓ Local repository selected');
     } else if (!isValidRepoUrl(repoUrl)) {
       throw new Error('Invalid repository URL format. Expected: https://github.com/owner/repo');

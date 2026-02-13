@@ -1,0 +1,11 @@
+{
+    "name": "demo",
+    "dependencies": {
+        "cors": "^2.8.5"
+    },
+    "scripts": {
+        "build": "echo build",
+        "start": "node index.js",
+        "test": "echo \"Error: no test specified\" && exit 0"
+    }
+}

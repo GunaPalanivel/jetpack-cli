@@ -1,15 +1,22 @@
-name: my-demo-app
+name: demo-app
+description: Demo Express App
 dependencies:
-  npm: [express, cors]
+  npm:
+    - express
+    - cors
+  system: []
+  python: []
 environment:
-  required: [PORT, API_KEY]
+  required:
+    - PORT
 setup_steps:
   - name: Install Dependencies
     command: npm install
-  - name: Build Project
+  - name: Build
     command: npm run build
 verification:
   checks:
-    - type: command
-      name: "Check Express Installation"
-      command: npm list express
+    - name: Verify URL
+      type: http
+      url: http://localhost:3000
+      priority: P0

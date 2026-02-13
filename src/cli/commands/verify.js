@@ -120,7 +120,7 @@ async function verify(options) {
             logger.info(`Analyzing failure: ${fail.name}...`);
 
             const suggestion = await troubleshooter.analyzeFailed(
-              { type: fail.check.type, message: fail.error ? fail.error.message : 'Check failed' },
+              { type: fail.type, message: fail.error ? fail.error.message : 'Check failed' },
               {
                 os: environment.os,
                 nodeVersion: environment.nodeVersion,
