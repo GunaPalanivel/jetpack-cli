@@ -42,3 +42,16 @@ cd jetpack-cli
 git pull
 npm install
 ```
+
+## Testing
+
+Verify your installation by running the comprehensive test suite:
+
+```bash
+# Run all tests (Jest)
+npm test
+
+# Run specific test suites
+npm run test:unit
+npm run test:rollback
+```
