@@ -1,0 +1,15 @@
+name: my-demo-app
+dependencies:
+  npm: [express, cors]
+environment:
+  required: [PORT, API_KEY]
+setup_steps:
+  - name: Install Dependencies
+    command: npm install
+  - name: Build Project
+    command: npm run build
+verification:
+  checks:
+    - type: command
+      name: "Check Express Installation"
+      command: npm list express

@@ -389,8 +389,10 @@ function parseManifestFromString(content) {
     dependencies: extractDependencies(manifest),
     environment: extractEnvironment(manifest),
     setupSteps: extractSetupSteps(manifest),
+    verification: manifest.verification || null,
     ssh: manifest.ssh || null,
     git: manifest.git || null,
+    documentation: manifest.documentation || null,
     metadata: {
       parsedAt: new Date().toISOString(),
       source: 'string'

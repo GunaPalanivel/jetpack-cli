@@ -1,0 +1,13 @@
+{
+    "name": "my-demo-app",
+    "version": "1.0.0",
+    "description": "A demo application for Jetpack CLI",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "build": "echo 'Building... success'"
+    },
+    "dependencies": {
+        "cors": "^2.8.5"
+    }
+}

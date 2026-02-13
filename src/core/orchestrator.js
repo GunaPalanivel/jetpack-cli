@@ -60,9 +60,9 @@ class Orchestrator {
     try {
       for (const step of this.steps) {
         logger.step(step.id, step.name);
-        
+
         const stepResult = await step.handler.call(this, repoUrl, environment, options);
-        
+
         state.steps.push({
           id: step.id,
           name: step.name,
@@ -70,12 +70,22 @@ class Orchestrator {
           result: stepResult,
           timestamp: new Date().toISOString()
         });
-        
+
         logger.success(`✓ ${step.name} completed`);
-        
+
         // Enhance rollback tracking after specific steps
         this.enhanceRollbackTracking(state, step.id, stepResult);
-        
+
+        // Persist manifest to state root after parsing
+        if (step.id === 2 && stepResult.manifest) {
+          state.manifest = stepResult.manifest;
+          state.dependencies = [
+            ...(stepResult.manifest.dependencies.system || []),
+            ...(stepResult.manifest.dependencies.npm || []),
+            ...(stepResult.manifest.dependencies.python || [])
+          ];
+        }
+
         // Save state after each step for recovery
         stateManager.save(state);
       }
@@ -88,18 +98,18 @@ class Orchestrator {
     } catch (error) {
       logger.error(`\n❌ Workflow failed at step: ${error.step || 'unknown'}`);
       logger.error(`Error: ${error.message}`);
-      
+
       state.error = {
         message: error.message,
         step: error.step,
         timestamp: new Date().toISOString()
       };
-      
+
       stateManager.save(state);
       throw error;
     }
   }
-  
+
   /**
    * Enhance rollback tracking data after each step
    * @param {object} state - Current state object
@@ -111,7 +121,7 @@ class Orchestrator {
       case 3: // Install Dependencies
         if (stepResult.packages) {
           const { system, npm, python } = stepResult.packages;
-          
+
           // Track npm packages
           if (npm && npm.installed) {
             state.rollback.dependencies.npm = npm.installed.map(pkg => ({
@@ -127,7 +137,7 @@ class Orchestrator {
               version: null
             })));
           }
-          
+
           // Track pip packages
           if (python && python.installed) {
             state.rollback.dependencies.pip = python.installed.map(pkg => ({
@@ -143,7 +153,7 @@ class Orchestrator {
               version: null
             })));
           }
-          
+
           // Track system packages
           if (system && system.installed) {
             state.rollback.dependencies.system = system.installed.map(pkg => ({
@@ -161,11 +171,11 @@ class Orchestrator {
           }
         }
         break;
-        
+
       case 5: // Generate Configurations
         if (stepResult.files) {
           const { env, ssh, git } = stepResult.files;
-          
+
           // Track env backups
           if (env && env.created) {
             const envFile = env.created.find(f => f.includes('.env.backup'));
@@ -173,21 +183,21 @@ class Orchestrator {
               state.rollback.config.backups.env = envFile;
             }
           }
-          
+
           // Track SSH keys
           if (ssh && ssh.created && ssh.created.length > 0) {
             state.rollback.ssh.keyPath = '~/.ssh/id_ed25519';
             state.rollback.ssh.publicKeyPath = '~/.ssh/id_ed25519.pub';
             state.rollback.ssh.addedToAgent = true;
           }
-          
+
           // Track original git config (will be enhanced in config-generator)
           if (git && git.original) {
             state.rollback.config.originalGitConfig = git.original;
           }
         }
         break;
-        
+
       case 6: // Create Documentation
         if (stepResult.generated && stepResult.files) {
           state.rollback.docs.outputDir = stepResult.outputDir || './docs';
@@ -202,7 +212,7 @@ class Orchestrator {
    */
   async detectEnvironment(repoUrl, environment, options) {
     // Already done by env-analyzer, just log it
-    return { 
+    return {
       detected: true,
       os: environment.os,
       node: environment.nodeVersion
@@ -218,7 +228,7 @@ class Orchestrator {
     if (options.manifest) {
       logger.info('  → Using pre-fetched manifest');
       logger.info(`  → Project: ${options.manifest.name}`);
-      
+
       return {
         parsed: true,
         manifest: options.manifest,
@@ -227,11 +237,11 @@ class Orchestrator {
         setupSteps: options.manifest.setupSteps
       };
     }
-    
+
     // Fallback: placeholder for local manifest files
     logger.info('  → Manifest parsing would happen here');
     logger.info('  → Looking for .onboard.yaml in repository');
-    
+
     return {
       parsed: false,
       manifestFile: options.manifest || '.onboard.yaml',
@@ -244,7 +254,7 @@ class Orchestrator {
    */
   async installDependencies(repoUrl, environment, options) {
     const dependencyInstaller = require('./dependency-installer');
-    
+
     // Check if installation should be skipped
     if (options.skipInstall) {
       logger.warning('  → Skipped (--skip-install flag)');
@@ -254,10 +264,10 @@ class Orchestrator {
         packages: []
       };
     }
-    
+
     // Get manifest from previous step
     const manifestResult = this.getStepResult(options, 'Parse Manifest');
-    
+
     if (!manifestResult || !manifestResult.manifest) {
       logger.warning('  → No manifest available');
       return {
@@ -266,16 +276,16 @@ class Orchestrator {
         error: 'Manifest not available'
       };
     }
-    
+
     const manifest = manifestResult.manifest;
-    
+
     // Check if there are any dependencies to install
     const hasDeps = (
       (manifest.dependencies.system && manifest.dependencies.system.length > 0) ||
       (manifest.dependencies.npm && manifest.dependencies.npm.length > 0) ||
       (manifest.dependencies.python && manifest.dependencies.python.length > 0)
     );
-    
+
     if (!hasDeps) {
       logger.info('  → No dependencies to install');
       return {
@@ -284,14 +294,14 @@ class Orchestrator {
         message: 'No dependencies in manifest'
       };
     }
-    
+
     // Install dependencies
     const result = await dependencyInstaller.installDependencies(
       manifest.dependencies,
       environment,
       options
     );
-    
+
     return {
       installed: result.summary.installed > 0,
       packages: result,
@@ -314,10 +324,10 @@ class Orchestrator {
    */
   async executeSetupSteps(repoUrl, environment, options) {
     const setupExecutor = require('./setup-executor');
-    
+
     // Get manifest from previous step
     const manifestResult = this.getStepResult(options, 'Parse Manifest');
-    
+
     if (!manifestResult || !manifestResult.manifest) {
       logger.warning('  → No manifest available');
       return {
@@ -326,9 +336,9 @@ class Orchestrator {
         error: 'Manifest not available'
       };
     }
-    
+
     const manifest = manifestResult.manifest;
-    
+
     // Check if there are setup steps to execute
     if (!manifest.setupSteps || manifest.setupSteps.length === 0) {
       logger.info('  → No setup steps to execute');
@@ -338,18 +348,18 @@ class Orchestrator {
         message: 'No setup steps in manifest'
       };
     }
-    
+
     // Execute setup steps
     const result = await setupExecutor.executeSteps(
       manifest.setupSteps,
       options
     );
-    
+
     // Stop workflow if setup steps failed
     if (!result.success) {
       throw new Error(`Setup failed: ${result.error}`);
     }
-    
+
     return {
       executed: result.executed > 0,
       steps: result,
@@ -366,10 +376,10 @@ class Orchestrator {
    */
   async generateConfigs(repoUrl, environment, options) {
     const configGenerator = require('./config-generator');
-    
+
     // Get manifest from previous step
     const manifestResult = this.getStepResult(options, 'Parse Manifest');
-    
+
     if (!manifestResult || !manifestResult.manifest) {
       logger.warning('  → No manifest available');
       return {
@@ -378,16 +388,16 @@ class Orchestrator {
         error: 'Manifest not available'
       };
     }
-    
+
     const manifest = manifestResult.manifest;
-    
+
     // Generate configurations
     const result = await configGenerator.generateConfigs(
       manifest,
       environment,
       options
     );
-    
+
     return {
       generated: result.generated,
       files: result.files,
@@ -400,10 +410,10 @@ class Orchestrator {
    */
   async createDocs(repoUrl, environment, options) {
     const documentGenerator = require('../docs/core/DocumentGenerator');
-    
+
     // Get manifest from previous step
     const manifestResult = this.getStepResult(options, 'Parse Manifest');
-    
+
     if (!manifestResult || !manifestResult.manifest) {
       logger.warning('  → No manifest available for documentation generation');
       return {
@@ -412,9 +422,9 @@ class Orchestrator {
         reason: 'Manifest not available'
       };
     }
-    
+
     const manifest = manifestResult.manifest;
-    
+
     // Check if documentation is disabled
     if (manifest.documentation && manifest.documentation.enabled === false) {
       logger.info('  → Documentation generation disabled in manifest');
@@ -424,24 +434,24 @@ class Orchestrator {
         reason: 'Disabled in manifest'
       };
     }
-    
+
     // Generate documentation
     logger.info('  → Generating project documentation...');
-    
+
     try {
       const result = await documentGenerator.generate(
         manifest,
         options._state,
         { ...options, environment }
       );
-      
+
       if (result.generated) {
         logger.success(`  → Generated ${result.files.length} documentation file(s)`);
         logger.info(`  → Documentation saved to: ${result.outputDir}`);
       }
-      
+
       return result;
-      
+
     } catch (error) {
       logger.warning(`  → Documentation generation failed: ${error.message}`);
       // Don't fail the entire workflow for documentation errors
@@ -458,10 +468,10 @@ class Orchestrator {
    */
   async verifySetup(repoUrl, environment, options) {
     const VerificationOrchestrator = require('../verification/core/VerificationOrchestrator');
-    
+
     // Get manifest from previous step
     const manifestResult = this.getStepResult(options, 'Parse Manifest');
-    
+
     if (!manifestResult || !manifestResult.manifest) {
       logger.warning('  → No manifest available for verification');
       return {
@@ -470,9 +480,9 @@ class Orchestrator {
         reason: 'Manifest not available'
       };
     }
-    
+
     const manifest = manifestResult.manifest;
-    
+
     // Check if verification is enabled in manifest
     if (!manifest.verification || !manifest.verification.checks || manifest.verification.checks.length === 0) {
       logger.info('  → No verification checks configured in manifest');
@@ -482,9 +492,9 @@ class Orchestrator {
         reason: 'No checks configured'
       };
     }
-    
+
     logger.info('  → Running verification checks...');
-    
+
     try {
       const verifier = new VerificationOrchestrator();
       const result = await verifier.verifySetup(manifest.verification, {
@@ -492,28 +502,28 @@ class Orchestrator {
         cwd: process.cwd(),
         verbose: options.verbose || false
       });
-      
+
       // Log results
       const summary = result.summary;
       logger.info(`  → Completed: ${summary.passed}/${summary.total} checks passed`);
-      
+
       if (result.hasCriticalFailures) {
         const p0Failed = summary.byPriority.P0.failed;
         logger.warning(`  → ⚠️  ${p0Failed} critical (P0) check(s) failed`);
         logger.info('  → Continuing despite failures (lenient mode)');
       }
-      
+
       if (summary.failed > 0) {
         logger.info(`  → ${summary.failed} check(s) failed (non-critical)`);
       }
-      
+
       return {
         verified: result.success,
         hasCriticalFailures: result.hasCriticalFailures,
         summary: summary,
         details: result
       };
-      
+
     } catch (error) {
       logger.error(`  → Verification error: ${error.message}`);
       return {

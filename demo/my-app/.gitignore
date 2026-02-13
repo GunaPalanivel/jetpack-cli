@@ -1,0 +1,7 @@
+
+# Jetpack CLI - Auto-generated
+.env
+.env.local
+.env.*.local
+.jetpack-state.json
+.env.backup.*
