@@ -8,8 +8,6 @@
 [![Copilot CLI](https://img.shields.io/badge/Copilot_CLI-Powered-blueviolet.svg)](https://docs.github.com/en/copilot)
 [![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen.svg)](#)
 
-![Jetpack CLI Banner](docs/images/banner_placeholder.png)
-
 ---
 
 ## ⚡ Quick Start
@@ -36,6 +34,28 @@ jetpack init https://github.com/StartInOne/next-starter
 
 # Expected: Environment detected, dependencies installed, .env generated in <5 min
 ```
+
+---
+
+## 📸 Proof of Execution
+
+See Jetpack CLI in action with these actual execution screenshots.
+
+### 1. AI-Powered Manifest Generation
+![Manifest Generation](docs/screenshots/AI-Manifest-Generation.png)
+
+### 2. Zero-Config Initialization
+![Initialization](docs/screenshots/jetpack-init.png)
+
+### 3. Automated Verification
+![Verification Passed](docs/screenshots/jetpack-verify.png)
+
+### 4. Intelligent Troubleshooting
+![Copilot Troubleshooting](docs/screenshots/copilot-troubleshoot.png)
+
+### 5. Risk-Aware Rollback
+![Risk Analysis](docs/screenshots/check-risks.png)
+![Rollback Complete](docs/screenshots/rollback.png)
 
 ---
 

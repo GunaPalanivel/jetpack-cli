@@ -111,34 +111,10 @@ class CopilotTroubleshooter {
             throw new Error('GitHub CLI (gh) not installed');
         }
 
-        try {
-            return require('child_process').execSync(`gh copilot -p "${safePrompt}"`, {
-                encoding: 'utf-8',
-                timeout: 30000
-            });
-        } catch (error) {
-            // Mock responses for different contexts if gh copilot fails
-            if (safePrompt.includes('Troubleshoot this installation error')) {
-                return JSON.stringify({
-                    cause: "Dependency 'express' is missing or failed to install.",
-                    fix: "Reinstall the 'express' package manually.",
-                    command: "npm install express",
-                    prevention: "Ensure package.json includes all required dependencies."
-                });
-            } else if (safePrompt.includes('Port')) {
-                return JSON.stringify({
-                    command: "npx kill-port 3000",
-                    explanation: "Kill process on port 3000 to free it up."
-                });
-            } else if (safePrompt.includes('suggest 2 alternative')) {
-                return JSON.stringify([
-                    { name: "fastify", reason: "Faster and lower overhead." },
-                    { name: "koa", reason: "More modern and modular." }
-                ]);
-            }
-            // Default mock
-            return JSON.stringify({ message: "Mock response from Copilot" });
-        }
+        return require('child_process').execSync(`gh copilot -p "${safePrompt}"`, {
+            encoding: 'utf-8',
+            timeout: 30000
+        });
     }
     /**
      * Generate common issues and fixes based on dependencies

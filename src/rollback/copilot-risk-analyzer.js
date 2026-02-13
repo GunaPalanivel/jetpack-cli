@@ -81,19 +81,10 @@ class CopilotRiskAnalyzer {
             throw new Error('GitHub CLI (gh) not installed');
         }
 
-        try {
-            return require('child_process').execSync(`gh copilot -p "${safePrompt}"`, {
-                encoding: 'utf-8',
-                timeout: 30000
-            });
-        } catch (error) {
-            // Mock response if gh copilot fails
-            return JSON.stringify({
-                highRisk: ["Uninstalling 'express' and 'cors' packages", "Deleting generated configuration files"],
-                warnings: ["Environment configuration will be lost", "Application will stop working"],
-                precautions: ["Backup .env file", "Commit changes to git"]
-            });
-        }
+        return require('child_process').execSync(`gh copilot -p "${safePrompt}"`, {
+            encoding: 'utf-8',
+            timeout: 30000
+        });
     }
 }
 
