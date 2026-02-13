@@ -53,3 +53,4 @@ temp/
 # Test artifacts (examples/ contains committed reference output)
 # test-docs-output/
 .onboard-test.yaml
+.jetpack-state.json

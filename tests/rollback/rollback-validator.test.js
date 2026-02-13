@@ -1,85 +1,42 @@
-const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
 const rollbackValidator = require('../../src/rollback/rollback-validator');
-
-// Simple test runner
-const stats = { passed: 0, failed: 0, failures: [] };
-const hooks = { beforeAll: null, afterAll: null, afterEach: null };
-
-function describe(name, fn) {
-  console.log(`\n${name}`);
-  fn();
-}
-
-function it(name, fn) {
-  try {
-    fn();
-    console.log(`  ✓ ${name}`);
-    stats.passed++;
-    if (hooks.afterEach) hooks.afterEach();
-  } catch (error) {
-    console.log(`  ✗ ${name}`);
-    console.log(`    ${error.message}`);
-    stats.failed++;
-    stats.failures.push({ test: name, error: error.message });
-    if (hooks.afterEach) hooks.afterEach();
-  }
-}
-
-function before(fn) {
-  hooks.beforeAll = fn;
-  try {
-    if (fn) fn();
-  } catch (error) {
-    console.log(`  Setup failed: ${error.message}`);
-  }
-}
-
-function after(fn) {
-  hooks.afterAll = fn;
-}
-
-function afterEach(fn) {
-  hooks.afterEach = fn;
-}
-
-console.log('Running RollbackValidator tests...');
 
 describe('RollbackValidator Module', () => {
   const testDir = path.join(__dirname, 'test-temp-validator');
-  
-  before(() => {
+
+  beforeAll(() => {
     if (!fs.existsSync(testDir)) {
       fs.mkdirSync(testDir, { recursive: true });
     }
   });
-  
-  after(() => {
+
+  afterAll(() => {
     if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true, force: true });
+      try {
+        fs.rmSync(testDir, { recursive: true, force: true });
+      } catch (e) { }
     }
   });
-  
+
   describe('validate()', () => {
-    it('should reject invalid state', async () => {
+    test('should reject invalid state', async () => {
       const result = await rollbackValidator.validate(null);
-      
-      assert.strictEqual(result.safe, false);
-      assert.ok(result.errors.length > 0);
-      assert.ok(result.errors[0].includes('Invalid state'));
+
+      expect(result.safe).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]).toContain('Invalid state');
     });
-    
-    it('should reject state without rollback section', async () => {
+
+    test('should reject state without rollback section', async () => {
       const state = { installed: true };
       const result = await rollbackValidator.validate(state);
-      
-      assert.strictEqual(result.safe, false);
-      assert.ok(result.errors.length > 0);
+
+      expect(result.safe).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
     });
-    
-    it('should pass with valid minimal state', async () => {
+
+    test('should pass with valid minimal state', async () => {
       const state = {
         installed: true,
         rollback: {
@@ -88,14 +45,14 @@ describe('RollbackValidator Module', () => {
           ssh: { keyPath: null, publicKeyPath: null }
         }
       };
-      
+
       const result = await rollbackValidator.validate(state);
-      
-      assert.strictEqual(result.safe, true);
-      assert.strictEqual(result.errors.length, 0);
+
+      expect(result.safe).toBe(true);
+      expect(result.errors.length).toBe(0);
     });
-    
-    it('should collect warnings but still be safe', async () => {
+
+    test('should collect warnings but still be safe', async () => {
       const state = {
         installed: true,
         rollback: {
@@ -107,16 +64,16 @@ describe('RollbackValidator Module', () => {
           ssh: { keyPath: null, publicKeyPath: null }
         }
       };
-      
+
       const result = await rollbackValidator.validate(state);
-      
-      assert.strictEqual(result.safe, true);
-      assert.ok(result.warnings.length > 0);
+
+      expect(result.safe).toBe(true);
+      expect(result.warnings.length).toBeGreaterThan(0);
     });
   });
-  
+
   describe('validateBackupsExist()', () => {
-    it('should warn if env backup missing', () => {
+    test('should warn if env backup missing', () => {
       const state = {
         rollback: {
           config: {
@@ -124,22 +81,20 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = rollbackValidator.validateBackupsExist(state);
-      
-      assert.ok(result.warnings.length > 0);
-      assert.ok(result.warnings[0].includes('Environment backup not found'));
+
+      expect(result.warnings.length).toBeGreaterThan(0);
+      expect(result.warnings[0]).toContain('Environment backup not found');
     });
-    
-    it('should pass if backup exists', () => {
-      // Create a test backup file
+
+    test('should pass if backup exists', () => {
       const backupPath = path.join(testDir, '.env.backup.test');
       fs.writeFileSync(backupPath, 'TEST_VAR=value');
-      
-      // Change working directory temporarily
+
       const originalCwd = process.cwd();
       process.chdir(testDir);
-      
+
       const state = {
         rollback: {
           config: {
@@ -147,16 +102,15 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = rollbackValidator.validateBackupsExist(state);
-      
-      // Restore working directory
+
       process.chdir(originalCwd);
-      
-      assert.strictEqual(result.warnings.length, 0);
+
+      expect(result.warnings.length).toBe(0);
     });
-    
-    it('should warn if gitignore backup missing', () => {
+
+    test('should warn if gitignore backup missing', () => {
       const state = {
         rollback: {
           config: {
@@ -164,16 +118,16 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = rollbackValidator.validateBackupsExist(state);
-      
-      assert.ok(result.warnings.length > 0);
-      assert.ok(result.warnings[0].includes('Gitignore backup not found'));
+
+      expect(result.warnings.length).toBeGreaterThan(0);
+      expect(result.warnings[0]).toContain('Gitignore backup not found');
     });
   });
-  
+
   describe('checkPackageDependents()', () => {
-    it('should handle empty package lists', async () => {
+    test('should handle empty package lists', async () => {
       const state = {
         rollback: {
           dependencies: {
@@ -182,13 +136,13 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = await rollbackValidator.checkPackageDependents(state);
-      
-      assert.strictEqual(result.warnings.length, 0);
+
+      expect(result.warnings.length).toBe(0);
     });
-    
-    it('should handle packages without dependents', async () => {
+
+    test('should handle packages without dependents', async () => {
       const state = {
         rollback: {
           dependencies: {
@@ -197,46 +151,45 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = await rollbackValidator.checkPackageDependents(state);
-      
-      // Should not throw, warnings length may vary
-      assert.ok(Array.isArray(result.warnings));
+
+      expect(Array.isArray(result.warnings)).toBe(true);
     });
   });
-  
+
   describe('checkNpmDependents()', () => {
-    it('should return empty array for nonexistent package', async () => {
+    test('should return empty array for nonexistent package', async () => {
       const dependents = await rollbackValidator.checkNpmDependents('nonexistent-package-xyz');
-      
-      assert.ok(Array.isArray(dependents));
+
+      expect(Array.isArray(dependents)).toBe(true);
     });
-    
-    it('should handle command errors gracefully', async () => {
+
+    test('should handle command errors gracefully', async () => {
       const dependents = await rollbackValidator.checkNpmDependents('');
-      
-      assert.ok(Array.isArray(dependents));
-      assert.strictEqual(dependents.length, 0);
+
+      expect(Array.isArray(dependents)).toBe(true);
+      expect(dependents.length).toBe(0);
     });
   });
-  
+
   describe('checkPipDependents()', () => {
-    it('should return empty array for nonexistent package', async () => {
+    test('should return empty array for nonexistent package', async () => {
       const dependents = await rollbackValidator.checkPipDependents('nonexistent-package-xyz');
-      
-      assert.ok(Array.isArray(dependents));
+
+      expect(Array.isArray(dependents)).toBe(true);
     });
-    
-    it('should handle command errors gracefully', async () => {
+
+    test('should handle command errors gracefully', async () => {
       const dependents = await rollbackValidator.checkPipDependents('');
-      
-      assert.ok(Array.isArray(dependents));
-      assert.strictEqual(dependents.length, 0);
+
+      expect(Array.isArray(dependents)).toBe(true);
+      expect(dependents.length).toBe(0);
     });
   });
-  
+
   describe('validateSshKeyBeforeDelete()', () => {
-    it('should warn if SSH key missing', () => {
+    test('should warn if SSH key missing', () => {
       const state = {
         rollback: {
           ssh: {
@@ -245,14 +198,14 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = rollbackValidator.validateSshKeyBeforeDelete(state);
-      
-      assert.ok(result.warnings.length >= 1);
-      assert.ok(result.warnings.some(w => w.includes('SSH key not found')));
+
+      expect(result.warnings.length).toBeGreaterThanOrEqual(1);
+      expect(result.warnings.some(w => w.includes('SSH key not found'))).toBe(true);
     });
-    
-    it('should pass if no SSH keys configured', () => {
+
+    test('should pass if no SSH keys configured', () => {
       const state = {
         rollback: {
           ssh: {
@@ -261,13 +214,13 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = rollbackValidator.validateSshKeyBeforeDelete(state);
-      
-      assert.strictEqual(result.warnings.length, 0);
+
+      expect(result.warnings.length).toBe(0);
     });
-    
-    it('should expand tilde in path', () => {
+
+    test('should expand tilde in path', () => {
       const state = {
         rollback: {
           ssh: {
@@ -276,16 +229,15 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = rollbackValidator.validateSshKeyBeforeDelete(state);
-      
-      // Should warn because expanded path doesn't exist
-      assert.ok(result.warnings.length > 0);
+
+      expect(result.warnings.length).toBeGreaterThan(0);
     });
   });
-  
+
   describe('validateGitConfigBeforeRestore()', () => {
-    it('should warn if no original git config values', () => {
+    test('should warn if no original git config values', () => {
       const state = {
         rollback: {
           config: {
@@ -293,14 +245,14 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = rollbackValidator.validateGitConfigBeforeRestore(state);
-      
-      assert.ok(result.warnings.length > 0);
-      assert.ok(result.warnings[0].includes('No original git config'));
+
+      expect(result.warnings.length).toBeGreaterThan(0);
+      expect(result.warnings[0]).toContain('No original git config');
     });
-    
-    it('should pass if git config values exist', () => {
+
+    test('should pass if git config values exist', () => {
       const state = {
         rollback: {
           config: {
@@ -311,13 +263,13 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = rollbackValidator.validateGitConfigBeforeRestore(state);
-      
-      assert.strictEqual(result.warnings.length, 0);
+
+      expect(result.warnings.length).toBe(0);
     });
-    
-    it('should handle null originalGitConfig', () => {
+
+    test('should handle null originalGitConfig', () => {
       const state = {
         rollback: {
           config: {
@@ -325,15 +277,15 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = rollbackValidator.validateGitConfigBeforeRestore(state);
-      
-      assert.ok(result.warnings.length > 0);
+
+      expect(result.warnings.length).toBeGreaterThan(0);
     });
   });
-  
+
   describe('Integration Tests', () => {
-    it('should perform complete validation flow', async () => {
+    test('should perform complete validation flow', async () => {
       const state = {
         installed: true,
         rollback: {
@@ -352,35 +304,12 @@ describe('RollbackValidator Module', () => {
           }
         }
       };
-      
+
       const result = await rollbackValidator.validate(state);
-      
-      // Should be safe (warnings ok, but no errors)
-      assert.strictEqual(result.safe, true);
-      assert.ok(result.warnings.length >= 0);
-      assert.strictEqual(result.errors.length, 0);
+
+      expect(result.safe).toBe(true);
+      expect(result.warnings.length).toBeGreaterThanOrEqual(0);
+      expect(result.errors.length).toBe(0);
     });
   });
 });
-
-// Execute afterAll hook
-if (hooks.afterAll) {
-  try {
-    hooks.afterAll();
-  } catch (error) {
-    console.log(`  Cleanup failed: ${error.message}`);
-  }
-}
-
-// Print results
-console.log('\n' + '='.repeat(60));
-console.log(`Tests: ${stats.passed + stats.failed} (${stats.passed} passed, ${stats.failed} failed)`);
-
-if (stats.failed > 0) {
-  console.log('\nFailed tests:');
-  stats.failures.forEach(f => console.log(`  - ${f.test}: ${f.error}`));
-  process.exit(1);
-} else {
-  console.log('\n✅ All tests passed!');
-  process.exit(0);
-}

@@ -1,100 +1,57 @@
-const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rollbackState = require('../../src/rollback/rollback-state');
 
-// Simple test runner
-const stats = { passed: 0, failed: 0, failures: [] };
-const hooks = { beforeAll: null, afterAll: null, afterEach: null };
-
-function describe(name, fn) {
-  console.log(`\n${name}`);
-  fn();
-}
-
-function it(name, fn) {
-  try {
-    fn();
-    console.log(`  ✓ ${name}`);
-    stats.passed++;
-    if (hooks.afterEach) hooks.afterEach();
-  } catch (error) {
-    console.log(`  ✗ ${name}`);
-    console.log(`    ${error.message}`);
-    stats.failed++;
-    stats.failures.push({ test: name, error: error.message });
-    if (hooks.afterEach) hooks.afterEach();
-  }
-}
-
-function before(fn) {
-  hooks.beforeAll = fn;
-  try {
-    if (fn) fn();
-  } catch (error) {
-    console.log(`  Setup failed: ${error.message}`);
-  }
-}
-
-function after(fn) {
-  hooks.afterAll = fn;
-}
-
-function afterEach(fn) {
-  hooks.afterEach = fn;
-}
-
-console.log('Running RollbackState tests...');
-
 describe('RollbackState Module', () => {
   const testDir = path.join(__dirname, 'test-temp');
   const testStateFile = path.join(testDir, '.jetpack-state.json');
-  
-  before(() => {
+
+  beforeAll(() => {
     if (!fs.existsSync(testDir)) {
       fs.mkdirSync(testDir, { recursive: true });
     }
   });
-  
-  after(() => {
+
+  afterAll(() => {
     if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true, force: true });
+      try {
+        fs.rmSync(testDir, { recursive: true, force: true });
+      } catch (e) { }
     }
   });
-  
+
   afterEach(() => {
-    // Clean up test state file after each test
     if (fs.existsSync(testStateFile)) {
       fs.unlinkSync(testStateFile);
     }
   });
-  
+
   describe('validateStateForRollback()', () => {
-    it('should reject null state', () => {
+    test('should reject null state', () => {
       const result = rollbackState.validateStateForRollback(null);
-      
-      assert.strictEqual(result.valid, false);
-      assert.strictEqual(result.errors.length, 1);
-      assert.ok(result.errors[0].includes('No state found'));
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBe(1);
+      expect(result.errors[0]).toContain('No state found');
     });
-    
-    it('should reject state without installed flag', () => {
+
+    test('should reject state without installed flag', () => {
       const state = { rollback: {} };
       const result = rollbackState.validateStateForRollback(state);
-      
-      assert.strictEqual(result.valid, false);
-      assert.ok(result.errors.some(e => e.includes('Installation not completed')));
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('Installation not completed'))).toBe(true);
     });
-    
-    it('should reject state without rollback section', () => {
+
+    test('should reject state without rollback section', () => {
       const state = { installed: true };
       const result = rollbackState.validateStateForRollback(state);
-      
-      assert.strictEqual(result.valid, false);
-      assert.ok(result.errors.some(e => e.includes('missing rollback tracking data')));
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('missing rollback tracking data'))).toBe(true);
     });
-    
-    it('should accept valid state', () => {
+
+    test('should accept valid state', () => {
       const state = {
         installed: true,
         rollback: {
@@ -103,46 +60,46 @@ describe('RollbackState Module', () => {
         }
       };
       const result = rollbackState.validateStateForRollback(state);
-      
-      assert.strictEqual(result.valid, true);
-      assert.strictEqual(result.errors.length, 0);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors.length).toBe(0);
     });
   });
-  
+
   describe('enhanceStateWithRollbackData()', () => {
-    it('should return null for null state', () => {
+    test('should return null for null state', () => {
       const result = rollbackState.enhanceStateWithRollbackData(null);
-      assert.strictEqual(result, null);
+      expect(result).toBeNull();
     });
-    
-    it('should return state unchanged if rollback section exists', () => {
+
+    test('should return state unchanged if rollback section exists', () => {
       const state = {
         installed: true,
         rollback: {
           dependencies: { npm: ['test-pkg'] }
         }
       };
-      
+
       const result = rollbackState.enhanceStateWithRollbackData(state);
-      assert.deepStrictEqual(result, state);
+      expect(result).toEqual(state);
     });
-    
-    it('should add rollback section to legacy state', () => {
+
+    test('should add rollback section to legacy state', () => {
       const state = {
         installed: true,
         steps: []
       };
-      
+
       const result = rollbackState.enhanceStateWithRollbackData(state);
-      
-      assert.ok(result.rollback);
-      assert.ok(result.rollback.dependencies);
-      assert.ok(result.rollback.config);
-      assert.ok(result.rollback.ssh);
-      assert.ok(result.rollback.docs);
+
+      expect(result.rollback).toBeDefined();
+      expect(result.rollback.dependencies).toBeDefined();
+      expect(result.rollback.config).toBeDefined();
+      expect(result.rollback.ssh).toBeDefined();
+      expect(result.rollback.docs).toBeDefined();
     });
-    
-    it('should extract npm packages from steps', () => {
+
+    test('should extract npm packages from steps', () => {
       const state = {
         installed: true,
         steps: [{
@@ -154,15 +111,15 @@ describe('RollbackState Module', () => {
           }
         }]
       };
-      
+
       const result = rollbackState.enhanceStateWithRollbackData(state);
-      
-      assert.strictEqual(result.rollback.dependencies.npm.length, 2);
-      assert.strictEqual(result.rollback.dependencies.npm[0].name, 'eslint');
-      assert.strictEqual(result.rollback.dependencies.npm[1].name, 'prettier');
+
+      expect(result.rollback.dependencies.npm.length).toBe(2);
+      expect(result.rollback.dependencies.npm[0].name).toBe('eslint');
+      expect(result.rollback.dependencies.npm[1].name).toBe('prettier');
     });
-    
-    it('should extract system packages from steps', () => {
+
+    test('should extract system packages from steps', () => {
       const state = {
         installed: true,
         environment: { platform: 'win32' },
@@ -175,15 +132,15 @@ describe('RollbackState Module', () => {
           }
         }]
       };
-      
+
       const result = rollbackState.enhanceStateWithRollbackData(state);
-      
-      assert.strictEqual(result.rollback.dependencies.system.length, 2);
-      assert.strictEqual(result.rollback.dependencies.system[0].name, 'git');
-      assert.strictEqual(result.rollback.dependencies.system[0].platform, 'win32');
+
+      expect(result.rollback.dependencies.system.length).toBe(2);
+      expect(result.rollback.dependencies.system[0].name).toBe('git');
+      expect(result.rollback.dependencies.system[0].platform).toBe('win32');
     });
-    
-    it('should extract python packages from steps', () => {
+
+    test('should extract python packages from steps', () => {
       const state = {
         installed: true,
         steps: [{
@@ -195,102 +152,95 @@ describe('RollbackState Module', () => {
           }
         }]
       };
-      
+
       const result = rollbackState.enhanceStateWithRollbackData(state);
-      
-      assert.strictEqual(result.rollback.dependencies.pip.length, 2);
-      assert.strictEqual(result.rollback.dependencies.pip[0].name, 'requests');
+
+      expect(result.rollback.dependencies.pip.length).toBe(2);
+      expect(result.rollback.dependencies.pip[0].name).toBe('requests');
     });
   });
-  
+
   describe('getPhaseComponents()', () => {
-    it('should return all components when no phases specified', () => {
+    test('should return all components when no phases specified', () => {
       const components = rollbackState.getPhaseComponents(null);
-      
-      assert.ok(components.includes('documentation'));
-      assert.ok(components.includes('gitConfig'));
-      assert.ok(components.includes('envFiles'));
-      assert.ok(components.includes('npmPackages'));
+
+      expect(components).toContain('documentation');
+      expect(components).toContain('gitConfig');
+      expect(components).toContain('envFiles');
+      expect(components).toContain('npmPackages');
     });
-    
-    it('should return only docs components for docs phase', () => {
+
+    test('should return only docs components for docs phase', () => {
       const components = rollbackState.getPhaseComponents(['docs']);
-      
-      assert.ok(components.includes('documentation'));
-      assert.strictEqual(components.length, 1);
+
+      expect(components).toContain('documentation');
+      expect(components.length).toBe(1);
     });
-    
-    it('should return multiple phase components', () => {
+
+    test('should return multiple phase components', () => {
       const components = rollbackState.getPhaseComponents(['docs', 'config']);
-      
-      assert.ok(components.includes('documentation'));
-      assert.ok(components.includes('envFiles'));
-      assert.ok(components.includes('gitignore'));
-      assert.strictEqual(components.length, 3);
+
+      expect(components).toContain('documentation');
+      expect(components).toContain('envFiles');
+      expect(components).toContain('gitignore');
+      expect(components.length).toBe(3);
     });
-    
-    it('should handle case-insensitive phase names', () => {
+
+    test('should handle case-insensitive phase names', () => {
       const components = rollbackState.getPhaseComponents(['DOCS', 'Config']);
-      
-      assert.ok(components.includes('documentation'));
-      assert.ok(components.includes('envFiles'));
+
+      expect(components).toContain('documentation');
+      expect(components).toContain('envFiles');
     });
-    
-    it('should ignore invalid phase names', () => {
+
+    test('should ignore invalid phase names', () => {
       const components = rollbackState.getPhaseComponents(['docs', 'invalid', 'config']);
-      
-      assert.ok(components.includes('documentation'));
-      assert.ok(components.includes('envFiles'));
-      assert.strictEqual(components.length, 3);
+
+      expect(components).toContain('documentation');
+      expect(components).toContain('envFiles');
+      expect(components.length).toBe(3);
     });
   });
-  
+
   describe('parsePartialPhases()', () => {
-    it('should parse comma-separated phases', () => {
+    test('should parse comma-separated phases', () => {
       const phases = rollbackState.parsePartialPhases('docs,config,ssh');
-      
-      assert.deepStrictEqual(phases, ['docs', 'config', 'ssh']);
+      expect(phases).toEqual(['docs', 'config', 'ssh']);
     });
-    
-    it('should trim whitespace', () => {
+
+    test('should trim whitespace', () => {
       const phases = rollbackState.parsePartialPhases('docs , config , ssh');
-      
-      assert.deepStrictEqual(phases, ['docs', 'config', 'ssh']);
+      expect(phases).toEqual(['docs', 'config', 'ssh']);
     });
-    
-    it('should normalize to lowercase', () => {
+
+    test('should normalize to lowercase', () => {
       const phases = rollbackState.parsePartialPhases('DOCS,Config,SSH');
-      
-      assert.deepStrictEqual(phases, ['docs', 'config', 'ssh']);
+      expect(phases).toEqual(['docs', 'config', 'ssh']);
     });
-    
-    it('should filter out invalid phases', () => {
+
+    test('should filter out invalid phases', () => {
       const phases = rollbackState.parsePartialPhases('docs,invalid,config');
-      
-      assert.deepStrictEqual(phases, ['docs', 'config']);
+      expect(phases).toEqual(['docs', 'config']);
     });
-    
-    it('should handle empty string', () => {
+
+    test('should handle empty string', () => {
       const phases = rollbackState.parsePartialPhases('');
-      
-      assert.deepStrictEqual(phases, []);
+      expect(phases).toEqual([]);
     });
-    
-    it('should handle null input', () => {
+
+    test('should handle null input', () => {
       const phases = rollbackState.parsePartialPhases(null);
-      
-      assert.deepStrictEqual(phases, []);
+      expect(phases).toEqual([]);
     });
-    
-    it('should accept all valid phase names', () => {
+
+    test('should accept all valid phase names', () => {
       const phases = rollbackState.parsePartialPhases('docs,git,ssh,config,dependencies');
-      
-      assert.deepStrictEqual(phases, ['docs', 'git', 'ssh', 'config', 'dependencies']);
+      expect(phases).toEqual(['docs', 'git', 'ssh', 'config', 'dependencies']);
     });
   });
-  
+
   describe('Integration Tests', () => {
-    it('should handle complete state lifecycle', () => {
+    test('should handle complete state lifecycle', () => {
       const originalState = {
         installed: true,
         rollback: {
@@ -302,42 +252,19 @@ describe('RollbackState Module', () => {
           }
         }
       };
-      
+
       // Validate
       const validation = rollbackState.validateStateForRollback(originalState);
-      assert.strictEqual(validation.valid, true);
-      
+      expect(validation.valid).toBe(true);
+
       // Parse phases
       const phases = rollbackState.parsePartialPhases('config,docs');
-      assert.strictEqual(phases.length, 2);
-      
+      expect(phases.length).toBe(2);
+
       // Get components
       const components = rollbackState.getPhaseComponents(phases);
-      assert.ok(components.includes('envFiles'));
-      assert.ok(components.includes('documentation'));
+      expect(components).toContain('envFiles');
+      expect(components).toContain('documentation');
     });
   });
 });
-
-// Execute afterAll hook
-if (hooks.afterAll) {
-  try {
-    hooks.afterAll();
-  } catch (error) {
-    console.log(`  Cleanup failed: ${error.message}`);
-  }
-}
-
-// Print results
-console.log('\n' + '='.repeat(60));
-console.log(`Tests: ${stats.passed + stats.failed} (${stats.passed} passed, ${stats.failed} failed)`);
-
-if (stats.failed > 0) {
-  console.log('\nFailed tests:');
-  stats.failures.forEach(f => console.log(`  - ${f.test}: ${f.error}`));
-  process.exit(1);
-} else {
-  console.log('\n✅ All tests passed!');
-  process.exit(0);
-}
-

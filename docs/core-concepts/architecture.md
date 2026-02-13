@@ -31,3 +31,54 @@ Jetpack leverages GitHub Copilot CLI for intelligent automation:
 3.  **Generator**: Analyzes codebase structure to infer dependencies and build steps for `generate-manifest`.
 4.  **Risk Analyzer**: Evaluates the potential impact of rollback actions (data loss, system changes) before execution.
 
+---
+
+### Integration Architecture (ASCII)
+
+```text
+       +--------+
+       |  User  |
+       +--------+
+           |
+           v
+   +---------------------------------------------------------------+
+   |                      Jetpack CLI                              |
+   |                                                               |
+   |   [init]        [verify]        [rollback]       [doc]        |
+   |     |              |                |              |          |
+   |     |              |                |              |          |
+   |     v              v                v              v          |
+   |  +---------------------------------------------------------+  |
+   |  |                     Core Modules                        |  |
+   |  |                                                         |  |
+   |  |  +----------+    +--------------+    +---------------+  |  |
+   |  |  | Manifest |    | Dependency   |    | Config        |  |  |
+   |  |  | Generator|    | Installer    |    | Generator     |  |  |
+   |  |  +----------+    +--------------+    +---------------+  |  |
+   |  |       ^               ^                    ^            |  |
+   |  |       |               |                    |            |  |
+   |  |       |          +---------+               |            |  |
+   |  |       |          | Copilot |               |            |  |
+   |  |       |          | Resolver|               |            |  |
+   |  |       |          +---------+               |            |  |
+   |  |       |               ^                    |            |  |
+   |  |+----------------------+--------------------+-----------+|  |
+   |  ||                  |                    |               ||  |
+   |  || +----------------+--------------------+-------------+ ||  |
+   |  || |                |                    |             | ||  |
+   |  || |           +-------------+    +--------------+     | ||  |
+   |  || |           |   Copilot   |    |   Copilot    |     | ||  |
+   |  || |           |Troubleshooter|   | Risk Analyzer|     | ||  |
+   |  || |           +-------------+    +--------------+     | ||  |
+   |  || |                  ^                  ^             | ||  |
+   |  |+--------------------+------------------+-------------+ |   |
+   |  +---------------------+------------------+---------------+   |
+   |                        |                  |                   |
+   |                        v                  v                   |
+   |           +-----------------------------------------+         |
+   |           |      GitHub Copilot Integration         |         |
+   |           |         (gh copilot -p)                 |         |
+   |           +-----------------------------------------+         |
+   +---------------------------------------------------------------+
+```
+

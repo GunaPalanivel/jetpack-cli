@@ -81,7 +81,7 @@ class CopilotRiskAnalyzer {
             throw new Error('GitHub CLI (gh) not installed');
         }
 
-        return require('child_process').execSync(`gh copilot suggest "${safePrompt}" --target shell`, {
+        return require('child_process').execSync(`gh copilot -p "${safePrompt}"`, {
             encoding: 'utf-8',
             timeout: 30000
         });

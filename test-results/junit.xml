@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="235" failures="0" errors="0" time="53.784">
+  <testsuite name="Setup Execution Integration" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:56" time="2.213" tests="5">
+    <testcase classname="Setup Execution Integration Execute setup steps from basic-example.yaml (dry-run)" name="Setup Execution Integration Execute setup steps from basic-example.yaml (dry-run)" time="0.09">
+    </testcase>
+    <testcase classname="Setup Execution Integration Execute setup steps from complex-example.yaml (dry-run)" name="Setup Execution Integration Execute setup steps from complex-example.yaml (dry-run)" time="0.087">
+    </testcase>
+    <testcase classname="Setup Execution Integration Orchestrator Step 4 integration (simulated)" name="Setup Execution Integration Orchestrator Step 4 integration (simulated)" time="0.051">
+    </testcase>
+    <testcase classname="Setup Execution Integration Handle manifest with no setup steps" name="Setup Execution Integration Handle manifest with no setup steps" time="0.003">
+    </testcase>
+    <testcase classname="Setup Execution Integration Handle missing manifest gracefully" name="Setup Execution Integration Handle missing manifest gracefully" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="Config Generator Tests" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:56" time="2.99" tests="2">
+    <testcase classname="Config Generator Tests Dry-run mode (All features)" name="Config Generator Tests Dry-run mode (All features)" time="0.111">
+    </testcase>
+    <testcase classname="Config Generator Tests Actual generation (P0 ENV only)" name="Config Generator Tests Actual generation (P0 ENV only)" time="0.071">
+    </testcase>
+  </testsuite>
+  <testsuite name="Setup Execution Integration" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:59" time="1.184" tests="5">
+    <testcase classname="Setup Execution Integration Execute setup steps from basic-example.yaml (dry-run)" name="Setup Execution Integration Execute setup steps from basic-example.yaml (dry-run)" time="0.13">
+    </testcase>
+    <testcase classname="Setup Execution Integration Execute setup steps from complex-example.yaml (dry-run)" name="Setup Execution Integration Execute setup steps from complex-example.yaml (dry-run)" time="0.247">
+    </testcase>
+    <testcase classname="Setup Execution Integration Orchestrator Step 4 integration (simulated)" name="Setup Execution Integration Orchestrator Step 4 integration (simulated)" time="0.135">
+    </testcase>
+    <testcase classname="Setup Execution Integration Handle manifest with no setup steps" name="Setup Execution Integration Handle manifest with no setup steps" time="0.004">
+    </testcase>
+    <testcase classname="Setup Execution Integration Handle missing manifest gracefully" name="Setup Execution Integration Handle missing manifest gracefully" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="Setup Executor Tests" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:59" time="1.697" tests="12">
+    <testcase classname="Setup Executor Tests Validate valid step" name="Setup Executor Tests Validate valid step" time="0.004">
+    </testcase>
+    <testcase classname="Setup Executor Tests Reject step with missing command" name="Setup Executor Tests Reject step with missing command" time="0.001">
+    </testcase>
+    <testcase classname="Setup Executor Tests Reject step with empty command" name="Setup Executor Tests Reject step with empty command" time="0">
+    </testcase>
+    <testcase classname="Setup Executor Tests Reject step with non-string command" name="Setup Executor Tests Reject step with non-string command" time="0.009">
+    </testcase>
+    <testcase classname="Setup Executor Tests Reject step with non-string name" name="Setup Executor Tests Reject step with non-string name" time="0.005">
+    </testcase>
+    <testcase classname="Setup Executor Tests Execute step in dry-run mode" name="Setup Executor Tests Execute step in dry-run mode" time="0.009">
+    </testcase>
+    <testcase classname="Setup Executor Tests Execute actual step (safe command)" name="Setup Executor Tests Execute actual step (safe command)" time="0.123">
+    </testcase>
+    <testcase classname="Setup Executor Tests Handle failing step correctly" name="Setup Executor Tests Handle failing step correctly" time="0.215">
+    </testcase>
+    <testcase classname="Setup Executor Tests Execute multiple steps (dry-run)" name="Setup Executor Tests Execute multiple steps (dry-run)" time="0.021">
+    </testcase>
+    <testcase classname="Setup Executor Tests Handle empty steps array" name="Setup Executor Tests Handle empty steps array" time="0.003">
+    </testcase>
+    <testcase classname="Setup Executor Tests Handle null/undefined steps" name="Setup Executor Tests Handle null/undefined steps" time="0.027">
+    </testcase>
+    <testcase classname="Setup Executor Tests Stop on failure behavior" name="Setup Executor Tests Stop on failure behavior" time="0.635">
+    </testcase>
+  </testsuite>
+  <testsuite name="RollbackState Module" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:09:01" time="1.238" tests="23">
+    <testcase classname="RollbackState Module validateStateForRollback() should reject null state" name="RollbackState Module validateStateForRollback() should reject null state" time="0.008">
+    </testcase>
+    <testcase classname="RollbackState Module validateStateForRollback() should reject state without installed flag" name="RollbackState Module validateStateForRollback() should reject state without installed flag" time="0.003">
+    </testcase>
+    <testcase classname="RollbackState Module validateStateForRollback() should reject state without rollback section" name="RollbackState Module validateStateForRollback() should reject state without rollback section" time="0.004">
+    </testcase>
+    <testcase classname="RollbackState Module validateStateForRollback() should accept valid state" name="RollbackState Module validateStateForRollback() should accept valid state" time="0.085">
+    </testcase>
+    <testcase classname="RollbackState Module enhanceStateWithRollbackData() should return null for null state" name="RollbackState Module enhanceStateWithRollbackData() should return null for null state" time="0.002">
+    </testcase>
+    <testcase classname="RollbackState Module enhanceStateWithRollbackData() should return state unchanged if rollback section exists" name="RollbackState Module enhanceStateWithRollbackData() should return state unchanged if rollback section exists" time="0.003">
+    </testcase>
+    <testcase classname="RollbackState Module enhanceStateWithRollbackData() should add rollback section to legacy state" name="RollbackState Module enhanceStateWithRollbackData() should add rollback section to legacy state" time="0.002">
+    </testcase>
+    <testcase classname="RollbackState Module enhanceStateWithRollbackData() should extract npm packages from steps" name="RollbackState Module enhanceStateWithRollbackData() should extract npm packages from steps" time="0.001">
+    </testcase>
+    <testcase classname="RollbackState Module enhanceStateWithRollbackData() should extract system packages from steps" name="RollbackState Module enhanceStateWithRollbackData() should extract system packages from steps" time="0.003">
+    </testcase>
+    <testcase classname="RollbackState Module enhanceStateWithRollbackData() should extract python packages from steps" name="RollbackState Module enhanceStateWithRollbackData() should extract python packages from steps" time="0.002">
+    </testcase>
+    <testcase classname="RollbackState Module getPhaseComponents() should return all components when no phases specified" name="RollbackState Module getPhaseComponents() should return all components when no phases specified" time="0.001">
+    </testcase>
+    <testcase classname="RollbackState Module getPhaseComponents() should return only docs components for docs phase" name="RollbackState Module getPhaseComponents() should return only docs components for docs phase" time="0.001">
+    </testcase>
+    <testcase classname="RollbackState Module getPhaseComponents() should return multiple phase components" name="RollbackState Module getPhaseComponents() should return multiple phase components" time="0.002">
+    </testcase>
+    <testcase classname="RollbackState Module getPhaseComponents() should handle case-insensitive phase names" name="RollbackState Module getPhaseComponents() should handle case-insensitive phase names" time="0.001">
+    </testcase>
+    <testcase classname="RollbackState Module getPhaseComponents() should ignore invalid phase names" name="RollbackState Module getPhaseComponents() should ignore invalid phase names" time="0.001">
+    </testcase>
+    <testcase classname="RollbackState Module parsePartialPhases() should parse comma-separated phases" name="RollbackState Module parsePartialPhases() should parse comma-separated phases" time="0.001">
+    </testcase>
+    <testcase classname="RollbackState Module parsePartialPhases() should trim whitespace" name="RollbackState Module parsePartialPhases() should trim whitespace" time="0.001">
+    </testcase>
+    <testcase classname="RollbackState Module parsePartialPhases() should normalize to lowercase" name="RollbackState Module parsePartialPhases() should normalize to lowercase" time="0.001">
+    </testcase>
+    <testcase classname="RollbackState Module parsePartialPhases() should filter out invalid phases" name="RollbackState Module parsePartialPhases() should filter out invalid phases" time="0.001">
+    </testcase>
+    <testcase classname="RollbackState Module parsePartialPhases() should handle empty string" name="RollbackState Module parsePartialPhases() should handle empty string" time="0.001">
+    </testcase>
+    <testcase classname="RollbackState Module parsePartialPhases() should handle null input" name="RollbackState Module parsePartialPhases() should handle null input" time="0.001">
+    </testcase>
+    <testcase classname="RollbackState Module parsePartialPhases() should accept all valid phase names" name="RollbackState Module parsePartialPhases() should accept all valid phase names" time="0.002">
+    </testcase>
+    <testcase classname="RollbackState Module Integration Tests should handle complete state lifecycle" name="RollbackState Module Integration Tests should handle complete state lifecycle" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="RollbackActions Module" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:09:01" time="1.327" tests="22">
+    <testcase classname="RollbackActions Module rollbackDependencies() should skip all packages if unsafe flag not set" name="RollbackActions Module rollbackDependencies() should skip all packages if unsafe flag not set" time="0.032">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackDependencies() should skip packages not installed by Jetpack" name="RollbackActions Module rollbackDependencies() should skip packages not installed by Jetpack" time="0.001">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackDependencies() should handle dry run mode" name="RollbackActions Module rollbackDependencies() should handle dry run mode" time="0.002">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackDependencies() should handle empty dependency lists" name="RollbackActions Module rollbackDependencies() should handle empty dependency lists" time="0.004">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackConfigs() should restore .env from backup" name="RollbackActions Module rollbackConfigs() should restore .env from backup" time="0.017">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackConfigs() should skip restore if backup not found" name="RollbackActions Module rollbackConfigs() should skip restore if backup not found" time="0.015">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackConfigs() should remove .env.template if exists" name="RollbackActions Module rollbackConfigs() should remove .env.template if exists" time="0.007">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackConfigs() should remove .env.example if exists" name="RollbackActions Module rollbackConfigs() should remove .env.example if exists" time="0.005">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackConfigs() should handle dry run mode" name="RollbackActions Module rollbackConfigs() should handle dry run mode" time="0.008">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackSshKeys() should remove SSH keys if they exist" name="RollbackActions Module rollbackSshKeys() should remove SSH keys if they exist" time="0.035">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackSshKeys() should skip if SSH keys not found" name="RollbackActions Module rollbackSshKeys() should skip if SSH keys not found" time="0.004">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackSshKeys() should handle null key paths" name="RollbackActions Module rollbackSshKeys() should handle null key paths" time="0.001">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackSshKeys() should handle dry run mode" name="RollbackActions Module rollbackSshKeys() should handle dry run mode" time="0.009">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackGitConfig() should restore git config values" name="RollbackActions Module rollbackGitConfig() should restore git config values" time="0.005">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackGitConfig() should unset git config if original was null" name="RollbackActions Module rollbackGitConfig() should unset git config if original was null" time="0.003">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackGitConfig() should handle empty git config" name="RollbackActions Module rollbackGitConfig() should handle empty git config" time="0.006">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackGitConfig() should handle null originalGitConfig" name="RollbackActions Module rollbackGitConfig() should handle null originalGitConfig" time="0.005">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackDocumentation() should remove documentation directory" name="RollbackActions Module rollbackDocumentation() should remove documentation directory" time="0.097">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackDocumentation() should skip if documentation directory not found" name="RollbackActions Module rollbackDocumentation() should skip if documentation directory not found" time="0.004">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackDocumentation() should handle null outputDir" name="RollbackActions Module rollbackDocumentation() should handle null outputDir" time="0.004">
+    </testcase>
+    <testcase classname="RollbackActions Module rollbackDocumentation() should handle dry run mode" name="RollbackActions Module rollbackDocumentation() should handle dry run mode" time="0.015">
+    </testcase>
+    <testcase classname="RollbackActions Module Integration Tests should handle complete rollback flow" name="RollbackActions Module Integration Tests should handle complete rollback flow" time="0.042">
+    </testcase>
+  </testsuite>
+  <testsuite name="Manifest Generator Tests" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:09:02" time="0.567" tests="2">
+    <testcase classname="Manifest Generator Tests Generate from Repo" name="Manifest Generator Tests Generate from Repo" time="0.039">
+    </testcase>
+    <testcase classname="Manifest Generator Tests Copilot Error Handling" name="Manifest Generator Tests Copilot Error Handling" time="0.036">
+    </testcase>
+  </testsuite>
+  <testsuite name="Manifest Parser Tests" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:09:02" time="0.777" tests="8">
+    <testcase classname="Manifest Parser Tests Parse simple basic-example.yaml" name="Manifest Parser Tests Parse simple basic-example.yaml" time="0.034">
+    </testcase>
+    <testcase classname="Manifest Parser Tests Parse complex-example.yaml" name="Manifest Parser Tests Parse complex-example.yaml" time="0.016">
+    </testcase>
+    <testcase classname="Manifest Parser Tests Handle file not found" name="Manifest Parser Tests Handle file not found" time="0.057">
+    </testcase>
+    <testcase classname="Manifest Parser Tests Handle invalid YAML syntax" name="Manifest Parser Tests Handle invalid YAML syntax" time="0.006">
+    </testcase>
+    <testcase classname="Manifest Parser Tests Handle missing required fields" name="Manifest Parser Tests Handle missing required fields" time="0.004">
+    </testcase>
+    <testcase classname="Manifest Parser Tests Handle empty manifest" name="Manifest Parser Tests Handle empty manifest" time="0.002">
+    </testcase>
+    <testcase classname="Manifest Parser Tests Parse minimal valid manifest" name="Manifest Parser Tests Parse minimal valid manifest" time="0.003">
+    </testcase>
+    <testcase classname="Manifest Parser Tests Parse manifest with array environment format" name="Manifest Parser Tests Parse manifest with array environment format" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="Manifest Parser Edge Cases" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:09:03" time="0.569" tests="5">
+    <testcase classname="Manifest Parser Edge Cases Empty dependency arrays should be valid" name="Manifest Parser Edge Cases Empty dependency arrays should be valid" time="0.024">
+    </testcase>
+    <testcase classname="Manifest Parser Edge Cases Manifest with only environment variables" name="Manifest Parser Edge Cases Manifest with only environment variables" time="0.007">
+    </testcase>
+    <testcase classname="Manifest Parser Edge Cases Empty environment array should be valid" name="Manifest Parser Edge Cases Empty environment array should be valid" time="0.011">
+    </testcase>
+    <testcase classname="Manifest Parser Edge Cases Multiple empty dependency arrays" name="Manifest Parser Edge Cases Multiple empty dependency arrays" time="0.004">
+    </testcase>
+    <testcase classname="Manifest Parser Edge Cases Mixed empty and populated arrays" name="Manifest Parser Edge Cases Mixed empty and populated arrays" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="Copilot Risk Analyzer Tests" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:09:03" time="0.5" tests="2">
+    <testcase classname="Copilot Risk Analyzer Tests Assess Risks" name="Copilot Risk Analyzer Tests Assess Risks" time="0.004">
+    </testcase>
+    <testcase classname="Copilot Risk Analyzer Tests Fallback on Error" name="Copilot Risk Analyzer Tests Fallback on Error" time="0.012">
+    </testcase>
+  </testsuite>
+  <testsuite name="Copilot Troubleshooter" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:09:03" time="0.498" tests="4">
+    <testcase classname="Copilot Troubleshooter Analyze Failed Error" name="Copilot Troubleshooter Analyze Failed Error" time="0.004">
+    </testcase>
+    <testcase classname="Copilot Troubleshooter Port Conflict Resolution" name="Copilot Troubleshooter Port Conflict Resolution" time="0.002">
+    </testcase>
+    <testcase classname="Copilot Troubleshooter Suggest Alternatives" name="Copilot Troubleshooter Suggest Alternatives" time="0.03">
+    </testcase>
+    <testcase classname="Copilot Troubleshooter GH CLI missing/error triggers fallback" name="Copilot Troubleshooter GH CLI missing/error triggers fallback" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="Copilot Resolver" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:09:04" time="0.375" tests="3">
+    <testcase classname="Copilot Resolver Version Conflict Resolution" name="Copilot Resolver Version Conflict Resolution" time="0.012">
+    </testcase>
+    <testcase classname="Copilot Resolver Peer Dependencies" name="Copilot Resolver Peer Dependencies" time="0.001">
+    </testcase>
+    <testcase classname="Copilot Resolver Fallback on Error" name="Copilot Resolver Fallback on Error" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="RollbackDiffGenerator tests" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:09:04" time="0.367" tests="9">
+    <testcase classname="RollbackDiffGenerator tests should generate diff with all sections" name="RollbackDiffGenerator tests should generate diff with all sections" time="0.006">
+    </testcase>
+    <testcase classname="RollbackDiffGenerator tests should show warning when unsafe flag not set" name="RollbackDiffGenerator tests should show warning when unsafe flag not set" time="0.001">
+    </testcase>
+    <testcase classname="RollbackDiffGenerator tests should format package changes correctly" name="RollbackDiffGenerator tests should format package changes correctly" time="0.001">
+    </testcase>
+    <testcase classname="RollbackDiffGenerator tests should format config changes correctly" name="RollbackDiffGenerator tests should format config changes correctly" time="0">
+    </testcase>
+    <testcase classname="RollbackDiffGenerator tests should format SSH key changes correctly" name="RollbackDiffGenerator tests should format SSH key changes correctly" time="0.001">
+    </testcase>
+    <testcase classname="RollbackDiffGenerator tests should format git config changes correctly" name="RollbackDiffGenerator tests should format git config changes correctly" time="0.001">
+    </testcase>
+    <testcase classname="RollbackDiffGenerator tests should format docs changes correctly" name="RollbackDiffGenerator tests should format docs changes correctly" time="0.001">
+    </testcase>
+    <testcase classname="RollbackDiffGenerator tests should handle empty state gracefully" name="RollbackDiffGenerator tests should handle empty state gracefully" time="0.001">
+    </testcase>
+    <testcase classname="RollbackDiffGenerator tests should handle null components" name="RollbackDiffGenerator tests should handle null components" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Manifest Fetcher Tests" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:56" time="9.285" tests="13">
+    <testcase classname="Manifest Fetcher Tests Parse repository URL Parse valid HTTPS URL" name="Manifest Fetcher Tests Parse repository URL Parse valid HTTPS URL" time="0.008">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Parse repository URL Parse URL with .git suffix" name="Manifest Fetcher Tests Parse repository URL Parse URL with .git suffix" time="0.034">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Parse repository URL Parse SSH-style URL" name="Manifest Fetcher Tests Parse repository URL Parse SSH-style URL" time="0.002">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Parse repository URL Reject invalid URL" name="Manifest Fetcher Tests Parse repository URL Reject invalid URL" time="0.034">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Cache operations Cache write and read" name="Manifest Fetcher Tests Cache operations Cache write and read" time="0.025">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Cache operations Cache returns null for non-existent file" name="Manifest Fetcher Tests Cache operations Cache returns null for non-existent file" time="0.002">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Cache operations Cache stats" name="Manifest Fetcher Tests Cache operations Cache stats" time="0.007">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Cache operations Clear specific cache" name="Manifest Fetcher Tests Cache operations Clear specific cache" time="0.004">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Check gh CLI availability" name="Manifest Fetcher Tests Check gh CLI availability" time="7.43">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Cache bypass with noCache option" name="Manifest Fetcher Tests Cache bypass with noCache option" time="0.014">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Handle invalid repository URL gracefully" name="Manifest Fetcher Tests Handle invalid repository URL gracefully" time="0.031">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Cache respects 24h TTL" name="Manifest Fetcher Tests Cache respects 24h TTL" time="0.061">
+    </testcase>
+    <testcase classname="Manifest Fetcher Tests Tries multiple manifest filenames" name="Manifest Fetcher Tests Tries multiple manifest filenames" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="Verification System Integration" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:56" time="15.517" tests="20">
+    <testcase classname="Verification System Integration CheckResult state transitions" name="Verification System Integration CheckResult state transitions" time="0.01">
+    </testcase>
+    <testcase classname="Verification System Integration VerificationResult summary calculations" name="Verification System Integration VerificationResult summary calculations" time="0.003">
+    </testcase>
+    <testcase classname="Verification System Integration ResultBuilder fluent API" name="Verification System Integration ResultBuilder fluent API" time="0.002">
+    </testcase>
+    <testcase classname="Verification System Integration CommandCheck execution (node --version)" name="Verification System Integration CommandCheck execution (node --version)" time="0.417">
+    </testcase>
+    <testcase classname="Verification System Integration CommandCheck failure (invalid command)" name="Verification System Integration CommandCheck failure (invalid command)" time="0.434">
+    </testcase>
+    <testcase classname="Verification System Integration FileCheck (package.json exists)" name="Verification System Integration FileCheck (package.json exists)" time="0.035">
+    </testcase>
+    <testcase classname="Verification System Integration FileCheck (non-existent file)" name="Verification System Integration FileCheck (non-existent file)" time="0.003">
+    </testcase>
+    <testcase classname="Verification System Integration PortCheck (closed port)" name="Verification System Integration PortCheck (closed port)" time="0.109">
+    </testcase>
+    <testcase classname="Verification System Integration CheckRegistry registration and factory" name="Verification System Integration CheckRegistry registration and factory" time="0.014">
+    </testcase>
+    <testcase classname="Verification System Integration CheckExecutor basic execution" name="Verification System Integration CheckExecutor basic execution" time="3.058">
+    </testcase>
+    <testcase classname="Verification System Integration CheckExecutor retry logic" name="Verification System Integration CheckExecutor retry logic" time="1.421">
+    </testcase>
+    <testcase classname="Verification System Integration ParallelExecutor serial execution" name="Verification System Integration ParallelExecutor serial execution" time="1.947">
+    </testcase>
+    <testcase classname="Verification System Integration ParallelExecutor parallel execution" name="Verification System Integration ParallelExecutor parallel execution" time="1.752">
+    </testcase>
+    <testcase classname="Verification System Integration ParallelExecutor batch execution by priority" name="Verification System Integration ParallelExecutor batch execution by priority" time="1.475">
+    </testcase>
+    <testcase classname="Verification System Integration VerificationOrchestrator end-to-end" name="Verification System Integration VerificationOrchestrator end-to-end" time="0.287">
+    </testcase>
+    <testcase classname="Verification System Integration Lenient failure mode (P0 failure continues)" name="Verification System Integration Lenient failure mode (P0 failure continues)" time="0.49">
+    </testcase>
+    <testcase classname="Verification System Integration VerificationReporter output" name="Verification System Integration VerificationReporter output" time="0.038">
+    </testcase>
+    <testcase classname="Verification System Integration Parse verification-basic.yaml manifest" name="Verification System Integration Parse verification-basic.yaml manifest" time="0.04">
+    </testcase>
+    <testcase classname="Verification System Integration Run verification from verification-basic.yaml" name="Verification System Integration Run verification from verification-basic.yaml" time="1.696">
+    </testcase>
+    <testcase classname="Verification System Integration Filter checks by priority" name="Verification System Integration Filter checks by priority" time="0.251">
+    </testcase>
+  </testsuite>
+  <testsuite name="Verification System Integration" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:56" time="16.2" tests="20">
+    <testcase classname="Verification System Integration CheckResult state transitions" name="Verification System Integration CheckResult state transitions" time="0.012">
+    </testcase>
+    <testcase classname="Verification System Integration VerificationResult summary calculations" name="Verification System Integration VerificationResult summary calculations" time="0.002">
+    </testcase>
+    <testcase classname="Verification System Integration ResultBuilder fluent API" name="Verification System Integration ResultBuilder fluent API" time="0.002">
+    </testcase>
+    <testcase classname="Verification System Integration CommandCheck execution (node --version)" name="Verification System Integration CommandCheck execution (node --version)" time="0.606">
+    </testcase>
+    <testcase classname="Verification System Integration CommandCheck failure (invalid command)" name="Verification System Integration CommandCheck failure (invalid command)" time="0.266">
+    </testcase>
+    <testcase classname="Verification System Integration FileCheck (package.json exists)" name="Verification System Integration FileCheck (package.json exists)" time="0.027">
+    </testcase>
+    <testcase classname="Verification System Integration FileCheck (non-existent file)" name="Verification System Integration FileCheck (non-existent file)" time="0.003">
+    </testcase>
+    <testcase classname="Verification System Integration PortCheck (closed port)" name="Verification System Integration PortCheck (closed port)" time="0.146">
+    </testcase>
+    <testcase classname="Verification System Integration CheckRegistry registration and factory" name="Verification System Integration CheckRegistry registration and factory" time="0.011">
+    </testcase>
+    <testcase classname="Verification System Integration CheckExecutor basic execution" name="Verification System Integration CheckExecutor basic execution" time="4.503">
+    </testcase>
+    <testcase classname="Verification System Integration CheckExecutor retry logic" name="Verification System Integration CheckExecutor retry logic" time="0.795">
+    </testcase>
+    <testcase classname="Verification System Integration ParallelExecutor serial execution" name="Verification System Integration ParallelExecutor serial execution" time="2.422">
+    </testcase>
+    <testcase classname="Verification System Integration ParallelExecutor parallel execution" name="Verification System Integration ParallelExecutor parallel execution" time="1.178">
+    </testcase>
+    <testcase classname="Verification System Integration ParallelExecutor batch execution by priority" name="Verification System Integration ParallelExecutor batch execution by priority" time="1.479">
+    </testcase>
+    <testcase classname="Verification System Integration VerificationOrchestrator end-to-end" name="Verification System Integration VerificationOrchestrator end-to-end" time="0.242">
+    </testcase>
+    <testcase classname="Verification System Integration Lenient failure mode (P0 failure continues)" name="Verification System Integration Lenient failure mode (P0 failure continues)" time="0.424">
+    </testcase>
+    <testcase classname="Verification System Integration VerificationReporter output" name="Verification System Integration VerificationReporter output" time="0.036">
+    </testcase>
+    <testcase classname="Verification System Integration Parse verification-basic.yaml manifest" name="Verification System Integration Parse verification-basic.yaml manifest" time="0.048">
+    </testcase>
+    <testcase classname="Verification System Integration Run verification from verification-basic.yaml" name="Verification System Integration Run verification from verification-basic.yaml" time="1.866">
+    </testcase>
+    <testcase classname="Verification System Integration Filter checks by priority" name="Verification System Integration Filter checks by priority" time="0.159">
+    </testcase>
+  </testsuite>
+  <testsuite name="RollbackOrchestrator Module" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:56" time="16.625" tests="14">
+    <testcase classname="RollbackOrchestrator Module rollback() should fail if no state file exists" name="RollbackOrchestrator Module rollback() should fail if no state file exists" time="0.147">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module rollback() should handle dry run mode" name="RollbackOrchestrator Module rollback() should handle dry run mode" time="0.038">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module rollback() should execute full rollback successfully" name="RollbackOrchestrator Module rollback() should execute full rollback successfully" time="0.062">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module rollback() should handle partial rollback" name="RollbackOrchestrator Module rollback() should handle partial rollback" time="0.053">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module rollback() should respect unsafe flag for dependencies" name="RollbackOrchestrator Module rollback() should respect unsafe flag for dependencies" time="14.525">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module rollback() should clear state after successful full rollback" name="RollbackOrchestrator Module rollback() should clear state after successful full rollback" time="0.024">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module rollback() should NOT clear state after partial rollback" name="RollbackOrchestrator Module rollback() should NOT clear state after partial rollback" time="0.016">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module rollback() should handle force flag to continue past validation errors" name="RollbackOrchestrator Module rollback() should handle force flag to continue past validation errors" time="0.028">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module isSuccessful() should return false if error exists" name="RollbackOrchestrator Module isSuccessful() should return false if error exists" time="0.001">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module isSuccessful() should return false if any phase has failures" name="RollbackOrchestrator Module isSuccessful() should return false if any phase has failures" time="0.008">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module isSuccessful() should return true if no failures" name="RollbackOrchestrator Module isSuccessful() should return true if no failures" time="0.003">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module isSuccessful() should handle empty results" name="RollbackOrchestrator Module isSuccessful() should handle empty results" time="0.002">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module Integration Tests should handle complete rollback workflow" name="RollbackOrchestrator Module Integration Tests should handle complete rollback workflow" time="0.031">
+    </testcase>
+    <testcase classname="RollbackOrchestrator Module Integration Tests should execute phases in correct order" name="RollbackOrchestrator Module Integration Tests should execute phases in correct order" time="0.014">
+    </testcase>
+  </testsuite>
+  <testsuite name="RollbackValidator Module" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:56" time="20.621" tests="20">
+    <testcase classname="RollbackValidator Module validate() should reject invalid state" name="RollbackValidator Module validate() should reject invalid state" time="0.011">
+    </testcase>
+    <testcase classname="RollbackValidator Module validate() should reject state without rollback section" name="RollbackValidator Module validate() should reject state without rollback section" time="0.001">
+    </testcase>
+    <testcase classname="RollbackValidator Module validate() should pass with valid minimal state" name="RollbackValidator Module validate() should pass with valid minimal state" time="0.001">
+    </testcase>
+    <testcase classname="RollbackValidator Module validate() should collect warnings but still be safe" name="RollbackValidator Module validate() should collect warnings but still be safe" time="0.002">
+    </testcase>
+    <testcase classname="RollbackValidator Module validateBackupsExist() should warn if env backup missing" name="RollbackValidator Module validateBackupsExist() should warn if env backup missing" time="0.003">
+    </testcase>
+    <testcase classname="RollbackValidator Module validateBackupsExist() should pass if backup exists" name="RollbackValidator Module validateBackupsExist() should pass if backup exists" time="0.05">
+    </testcase>
+    <testcase classname="RollbackValidator Module validateBackupsExist() should warn if gitignore backup missing" name="RollbackValidator Module validateBackupsExist() should warn if gitignore backup missing" time="0.001">
+    </testcase>
+    <testcase classname="RollbackValidator Module checkPackageDependents() should handle empty package lists" name="RollbackValidator Module checkPackageDependents() should handle empty package lists" time="0.001">
+    </testcase>
+    <testcase classname="RollbackValidator Module checkPackageDependents() should handle packages without dependents" name="RollbackValidator Module checkPackageDependents() should handle packages without dependents" time="9.622">
+    </testcase>
+    <testcase classname="RollbackValidator Module checkNpmDependents() should return empty array for nonexistent package" name="RollbackValidator Module checkNpmDependents() should return empty array for nonexistent package" time="5.206">
+    </testcase>
+    <testcase classname="RollbackValidator Module checkNpmDependents() should handle command errors gracefully" name="RollbackValidator Module checkNpmDependents() should handle command errors gracefully" time="2.095">
+    </testcase>
+    <testcase classname="RollbackValidator Module checkPipDependents() should return empty array for nonexistent package" name="RollbackValidator Module checkPipDependents() should return empty array for nonexistent package" time="1.2">
+    </testcase>
+    <testcase classname="RollbackValidator Module checkPipDependents() should handle command errors gracefully" name="RollbackValidator Module checkPipDependents() should handle command errors gracefully" time="0.882">
+    </testcase>
+    <testcase classname="RollbackValidator Module validateSshKeyBeforeDelete() should warn if SSH key missing" name="RollbackValidator Module validateSshKeyBeforeDelete() should warn if SSH key missing" time="0.001">
+    </testcase>
+    <testcase classname="RollbackValidator Module validateSshKeyBeforeDelete() should pass if no SSH keys configured" name="RollbackValidator Module validateSshKeyBeforeDelete() should pass if no SSH keys configured" time="0.001">
+    </testcase>
+    <testcase classname="RollbackValidator Module validateSshKeyBeforeDelete() should expand tilde in path" name="RollbackValidator Module validateSshKeyBeforeDelete() should expand tilde in path" time="0.001">
+    </testcase>
+    <testcase classname="RollbackValidator Module validateGitConfigBeforeRestore() should warn if no original git config values" name="RollbackValidator Module validateGitConfigBeforeRestore() should warn if no original git config values" time="0">
+    </testcase>
+    <testcase classname="RollbackValidator Module validateGitConfigBeforeRestore() should pass if git config values exist" name="RollbackValidator Module validateGitConfigBeforeRestore() should pass if git config values exist" time="0">
+    </testcase>
+    <testcase classname="RollbackValidator Module validateGitConfigBeforeRestore() should handle null originalGitConfig" name="RollbackValidator Module validateGitConfigBeforeRestore() should handle null originalGitConfig" time="0">
+    </testcase>
+    <testcase classname="RollbackValidator Module Integration Tests should perform complete validation flow" name="RollbackValidator Module Integration Tests should perform complete validation flow" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="Dependency Installer Tests" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:56" time="28.196" tests="5">
+    <testcase classname="Dependency Installer Tests Handle empty dependencies" name="Dependency Installer Tests Handle empty dependencies" time="0.104">
+    </testcase>
+    <testcase classname="Dependency Installer Tests Dry-run does not execute commands" name="Dependency Installer Tests Dry-run does not execute commands" time="18.28">
+    </testcase>
+    <testcase classname="Dependency Installer Tests Calculate summary correctly" name="Dependency Installer Tests Calculate summary correctly" time="0.003">
+    </testcase>
+    <testcase classname="Dependency Installer Tests Handle missing package manager gracefully" name="Dependency Installer Tests Handle missing package manager gracefully" time="0.011">
+    </testcase>
+    <testcase classname="Dependency Installer Tests Handle mixed success/failure scenarios" name="Dependency Installer Tests Handle mixed success/failure scenarios" time="8.066">
+    </testcase>
+  </testsuite>
+  <testsuite name="Documentation Generation Integration" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:56" time="32.465" tests="8">
+    <testcase classname="Documentation Generation Integration Phase 1: Parse test manifest (examples/sample-manifest.yaml)" name="Documentation Generation Integration Phase 1: Parse test manifest (examples/sample-manifest.yaml)" time="0.223">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 2: Create mock orchestrator state" name="Documentation Generation Integration Phase 2: Create mock orchestrator state" time="0.032">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 3: Generate documentation (dry-run mode)" name="Documentation Generation Integration Phase 3: Generate documentation (dry-run mode)" time="15.896">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 4: Generate documentation (actual files)" name="Documentation Generation Integration Phase 4: Generate documentation (actual files)" time="10.975">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 5: Validate generated documentation content" name="Documentation Generation Integration Phase 5: Validate generated documentation content" time="0.006">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 6: Validate Markdown quality" name="Documentation Generation Integration Phase 6: Validate Markdown quality" time="0.014">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 7: Verify platform-specific instructions" name="Documentation Generation Integration Phase 7: Verify platform-specific instructions" time="0.003">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 8: Verify context-aware content" name="Documentation Generation Integration Phase 8: Verify context-aware content" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="Documentation Generation Integration" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:56" time="32.422" tests="8">
+    <testcase classname="Documentation Generation Integration Phase 1: Parse test manifest (examples/sample-manifest.yaml)" name="Documentation Generation Integration Phase 1: Parse test manifest (examples/sample-manifest.yaml)" time="0.129">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 2: Create mock orchestrator state" name="Documentation Generation Integration Phase 2: Create mock orchestrator state" time="0.04">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 3: Generate documentation (dry-run mode)" name="Documentation Generation Integration Phase 3: Generate documentation (dry-run mode)" time="15.629">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 4: Generate documentation (actual files)" name="Documentation Generation Integration Phase 4: Generate documentation (actual files)" time="11.202">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 5: Validate generated documentation content" name="Documentation Generation Integration Phase 5: Validate generated documentation content" time="0.008">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 6: Validate Markdown quality" name="Documentation Generation Integration Phase 6: Validate Markdown quality" time="0.015">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 7: Verify platform-specific instructions" name="Documentation Generation Integration Phase 7: Verify platform-specific instructions" time="0.003">
+    </testcase>
+    <testcase classname="Documentation Generation Integration Phase 8: Verify context-aware content" name="Documentation Generation Integration Phase 8: Verify context-aware content" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="Phase 7: Documentation Generator Tests" errors="0" failures="0" skipped="0" timestamp="2026-02-13T07:08:56" time="52.404" tests="25">
+    <testcase classname="Phase 7: Documentation Generator Tests TemplateEngine: Simple variable replacement" name="Phase 7: Documentation Generator Tests TemplateEngine: Simple variable replacement" time="0.057">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests TemplateEngine: Nested variable replacement" name="Phase 7: Documentation Generator Tests TemplateEngine: Nested variable replacement" time="0.002">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests TemplateEngine: Array variable (joins with comma)" name="Phase 7: Documentation Generator Tests TemplateEngine: Array variable (joins with comma)" time="0.001">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests TemplateEngine: Conditional block (truthy)" name="Phase 7: Documentation Generator Tests TemplateEngine: Conditional block (truthy)" time="0.001">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests TemplateEngine: Conditional block (falsy)" name="Phase 7: Documentation Generator Tests TemplateEngine: Conditional block (falsy)" time="0.001">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests TemplateEngine: Loop with primitives" name="Phase 7: Documentation Generator Tests TemplateEngine: Loop with primitives" time="0.001">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests TemplateEngine: Loop with objects" name="Phase 7: Documentation Generator Tests TemplateEngine: Loop with objects" time="0.001">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests TemplateEngine: Empty array renders nothing" name="Phase 7: Documentation Generator Tests TemplateEngine: Empty array renders nothing" time="0.001">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests ContentBuilder: Build dependency table" name="Phase 7: Documentation Generator Tests ContentBuilder: Build dependency table" time="0.023">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests ContentBuilder: Build empty dependency table" name="Phase 7: Documentation Generator Tests ContentBuilder: Build empty dependency table" time="0.005">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests ContentBuilder: Build command snippet (bash)" name="Phase 7: Documentation Generator Tests ContentBuilder: Build command snippet (bash)" time="0.002">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests ContentBuilder: Build command snippet (powershell)" name="Phase 7: Documentation Generator Tests ContentBuilder: Build command snippet (powershell)" time="0.001">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests ContentBuilder: Build environment list" name="Phase 7: Documentation Generator Tests ContentBuilder: Build environment list" time="0.012">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests ContentBuilder: Build verification summary (success)" name="Phase 7: Documentation Generator Tests ContentBuilder: Build verification summary (success)" time="0.002">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests ContentBuilder: Build verification summary (failures)" name="Phase 7: Documentation Generator Tests ContentBuilder: Build verification summary (failures)" time="0.003">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests ContentBuilder: Build setup steps list" name="Phase 7: Documentation Generator Tests ContentBuilder: Build setup steps list" time="0.004">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests ContentBuilder: Build config summary" name="Phase 7: Documentation Generator Tests ContentBuilder: Build config summary" time="0.165">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests ContentBuilder: Build platform note (Windows)" name="Phase 7: Documentation Generator Tests ContentBuilder: Build platform note (Windows)" time="0.096">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests ContentBuilder: Build platform note (macOS)" name="Phase 7: Documentation Generator Tests ContentBuilder: Build platform note (macOS)" time="0.028">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests DocumentGenerator: Parse default config" name="Phase 7: Documentation Generator Tests DocumentGenerator: Parse default config" time="16.167">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests DocumentGenerator: Respect disabled documentation" name="Phase 7: Documentation Generator Tests DocumentGenerator: Respect disabled documentation" time="0.001">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests DocumentGenerator: Custom sections" name="Phase 7: Documentation Generator Tests DocumentGenerator: Custom sections" time="0.026">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests DocumentGenerator: Extract config from state" name="Phase 7: Documentation Generator Tests DocumentGenerator: Extract config from state" time="11.065">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests DocumentGenerator: Extract verification from state" name="Phase 7: Documentation Generator Tests DocumentGenerator: Extract verification from state" time="9.252">
+    </testcase>
+    <testcase classname="Phase 7: Documentation Generator Tests Integration: Generate complete documentation (dry-run)" name="Phase 7: Documentation Generator Tests Integration: Generate complete documentation (dry-run)" time="10.383">
+    </testcase>
+  </testsuite>
+</testsuites>

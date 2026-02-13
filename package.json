@@ -1,6 +1,6 @@
 {
   "name": "jetpack-cli",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Zero-config developer onboarding orchestrator using GitHub Copilot CLI",
   "main": "bin/jetpack.js",
   "bin": {
@@ -9,10 +9,12 @@
   "scripts": {
     "start": "node bin/jetpack.js",
     "dev": "node bin/jetpack.js",
-    "test": "npm run test:unit && npm run test:integration && npm run test:rollback",
-    "test:unit": "node tests/doc-generator.test.js && node tests/manifest-parser.test.js && node tests/manifest-fetcher.test.js && node tests/copilot-troubleshooter.test.js && node tests/copilot-resolver.test.js && node tests/manifest-generator.test.js",
-    "test:integration": "node tests/integration-docs.test.js && node tests/integration-setup.test.js && node tests/integration-verification.test.js",
-    "test:rollback": "node tests/rollback/rollback-state.test.js && node tests/rollback/rollback-validator.test.js && node tests/rollback/rollback-actions.test.js && node tests/rollback/rollback-diff-generator.test.js && node tests/rollback/rollback-orchestrator.test.js && node tests/rollback/copilot-risk-analyzer.test.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest --selectProjects unit",
+    "test:integration": "jest --selectProjects integration",
+    "test:rollback": "jest --selectProjects rollback",
     "test:all": "npm test"
   },
   "keywords": [
@@ -32,5 +34,10 @@
     "dotenv": "^16.3.1",
     "inquirer": "^9.2.0",
     "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "jest-html-reporter": "^4.3.0",
+    "jest-junit": "^16.0.0"
   }
 }

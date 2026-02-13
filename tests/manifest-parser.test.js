@@ -1,118 +1,75 @@
-#!/usr/bin/env node
-
 /**
  * Test script for manifest parser
- * Run: node tests/test-manifest-parser.js
+ * Run: npm test -- --selectProjects unit
  */
 
 const path = require('path');
 const manifestParser = require('../src/detectors/manifest-parser');
 
-console.log('🧪 Testing Manifest Parser\n');
-console.log('='.repeat(60));
+describe('Manifest Parser Tests', () => {
 
-// Test 1: Parse simple example manifest
-console.log('\n📋 Test 1: Parse simple basic-example.yaml');
-console.log('-'.repeat(60));
-try {
-  const simplePath = path.join(__dirname, '../templates/basic-example.yaml');
-  const simpleManifest = manifestParser.parseManifest(simplePath);
-  
-  console.log('✅ PASSED - Simple manifest parsed successfully');
-  console.log('\nParsed Data:');
-  console.log(`  Name: ${simpleManifest.name}`);
-  console.log(`  Description: ${simpleManifest.description}`);
-  console.log(`  System Dependencies: ${simpleManifest.dependencies.system.join(', ')}`);
-  console.log(`  NPM Packages: ${simpleManifest.dependencies.npm.join(', ')}`);
-  console.log(`  Required Env Vars: ${simpleManifest.environment.required.join(', ')}`);
-  console.log(`  Setup Steps: ${simpleManifest.setupSteps.length} steps`);
-  simpleManifest.setupSteps.forEach(step => {
-    console.log(`    ${step.id}. ${step.name} - ${step.command}`);
+  test('Parse simple basic-example.yaml', () => {
+    const simplePath = path.join(__dirname, '../templates/basic-example.yaml');
+    const simpleManifest = manifestParser.parseManifest(simplePath);
+
+    expect(simpleManifest).toBeDefined();
+    expect(simpleManifest.name).toBeDefined();
+    expect(simpleManifest.description).toBeDefined();
+    expect(simpleManifest.dependencies.system).toBeDefined();
+    expect(simpleManifest.dependencies.npm).toBeDefined();
+    expect(simpleManifest.environment.required).toBeDefined();
+    expect(simpleManifest.setupSteps.length).toBeGreaterThan(0);
   });
-} catch (error) {
-  console.log('❌ FAILED:', error.message);
-}
 
-// Test 2: Parse complex manifest
-console.log('\n📋 Test 2: Parse complex-example.yaml');
-console.log('-'.repeat(60));
-try {
-  const complexPath = path.join(__dirname, '../templates/complex-example.yaml');
-  const complexManifest = manifestParser.parseManifest(complexPath);
-  
-  console.log('✅ PASSED - Complex manifest parsed successfully');
-  console.log('\nParsed Data:');
-  console.log(`  Name: ${complexManifest.name}`);
-  console.log(`  Description: ${complexManifest.description}`);
-  console.log(`  System Dependencies: ${complexManifest.dependencies.system.length} items`);
-  console.log(`  NPM Packages: ${complexManifest.dependencies.npm.length} items`);
-  console.log(`  Python Packages: ${complexManifest.dependencies.python.length} items`);
-  console.log(`  Required Env Vars: ${complexManifest.environment.required.length} items`);
-  console.log(`  Optional Env Vars: ${complexManifest.environment.optional.length} items`);
-  console.log(`  Setup Steps: ${complexManifest.setupSteps.length} steps`);
-} catch (error) {
-  console.log('❌ FAILED:', error.message);
-}
+  test('Parse complex-example.yaml', () => {
+    const complexPath = path.join(__dirname, '../templates/complex-example.yaml');
+    const complexManifest = manifestParser.parseManifest(complexPath);
 
-// Test 3: File not found error
-console.log('\n📋 Test 3: Handle file not found');
-console.log('-'.repeat(60));
-try {
-  manifestParser.parseManifest('/nonexistent/file.yaml');
-  console.log('❌ FAILED - Should have thrown error');
-} catch (error) {
-  console.log('✅ PASSED - Correctly threw error');
-  console.log(`  Error: ${error.message}`);
-}
+    expect(complexManifest).toBeDefined();
+    expect(complexManifest.dependencies.system.length).toBeGreaterThan(0);
+    expect(complexManifest.dependencies.npm.length).toBeGreaterThan(0);
+    expect(complexManifest.dependencies.python.length).toBeGreaterThan(0);
+    expect(complexManifest.environment.required.length).toBeGreaterThan(0);
+    expect(complexManifest.environment.optional.length).toBeGreaterThan(0);
+    expect(complexManifest.setupSteps.length).toBeGreaterThan(0);
+  });
 
-// Test 4: Invalid YAML syntax
-console.log('\n📋 Test 4: Handle invalid YAML syntax');
-console.log('-'.repeat(60));
-try {
-  const invalidYaml = `
+  test('Handle file not found', () => {
+    expect(() => {
+      manifestParser.parseManifest('/nonexistent/file.yaml');
+    }).toThrow();
+  });
+
+  test('Handle invalid YAML syntax', () => {
+    const invalidYaml = `
 name: test
 dependencies: [invalid yaml syntax
-  `;
-  manifestParser.parseManifestFromString(invalidYaml);
-  console.log('❌ FAILED - Should have thrown error');
-} catch (error) {
-  console.log('✅ PASSED - Correctly threw error');
-  console.log(`  Error: ${error.message.split('\n')[0]}`);
-}
+    `;
+    expect(() => {
+      manifestParser.parseManifestFromString(invalidYaml);
+    }).toThrow();
+  });
 
-// Test 5: Missing required fields
-console.log('\n📋 Test 5: Handle missing required fields');
-console.log('-'.repeat(60));
-try {
-  const missingFields = `
+  test('Handle missing required fields', () => {
+    const missingFields = `
 description: Missing name field
 dependencies:
   system:
     - docker
-  `;
-  manifestParser.parseManifestFromString(missingFields);
-  console.log('❌ FAILED - Should have thrown error');
-} catch (error) {
-  console.log('✅ PASSED - Correctly threw error');
-  console.log(`  Error: ${error.message.split('\n')[0]}`);
-}
+    `;
+    expect(() => {
+      manifestParser.parseManifestFromString(missingFields);
+    }).toThrow();
+  });
 
-// Test 6: Empty manifest
-console.log('\n📋 Test 6: Handle empty manifest');
-console.log('-'.repeat(60));
-try {
-  manifestParser.parseManifestFromString('');
-  console.log('❌ FAILED - Should have thrown error');
-} catch (error) {
-  console.log('✅ PASSED - Correctly threw error');
-  console.log(`  Error: ${error.message}`);
-}
+  test('Handle empty manifest', () => {
+    expect(() => {
+      manifestParser.parseManifestFromString('');
+    }).toThrow();
+  });
 
-// Test 7: Valid minimal manifest
-console.log('\n📋 Test 7: Parse minimal valid manifest');
-console.log('-'.repeat(60));
-try {
-  const minimalManifest = `
+  test('Parse minimal valid manifest', () => {
+    const minimalManifest = `
 name: minimal-project
 dependencies:
   system:
@@ -120,21 +77,15 @@ dependencies:
 setup_steps:
   - name: Install
     command: npm install
-  `;
-  const parsed = manifestParser.parseManifestFromString(minimalManifest);
-  console.log('✅ PASSED - Minimal manifest parsed successfully');
-  console.log(`  Name: ${parsed.name}`);
-  console.log(`  System Deps: ${parsed.dependencies.system.join(', ')}`);
-  console.log(`  Setup Steps: ${parsed.setupSteps.length}`);
-} catch (error) {
-  console.log('❌ FAILED:', error.message);
-}
+    `;
+    const parsed = manifestParser.parseManifestFromString(minimalManifest);
+    expect(parsed.name).toBe('minimal-project');
+    expect(parsed.dependencies.system).toContain('nodejs');
+    expect(parsed.setupSteps).toHaveLength(1);
+  });
 
-// Test 8: Validate array environment format
-console.log('\n📋 Test 8: Parse manifest with array environment format');
-console.log('-'.repeat(60));
-try {
-  const arrayEnv = `
+  test('Parse manifest with array environment format', () => {
+    const arrayEnv = `
 name: array-env-test
 dependencies:
   system:
@@ -145,14 +96,11 @@ dependencies:
 setup_steps:
   - name: Install
     command: npm install
-  `;
-  const parsed = manifestParser.parseManifestFromString(arrayEnv);
-  console.log('✅ PASSED - Array environment format parsed');
-  console.log(`  Required Env Vars: ${parsed.environment.required.join(', ')}`);
-  console.log(`  Optional Env Vars: ${parsed.environment.optional.length} (none)`);
-} catch (error) {
-  console.log('❌ FAILED:', error.message);
-}
+    `;
+    const parsed = manifestParser.parseManifestFromString(arrayEnv);
+    expect(parsed.environment.required).toContain('DATABASE_URL');
+    expect(parsed.environment.required).toContain('API_KEY');
+    expect(parsed.environment.optional).toHaveLength(0);
+  });
 
-console.log('\n' + '='.repeat(60));
-console.log('🎉 Test suite completed!\n');
+});

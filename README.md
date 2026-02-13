@@ -187,12 +187,12 @@ Full modular documentation is available in [`docs/`](docs/index.md):
 ## 🧪 Testing
 
 ```bash
-npm test              # Run all 60+ tests
+npm test              # Run all 235 tests (Jest)
 npm run test:unit     # Run unit tests only
 npm run test:rollback # Test rollback functionality
 ```
 
-**63 tests** across unit, integration, and rollback suites ensure reliability.
+**235 tests** across unit, integration, and rollback suites ensure reliability. Powered by [Jest](https://jestjs.io/).
 
 ---
 

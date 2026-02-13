@@ -1,29 +1,29 @@
 const analyzer = require('../../src/rollback/copilot-risk-analyzer');
 const childProcess = require('child_process');
-const assert = require('assert');
 
-// Mock child_process.execSync
-const originalExecSync = childProcess.execSync;
-let mockExecSyncResponse = '';
-childProcess.execSync = (command, options) => {
-    if (command.includes('gh --version')) {
-        return 'gh version 2.40.0';
-    }
-    return mockExecSyncResponse;
-};
+jest.mock('child_process');
 
-// Test Suite
-async function runTests() {
-    console.log('🧪 Testing Copilot Risk Analyzer...');
+describe('Copilot Risk Analyzer Tests', () => {
 
-    try {
-        // Test 1: Assess Risks
-        console.log('Test 1: Assess Risks...');
+    beforeEach(() => {
+        childProcess.execSync.mockReset();
+        // Default mock for version check
+        childProcess.execSync.mockImplementation((cmd) => {
+            if (cmd.includes('gh --version')) return 'gh version 2.40.0';
+            return '';
+        });
+    });
 
-        mockExecSyncResponse = JSON.stringify({
+    test('Assess Risks', async () => {
+        const mockResponse = JSON.stringify({
             highRisk: ['Uninstalling database'],
             warnings: ['Data loss potential'],
             precautions: ['Backup DB dump']
+        });
+
+        childProcess.execSync.mockImplementation((cmd) => {
+            if (cmd.includes('gh --version')) return 'gh version 2.40.0';
+            return mockResponse;
         });
 
         const risks = await analyzer.assessRisks(
@@ -31,26 +31,15 @@ async function runTests() {
             { unsafe: true }
         );
 
-        assert.strictEqual(risks.highRisk[0], 'Uninstalling database');
-        assert.strictEqual(risks.precautions[0], 'Backup DB dump');
-        console.log('  ✓ Risks assessed correctly');
+        expect(risks.highRisk[0]).toBe('Uninstalling database');
+        expect(risks.precautions[0]).toBe('Backup DB dump');
+    });
 
-        // Test 2: Fallback
-        console.log('Test 2: Fallback on Error...');
-        childProcess.execSync = () => { throw new Error('Copilot failed'); };
+    test('Fallback on Error', async () => {
+        childProcess.execSync.mockImplementation(() => { throw new Error('Copilot failed'); });
 
         const fallback = await analyzer.assessRisks({}, {});
-        assert.ok(fallback.warnings[0].includes('Could not analyze'));
-        console.log('  ✓ Fallback handled correctly');
+        expect(fallback.warnings[0]).toContain('Could not analyze');
+    });
 
-        console.log('\n✅ All risk analyzer tests passed!');
-    } catch (error) {
-        console.error('\n❌ Tests failed:', error);
-        process.exit(1);
-    } finally {
-        // Restore mocks
-        childProcess.execSync = originalExecSync;
-    }
-}
-
-runTests();
+});

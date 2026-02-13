@@ -5,166 +5,35 @@ All notable changes to Jetpack CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v0.4.0] - 2026-02-12
 
-### Added
+### 🚀 New Features (AI Integration)
 
-- **Rollback Functionality** - Complete system rollback with safety features
-  - **Rollback Orchestrator** (`src/rollback/rollback-orchestrator.js`)
-    - Coordinates all rollback phases with continue-on-failure logic
-    - Supports partial rollback (specific components only)
-    - Dry-run mode for previewing changes
-    - Clears state file after successful full rollback
-  - **Rollback Actions** (`src/rollback/rollback-actions.js`)
-    - Package uninstallation (npm, pip, system) with `--unsafe` flag
-    - Configuration restoration from backups
-    - SSH key removal
-    - Git config restoration to original values
-    - Documentation cleanup
-  - **State Tracking** (`src/rollback/rollback-state.js`)
-    - Tracks newly installed packages vs pre-existing
-    - Records configuration backups
-    - Stores original git config values
-    - Enhanced state validation for rollback
-  - **Safety Validator** (`src/rollback/rollback-validator.js`)
-    - Validates backups exist before restoration
-    - Checks for package dependencies before uninstall
-    - SSH key validation before deletion
-    - Git config safety checks
-  - **Diff Generator** (`src/rollback/rollback-diff-generator.js`)
-    - Color-coded preview of changes in dry-run mode
-    - Shows what will be removed/restored
-    - Displays warnings for unsafe operations
-  - **CLI Integration**
-    - `jetpack rollback` - Full rollback command
-    - `--dry-run` - Preview changes without executing
-    - `--partial=<phases>` - Rollback specific components
-    - `--unsafe` - Allow package uninstallation
-    - `--force` - Skip safety checks
-  - **Test Suite** - 88 comprehensive tests
-    - `rollback-state.test.js` (23 tests)
-    - `rollback-validator.test.js` (20 tests)
-    - `rollback-actions.test.js` (22 tests)
-    - `rollback-diff-generator.test.js` (9 tests)
-    - `rollback-orchestrator.test.js` (14 tests)
-  - **Safety Features**
-    - Packages NOT uninstalled by default (requires --unsafe)
-    - .env restored from backup (not deleted)
-    - Git config values restored to original state
-    - Warnings for packages with dependencies
-    - Continue-on-failure error handling
+*   **Copilot Troubleshooter**: Automatically analyzes installation failures and suggests fixes using `jetpack verify --copilot-troubleshoot`.
+*   **Manifest Generator**: Generates `.onboard.yaml` from existing codebases using `jetpack generate-manifest --copilot`.
+*   **Risk Analyzer**: Assesses rollback risks (data loss, side effects) before execution with `jetpack rollback --check-risks`.
+*   **Dependency Resolver**: intelligently resolves version conflicts and missing peer dependencies during installation.
+*   **Config Explanations**: Annotates generated `.env` files with AI-generated explanations for each variable.
 
-- **Phase 7: Documentation Generation** - Automated Stripe-style developer documentation
-  - **Modular Documentation System**
-    - Generates 4 sections: getting-started, setup, troubleshooting, verification
-    - Each section contains 2-3 focused markdown files (< 300 lines each)
-    - Total of 9 documentation files generated per project
-  - **Template Engine** (`src/docs/core/TemplateEngine.js`)
-    - Variable interpolation with `{{variable}}` syntax
-    - Conditional blocks with `{{#if condition}}...{{/if}}`
-    - Loop blocks with `{{#each items}}...{{/each}}`
-    - Nested variable access with dot notation (e.g., `{{project.name}}`)
-    - Array handling with comma-join formatting
-  - **Content Builder** (`src/docs/core/ContentBuilder.js`)
-    - Dependency tables (system, npm, python)
-    - Command snippets with platform-specific shell detection
-    - Environment variable lists (required/optional)
-    - Verification summaries with pass/fail counts
-    - Setup steps lists with descriptions
-    - Configuration summaries (.env, SSH, Git)
-    - Platform-specific notes (Windows/macOS/Linux)
-  - **Document Generator** (`src/docs/core/DocumentGenerator.js`)
-    - Main orchestration engine for documentation generation
-    - Context-aware: Only documents what was actually installed
-    - Platform-specific instructions
-    - Dry-run mode support (preview without writing files)
-    - Custom output directory support
-    - Selective section generation
-  - **4 Specialized Generators**
-    - `GettingStartedGenerator`: Quickstart guide & prerequisites
-    - `SetupDocsGenerator`: Dependencies, configuration, environment
-    - `TroubleshootingGenerator`: Common issues & verification failures
-    - `VerificationDocsGenerator`: Health checks & manual testing
-  - **Manifest Schema Extension**
-    - New `documentation` section in `.onboard.yaml`
-    - `enabled`: Enable/disable documentation generation (default: true)
-    - `output_dir`: Custom output directory (default: ./docs)
-    - `sections`: Selective section generation
-    - `custom`: Project metadata (repo_url, docs_url, support_url)
-  - **Orchestrator Integration**
-    - Updated Step 6 (createDocs) to use DocumentGenerator
-    - Graceful failure handling (continues if docs generation fails)
-    - State-aware documentation (uses install/config/verify results)
-    - Dry-run mode integration
-  - **Test Coverage**
-    - New test file: `tests/doc-generator.test.js` (25 tests, all passing)
-    - TemplateEngine tests (8 tests): variables, conditionals, loops
-    - ContentBuilder tests (11 tests): tables, snippets, summaries
-    - DocumentGenerator tests (6 tests): config parsing, state extraction
-    - Example manifests: `templates/docs-example-basic.yaml`, `templates/docs-example-minimal.yaml`
+### 🛠️ CLI Enhancements
 
-- **Phase 6: Verification & Health Checks** - Comprehensive verification system (COMPLETED)
-  - **P0: Environment Files** (.env, .env.template, .env.example)
-    - Smart merge mode preserves existing .env values
-    - Copilot CLI integration for secure value generation (API keys, JWT secrets)
-    - Automatic .gitignore updates (.env, .env.backup.*, .jetpack-state.json)
-    - Timestamped backups with auto-cleanup (keeps last 3)
-    - Comprehensive .env.example with Copilot-generated explanations
-    - Environment variable validation (URLs, emails, ports, booleans)
-  - **P1: SSH Key Generation** (ed25519 algorithm)
-    - Secure SSH key generation at ~/.ssh/id_ed25519
-    - Automatic addition to ssh-agent (with graceful Windows fallback)
-    - Skip-if-exists protection (never overwrites existing keys)
-    - Configurable comment and algorithm via manifest
-  - **P2: Git Configuration** (global scope)
-    - Auto-configure user.name and user.email if missing
-    - Sets init.defaultBranch = main for modern workflows
-    - Preserves existing git identity (no overwrite)
-    - Warnings for placeholder emails
-- New modules: `src/core/config-generator.js` (640 LOC) and `src/core/config-utils.js` (390 LOC)
-  - ConfigGenerator with P0, P1, P2 orchestration
-  - File merge utilities (preserve existing .env values)
-  - Backup management with timestamp and cleanup
-  - SSH key generation with ed25519 security
-  - Git config management (get/set with validation)
-  - Cross-platform path handling (Windows + Unix)
-  - Copilot CLI integration with crypto fallbacks
-- Enhanced `src/detectors/manifest-parser.js`
-  - New manifest sections: `ssh` and `git`
-  - Validation for ssh.generate, ssh.comment, ssh.algorithm
-  - Validation for git.configure, git.user.name, git.user.email
-- Test suite for config generation (3 comprehensive tests)
-  - P0+P1+P2 dry-run validation
-  - Actual P0 generation with file verification
-  - Manifest parsing for ssh/git sections
-- Updated `.onboard.yaml` schema with ssh/git examples
+*   Added `--copilot-generate` flag to `init` command for local repo onboarding.
+*   Added `--check-risks` flag to `rollback` command.
+*   Added `--copilot-troubleshoot` flag to `verify` command.
+*   Updated all AI modules to use correct `gh copilot -p` syntax for reliability.
 
-- **Phase 4: Setup Step Execution** - Automated execution of setup commands
-  - Sequential step execution from `.onboard.yaml` manifests
-  - Stop-on-failure error handling (workflow halts on any step failure)
-  - Live command output display (stdio: inherit)
-  - Dry-run mode support with command preview
-  - Step validation (command required, proper types)
-  - Detailed execution summary (executed/skipped/failed counts)
-  - Duration tracking for performance monitoring
-  - Full environment variable inheritance
-- New module: `src/core/setup-executor.js` (400 LOC)
-  - Main executor with sequential step processing
-  - Pre-execution validation with clear error messages
-  - Step execution with real-time output
-  - Comprehensive result reporting
-- Test suite for setup executor (12 tests, all passing)
-  - Validation tests (5 tests)
-  - Execution tests (4 tests)
-  - Edge case handling (3 tests)
-- Integration test suite (5 tests, all passing)
-  - End-to-end workflow validation
-  - Orchestrator Step 4 integration
-  - Manifest compatibility verification
-- Updated orchestrator (Step 4 complete)
-  - Integrated setup executor into main workflow
-  - Stop-on-failure propagation to prevent Steps 5-7 on error
-  - State tracking for setup execution results
+### 📚 Documentation
+
+*   Added dedicated **Copilot Integration Guide**.
+*   Updated `architecture.md` with AI layer diagrams.
+*   Refactored documentation to remove placeholder content.
+
+### Internal & Testing
+
+*   **Jest Migration**: Migrated test suite to Jest for improved reliability and speed.
+*   **Expanded Coverage**: Test suite now includes **235 tests** covering unit, integration, and rollback scenarios.
+*   **Unified Runner**: Consolidated test execution into a standard `npm test` workflow.
+*   **Mocking Strategy**: Implemented robust mocking for filesystem and child processes to eliminate flakiness.
 
 ### Fixed
 

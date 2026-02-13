@@ -12,6 +12,7 @@ Jetpack CLI is a zero-config developer onboarding orchestrator powered by GitHub
 ## 💡 Core Concepts
 
 *   **[Architecture](core-concepts/architecture.md)**: How Jetpack works under the hood.
+*   **[Copilot Integration Guide](guides/copilot-integration.md)**: How to enable and use AI features.
 *   **[Manifest Schema](reference/configuration.md)**: Understanding `.onboard.yaml`.
 
 ## 🛠️ Commands

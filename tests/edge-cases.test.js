@@ -1,21 +1,13 @@
-#!/usr/bin/env node
-
 /**
  * Additional edge case tests for manifest parser
- * Run: node tests/test-edge-cases.js
  */
 
-const path = require('path');
 const manifestParser = require('../src/detectors/manifest-parser');
 
-console.log('🧪 Testing Manifest Parser - Edge Cases\n');
-console.log('='.repeat(60));
+describe('Manifest Parser Edge Cases', () => {
 
-// Test 1: Empty arrays should be allowed
-console.log('\n📋 Test 1: Empty dependency arrays should be valid');
-console.log('-'.repeat(60));
-try {
-  const emptyArrays = `
+  test('Empty dependency arrays should be valid', () => {
+    const emptyArrays = `
 name: docs-only-project
 description: Documentation-only project
 dependencies:
@@ -26,22 +18,16 @@ dependencies:
 setup_steps:
   - name: Build docs
     command: npm run build:docs
-  `;
-  const parsed = manifestParser.parseManifestFromString(emptyArrays);
-  console.log('✅ PASSED - Empty arrays accepted as valid');
-  console.log(`  Name: ${parsed.name}`);
-  console.log(`  System Deps: ${parsed.dependencies.system.length} (empty is OK)`);
-  console.log(`  NPM Packages: ${parsed.dependencies.npm.length} (empty is OK)`);
-  console.log(`  Required Env Vars: ${parsed.environment.required.join(', ')}`);
-} catch (error) {
-  console.log('❌ FAILED:', error.message);
-}
+    `;
+    const parsed = manifestParser.parseManifestFromString(emptyArrays);
+    expect(parsed.name).toBe('docs-only-project');
+    expect(parsed.dependencies.system.length).toBe(0);
+    expect(parsed.dependencies.npm.length).toBe(0);
+    expect(parsed.environment.required).toContain('API_KEY');
+  });
 
-// Test 2: Environment-only manifest
-console.log('\n📋 Test 2: Manifest with only environment variables');
-console.log('-'.repeat(60));
-try {
-  const envOnly = `
+  test('Manifest with only environment variables', () => {
+    const envOnly = `
 name: config-project
 dependencies:
   environment:
@@ -53,20 +39,14 @@ dependencies:
 setup_steps:
   - name: Validate config
     command: npm run validate
-  `;
-  const parsed = manifestParser.parseManifestFromString(envOnly);
-  console.log('✅ PASSED - Environment-only manifest valid');
-  console.log(`  Required Env: ${parsed.environment.required.length} vars`);
-  console.log(`  Optional Env: ${parsed.environment.optional.length} vars`);
-} catch (error) {
-  console.log('❌ FAILED:', error.message);
-}
+    `;
+    const parsed = manifestParser.parseManifestFromString(envOnly);
+    expect(parsed.environment.required.length).toBeGreaterThan(0);
+    expect(parsed.environment.optional.length).toBeGreaterThan(0);
+  });
 
-// Test 3: Empty environment array
-console.log('\n📋 Test 3: Empty environment array should be valid');
-console.log('-'.repeat(60));
-try {
-  const emptyEnv = `
+  test('Empty environment array should be valid', () => {
+    const emptyEnv = `
 name: test-project
 dependencies:
   system:
@@ -75,20 +55,14 @@ dependencies:
 setup_steps:
   - name: Test
     command: npm test
-  `;
-  const parsed = manifestParser.parseManifestFromString(emptyEnv);
-  console.log('✅ PASSED - Empty environment array accepted');
-  console.log(`  System Deps: ${parsed.dependencies.system.join(', ')}`);
-  console.log(`  Required Env: ${parsed.environment.required.length} (empty is OK)`);
-} catch (error) {
-  console.log('❌ FAILED:', error.message);
-}
+    `;
+    const parsed = manifestParser.parseManifestFromString(emptyEnv);
+    expect(parsed.dependencies.system).toContain('docker');
+    expect(parsed.environment.required.length).toBe(0);
+  });
 
-// Test 4: Multiple empty arrays
-console.log('\n📋 Test 4: Multiple empty dependency arrays');
-console.log('-'.repeat(60));
-try {
-  const multipleEmpty = `
+  test('Multiple empty dependency arrays', () => {
+    const multipleEmpty = `
 name: minimal-project
 dependencies:
   system: []
@@ -98,19 +72,16 @@ dependencies:
 setup_steps:
   - name: Run
     command: echo "Hello"
-  `;
-  const parsed = manifestParser.parseManifestFromString(multipleEmpty);
-  console.log('✅ PASSED - Multiple empty arrays accepted');
-  console.log(`  All dependency arrays: empty (valid)`);
-} catch (error) {
-  console.log('❌ FAILED:', error.message);
-}
+    `;
+    const parsed = manifestParser.parseManifestFromString(multipleEmpty);
+    expect(parsed.dependencies.system.length).toBe(0);
+    expect(parsed.dependencies.npm.length).toBe(0);
+    expect(parsed.dependencies.python.length).toBe(0);
+    expect(parsed.environment.required.length).toBe(0);
+  });
 
-// Test 5: Mixed empty and populated arrays
-console.log('\n📋 Test 5: Mixed empty and populated arrays');
-console.log('-'.repeat(60));
-try {
-  const mixed = `
+  test('Mixed empty and populated arrays', () => {
+    const mixed = `
 name: hybrid-project
 dependencies:
   system:
@@ -123,15 +94,11 @@ dependencies:
 setup_steps:
   - name: Setup
     command: npm install
-  `;
-  const parsed = manifestParser.parseManifestFromString(mixed);
-  console.log('✅ PASSED - Mixed arrays accepted');
-  console.log(`  System: ${parsed.dependencies.system.length} items`);
-  console.log(`  NPM: ${parsed.dependencies.npm.length} items (empty)`);
-  console.log(`  Python: ${parsed.dependencies.python.length} items`);
-} catch (error) {
-  console.log('❌ FAILED:', error.message);
-}
+    `;
+    const parsed = manifestParser.parseManifestFromString(mixed);
+    expect(parsed.dependencies.system.length).toBe(2);
+    expect(parsed.dependencies.npm.length).toBe(0);
+    expect(parsed.dependencies.python.length).toBe(1);
+  });
 
-console.log('\n' + '='.repeat(60));
-console.log('🎉 Edge case tests completed!\n');
+});

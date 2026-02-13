@@ -9,90 +9,55 @@ const templateEngine = require('../src/docs/core/TemplateEngine');
 const contentBuilder = require('../src/docs/core/ContentBuilder');
 const documentGenerator = require('../src/docs/core/DocumentGenerator');
 
-// Main test runner
-(async function runTests() {
-
-  console.log('🧪 Phase 7: Documentation Generator Tests\n');
-  console.log('='.repeat(60));
-
-  let testsPassed = 0;
-  let testsFailed = 0;
-
-  /**
-   * Helper to run a test
-   */
-  async function runTest(name, testFn) {
-    console.log(`\n📋 ${name}`);
-    console.log('-'.repeat(60));
-    try {
-      await testFn();
-      console.log('✅ PASSED');
-      testsPassed++;
-    } catch (error) {
-      console.log(`❌ FAILED: ${error.message}`);
-      if (process.env.VERBOSE) {
-        console.error(error);
-      }
-      testsFailed++;
-    }
-  }
-
-  /**
-   * Assert helper
-   */
-  function assert(condition, message) {
-    if (!condition) {
-      throw new Error(message || 'Assertion failed');
-    }
-  }
+describe('Phase 7: Documentation Generator Tests', () => {
 
   // ============================================================================
   // Template Engine Tests
   // ============================================================================
 
-  await runTest('TemplateEngine: Simple variable replacement', async () => {
+  test('TemplateEngine: Simple variable replacement', () => {
     const template = 'Hello {{name}}!';
     const context = { name: 'World' };
     const result = templateEngine.render(template, context);
-    assert(result === 'Hello World!', `Expected "Hello World!", got "${result}"`);
+    expect(result).toBe('Hello World!');
   });
 
-  await runTest('TemplateEngine: Nested variable replacement', async () => {
+  test('TemplateEngine: Nested variable replacement', () => {
     const template = 'Project: {{project.name}} v{{project.version}}';
     const context = { project: { name: 'Test', version: '1.0' } };
     const result = templateEngine.render(template, context);
-    assert(result === 'Project: Test v1.0', `Expected "Project: Test v1.0", got "${result}"`);
+    expect(result).toBe('Project: Test v1.0');
   });
 
-  await runTest('TemplateEngine: Array variable (joins with comma)', async () => {
+  test('TemplateEngine: Array variable (joins with comma)', () => {
     const template = 'Dependencies: {{dependencies}}';
     const context = { dependencies: ['docker', 'nodejs', 'git'] };
     const result = templateEngine.render(template, context);
-    assert(result === 'Dependencies: docker, nodejs, git', `Got "${result}"`);
+    expect(result).toBe('Dependencies: docker, nodejs, git');
   });
 
-  await runTest('TemplateEngine: Conditional block (truthy)', async () => {
+  test('TemplateEngine: Conditional block (truthy)', () => {
     const template = '{{#if hasFeature}}Feature enabled{{/if}}';
     const context = { hasFeature: true };
     const result = templateEngine.render(template, context);
-    assert(result === 'Feature enabled', `Got "${result}"`);
+    expect(result).toBe('Feature enabled');
   });
 
-  await runTest('TemplateEngine: Conditional block (falsy)', async () => {
+  test('TemplateEngine: Conditional block (falsy)', () => {
     const template = '{{#if hasFeature}}Feature enabled{{/if}}';
     const context = { hasFeature: false };
     const result = templateEngine.render(template, context);
-    assert(result === '', `Expected empty string, got "${result}"`);
+    expect(result).toBe('');
   });
 
-  await runTest('TemplateEngine: Loop with primitives', async () => {
+  test('TemplateEngine: Loop with primitives', () => {
     const template = '{{#each items}}- {{this}}\n{{/each}}';
     const context = { items: ['apple', 'banana', 'cherry'] };
     const result = templateEngine.render(template, context);
-    assert(result === '- apple\n- banana\n- cherry\n', `Got "${result}"`);
+    expect(result).toBe('- apple\n- banana\n- cherry\n');
   });
 
-  await runTest('TemplateEngine: Loop with objects', async () => {
+  test('TemplateEngine: Loop with objects', () => {
     const template = '{{#each users}}{{name}}: {{email}}\n{{/each}}';
     const context = {
       users: [
@@ -101,138 +66,138 @@ const documentGenerator = require('../src/docs/core/DocumentGenerator');
       ]
     };
     const result = templateEngine.render(template, context);
-    assert(result.includes('Alice: alice@example.com'), `Got "${result}"`);
-    assert(result.includes('Bob: bob@example.com'), `Got "${result}"`);
+    expect(result).toContain('Alice: alice@example.com');
+    expect(result).toContain('Bob: bob@example.com');
   });
 
-  await runTest('TemplateEngine: Empty array renders nothing', async () => {
+  test('TemplateEngine: Empty array renders nothing', () => {
     const template = '{{#each items}}{{this}}{{/each}}';
     const context = { items: [] };
     const result = templateEngine.render(template, context);
-    assert(result === '', `Expected empty string, got "${result}"`);
+    expect(result).toBe('');
   });
 
   // ============================================================================
   // Content Builder Tests
   // ============================================================================
 
-  await runTest('ContentBuilder: Build dependency table', async () => {
+  test('ContentBuilder: Build dependency table', () => {
     const dependencies = {
       system: ['docker', 'nodejs'],
       npm: ['eslint', 'prettier'],
       python: ['pytest']
     };
     const result = contentBuilder.buildDependencyTable(dependencies);
-    assert(result.includes('| System | docker, nodejs |'), 'Missing system row');
-    assert(result.includes('| npm | eslint, prettier |'), 'Missing npm row');
-    assert(result.includes('| Python | pytest |'), 'Missing python row');
+    expect(result).toContain('| System | docker, nodejs |');
+    expect(result).toContain('| npm | eslint, prettier |');
+    expect(result).toContain('| Python | pytest |');
   });
 
-  await runTest('ContentBuilder: Build empty dependency table', async () => {
+  test('ContentBuilder: Build empty dependency table', () => {
     const dependencies = {};
     const result = contentBuilder.buildDependencyTable(dependencies);
-    assert(result === '_No dependencies specified_', `Got "${result}"`);
+    expect(result).toBe('_No dependencies specified_');
   });
 
-  await runTest('ContentBuilder: Build command snippet (bash)', async () => {
+  test('ContentBuilder: Build command snippet (bash)', () => {
     const command = 'npm install';
     const result = contentBuilder.buildCommandSnippet(command, 'linux');
-    assert(result.includes('```bash'), 'Missing bash language');
-    assert(result.includes('npm install'), 'Missing command');
+    expect(result).toContain('```bash');
+    expect(result).toContain('npm install');
   });
 
-  await runTest('ContentBuilder: Build command snippet (powershell)', async () => {
+  test('ContentBuilder: Build command snippet (powershell)', () => {
     const command = 'npm install';
     const result = contentBuilder.buildCommandSnippet(command, 'Windows_NT');
-    assert(result.includes('```powershell'), 'Missing powershell language');
-    assert(result.includes('npm install'), 'Missing command');
+    expect(result).toContain('```powershell');
+    expect(result).toContain('npm install');
   });
 
-  await runTest('ContentBuilder: Build environment list', async () => {
+  test('ContentBuilder: Build environment list', () => {
     const environment = {
       required: ['DATABASE_URL', 'API_KEY'],
       optional: ['DEBUG_MODE']
     };
     const result = contentBuilder.buildEnvironmentList(environment);
-    assert(result.includes('**Required:**'), 'Missing required section');
-    assert(result.includes('DATABASE_URL'), 'Missing DATABASE_URL');
-    assert(result.includes('**Optional:**'), 'Missing optional section');
-    assert(result.includes('DEBUG_MODE'), 'Missing DEBUG_MODE');
+    expect(result).toContain('**Required:**');
+    expect(result).toContain('DATABASE_URL');
+    expect(result).toContain('**Optional:**');
+    expect(result).toContain('DEBUG_MODE');
   });
 
-  await runTest('ContentBuilder: Build verification summary (success)', async () => {
+  test('ContentBuilder: Build verification summary (success)', () => {
     const verification = { checks: 10, passed: 10, failed: 0 };
     const result = contentBuilder.buildVerificationSummary(verification);
-    assert(result.includes('✅ All checks passed'), 'Missing success message');
-    assert(result.includes('(10/10 successful)'), 'Missing count');
+    expect(result).toContain('✅ All checks passed');
+    expect(result).toContain('(10/10 successful)');
   });
 
-  await runTest('ContentBuilder: Build verification summary (failures)', async () => {
+  test('ContentBuilder: Build verification summary (failures)', () => {
     const verification = { checks: 10, passed: 8, failed: 2 };
     const result = contentBuilder.buildVerificationSummary(verification);
-    assert(result.includes('⚠️ 2 check(s) failed'), 'Missing failure message');
-    assert(result.includes('(8/10 successful)'), 'Missing count');
+    expect(result).toContain('⚠️ 2 check(s) failed');
+    expect(result).toContain('(8/10 successful)');
   });
 
-  await runTest('ContentBuilder: Build setup steps list', async () => {
+  test('ContentBuilder: Build setup steps list', () => {
     const setupSteps = [
       { name: 'Install deps', command: 'npm install', description: 'Install packages' },
       { name: 'Run tests', command: 'npm test' }
     ];
     const result = contentBuilder.buildSetupStepsList(setupSteps);
-    assert(result.includes('1. **Install deps**'), 'Missing first step');
-    assert(result.includes('npm install'), 'Missing command');
-    assert(result.includes('2. **Run tests**'), 'Missing second step');
+    expect(result).toContain('1. **Install deps**');
+    expect(result).toContain('npm install');
+    expect(result).toContain('2. **Run tests**');
   });
 
-  await runTest('ContentBuilder: Build config summary', async () => {
+  test('ContentBuilder: Build config summary', () => {
     const config = {
       envFile: '.env (3 variables)',
       sshKey: '~/.ssh/id_ed25519',
       gitUser: 'John Doe <john@example.com>'
     };
     const result = contentBuilder.buildConfigSummary(config);
-    assert(result.includes('.env (3 variables)'), 'Missing env file');
-    assert(result.includes('~/.ssh/id_ed25519'), 'Missing SSH key');
-    assert(result.includes('John Doe'), 'Missing git user');
+    expect(result).toContain('.env (3 variables)');
+    expect(result).toContain('~/.ssh/id_ed25519');
+    expect(result).toContain('John Doe');
   });
 
-  await runTest('ContentBuilder: Build platform note (Windows)', async () => {
+  test('ContentBuilder: Build platform note (Windows)', () => {
     const result = contentBuilder.buildPlatformNote('Windows_NT');
-    assert(result.includes('Windows users'), 'Missing Windows note');
-    assert(result.includes('powershell'), 'Missing PowerShell reference');
+    expect(result).toContain('Windows users');
+    expect(result).toContain('powershell');
   });
 
-  await runTest('ContentBuilder: Build platform note (macOS)', async () => {
+  test('ContentBuilder: Build platform note (macOS)', () => {
     const result = contentBuilder.buildPlatformNote('Darwin');
-    assert(result.includes('macOS users'), 'Missing macOS note');
-    assert(result.includes('sudo'), 'Missing sudo reference');
+    expect(result).toContain('macOS users');
+    expect(result).toContain('sudo');
   });
 
   // ============================================================================
   // Document Generator Tests
   // ============================================================================
 
-  await runTest('DocumentGenerator: Parse default config', async () => {
+  test('DocumentGenerator: Parse default config', async () => {
     const manifest = { name: 'test-project' };
     const state = { steps: [] };
     const result = await documentGenerator.generate(manifest, state, { dryRun: true });
-    assert(result.dryRun === true, 'Should be dry run');
-    assert(result.files.length > 0, 'Should have estimated files');
+    expect(result.dryRun).toBe(true);
+    expect(result.files.length).toBeGreaterThan(0);
   });
 
-  await runTest('DocumentGenerator: Respect disabled documentation', async () => {
+  test('DocumentGenerator: Respect disabled documentation', async () => {
     const manifest = {
       name: 'test-project',
       documentation: { enabled: false }
     };
     const state = { steps: [] };
     const result = await documentGenerator.generate(manifest, state, {});
-    assert(result.generated === false, 'Should not generate');
-    assert(result.reason === 'Disabled in manifest', 'Wrong reason');
+    expect(result.generated).toBe(false);
+    expect(result.reason).toBe('Disabled in manifest');
   });
 
-  await runTest('DocumentGenerator: Custom sections', async () => {
+  test('DocumentGenerator: Custom sections', async () => {
     const manifest = {
       name: 'test-project',
       documentation: {
@@ -242,12 +207,12 @@ const documentGenerator = require('../src/docs/core/DocumentGenerator');
     };
     const state = { steps: [] };
     const result = await documentGenerator.generate(manifest, state, { dryRun: true });
-    assert(result.files.some(f => f.includes('getting-started')), 'Missing getting-started');
-    assert(result.files.some(f => f.includes('setup')), 'Missing setup');
-    assert(!result.files.some(f => f.includes('troubleshooting')), 'Should not include troubleshooting');
+    expect(result.files.some(f => f.includes('getting-started'))).toBe(true);
+    expect(result.files.some(f => f.includes('setup'))).toBe(true);
+    expect(result.files.some(f => f.includes('troubleshooting'))).toBe(false);
   });
 
-  await runTest('DocumentGenerator: Extract config from state', async () => {
+  test('DocumentGenerator: Extract config from state', async () => {
     const manifest = { name: 'test-project' };
     const state = {
       steps: [
@@ -263,11 +228,10 @@ const documentGenerator = require('../src/docs/core/DocumentGenerator');
     };
 
     const result = await documentGenerator.generate(manifest, state, { dryRun: true });
-    // Context building is internal, but we can verify it doesn't crash
-    assert(result.dryRun === true, 'Should complete dry run');
+    expect(result.dryRun).toBe(true);
   });
 
-  await runTest('DocumentGenerator: Extract verification from state', async () => {
+  test('DocumentGenerator: Extract verification from state', async () => {
     const manifest = { name: 'test-project' };
     const state = {
       steps: [
@@ -283,14 +247,15 @@ const documentGenerator = require('../src/docs/core/DocumentGenerator');
     };
 
     const result = await documentGenerator.generate(manifest, state, { dryRun: true });
-    assert(result.dryRun === true, 'Should complete dry run');
+    expect(result.dryRun).toBe(true);
   });
 
   // ============================================================================
   // Integration Tests
   // ============================================================================
 
-  await runTest('Integration: Generate complete documentation (dry-run)', async () => {
+  // Note: Technically this belongs in integration tests, but sticking to existing file structure
+  test('Integration: Generate complete documentation (dry-run)', async () => {
     const manifest = {
       name: 'integration-test-project',
       description: 'Full integration test',
@@ -330,31 +295,12 @@ const documentGenerator = require('../src/docs/core/DocumentGenerator');
       environment: { os: 'Linux' }
     });
 
-    assert(result.dryRun === true, 'Should be dry run');
-    assert(result.files.length === 9, `Expected 9 files, got ${result.files.length}`);
-    assert(result.files.some(f => f.includes('quickstart.md')), 'Missing quickstart');
-    assert(result.files.some(f => f.includes('prerequisites.md')), 'Missing prerequisites');
-    assert(result.files.some(f => f.includes('dependencies.md')), 'Missing dependencies');
-    assert(result.files.some(f => f.includes('configuration.md')), 'Missing configuration');
+    expect(result.dryRun).toBe(true);
+    expect(result.files.length).toBe(9);
+    expect(result.files.some(f => f.includes('quickstart.md'))).toBe(true);
+    expect(result.files.some(f => f.includes('prerequisites.md'))).toBe(true);
+    expect(result.files.some(f => f.includes('dependencies.md'))).toBe(true);
+    expect(result.files.some(f => f.includes('configuration.md'))).toBe(true);
   });
 
-  // ============================================================================
-  // Summary
-  // ============================================================================
-
-  console.log('\n' + '='.repeat(60));
-  console.log('📊 Test Summary');
-  console.log('='.repeat(60));
-  console.log(`✅ Passed: ${testsPassed}`);
-  console.log(`❌ Failed: ${testsFailed}`);
-  console.log(`📝 Total:  ${testsPassed + testsFailed}`);
-
-  if (testsFailed === 0) {
-    console.log('\n🎉 All Documentation Generator Tests Passed!\n');
-    process.exit(0);
-  } else {
-    console.log(`\n⚠️  ${testsFailed} test(s) failed\n`);
-    process.exit(1);
-  }
-
-})(); // End of main test runner
+});

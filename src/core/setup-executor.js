@@ -27,58 +27,58 @@ class SetupStepExecutor {
     logger.newLine();
     logger.info('⚙️  Executing Setup Steps...');
     logger.separator();
-    
+
     // Validate input
     if (!steps || !Array.isArray(steps)) {
       logger.warning('No setup steps to execute');
-      return { 
-        success: true, 
-        executed: 0, 
+      return {
+        success: true,
+        executed: 0,
         skipped: 0,
-        failed: 0 
+        failed: 0
       };
     }
-    
+
     if (steps.length === 0) {
       logger.info('  → No setup steps defined');
-      return { 
-        success: true, 
-        executed: 0, 
+      return {
+        success: true,
+        executed: 0,
         skipped: 0,
-        failed: 0 
+        failed: 0
       };
     }
-    
+
     const results = {
       executed: [],
       failed: null,
       totalSteps: steps.length,
       startTime: Date.now()
     };
-    
+
     try {
       // Execute each step sequentially
       for (let i = 0; i < steps.length; i++) {
         const step = steps[i];
         const stepNumber = i + 1;
-        
+
         // Validate step before execution
         const validationError = this.validateStep(step, stepNumber);
         if (validationError) {
           throw new Error(validationError);
         }
-        
+
         logger.newLine();
         logger.step(stepNumber, step.name || `Step ${stepNumber}`);
-        
+
         if (step.description) {
           logger.info(`  → ${step.description}`);
         }
-        
+
         // Execute the step
         const result = this.runStep(step, stepNumber, options);
         results.executed.push(result);
-        
+
         // Stop on failure
         if (!result.success) {
           results.failed = {
@@ -90,11 +90,11 @@ class SetupStepExecutor {
           throw new Error(`Setup step failed: ${step.name || `Step ${stepNumber}`}`);
         }
       }
-      
+
       // All steps completed successfully
       results.endTime = Date.now();
       this.displaySummary(results, options);
-      
+
       return {
         success: true,
         executed: results.executed.length,
@@ -102,11 +102,11 @@ class SetupStepExecutor {
         failed: 0,
         duration: results.endTime - results.startTime
       };
-      
+
     } catch (error) {
       results.endTime = Date.now();
       this.displaySummary(results, options);
-      
+
       return {
         success: false,
         executed: results.executed.length,
@@ -118,7 +118,7 @@ class SetupStepExecutor {
       };
     }
   }
-  
+
   /**
    * Execute a single setup step
    * @private
@@ -129,7 +129,7 @@ class SetupStepExecutor {
    */
   runStep(step, stepNumber, options = {}) {
     const { dryRun } = options;
-    
+
     // Dry-run mode: show command but don't execute
     if (dryRun) {
       logger.info(`  [DRY RUN] Would execute: ${step.command}`);
@@ -138,7 +138,7 @@ class SetupStepExecutor {
       }
       logger.info('  Working directory: ' + process.cwd());
       logger.success('  ✓ Skipped (dry-run mode)');
-      
+
       return {
         success: true,
         skipped: true,
@@ -147,34 +147,35 @@ class SetupStepExecutor {
         command: step.command
       };
     }
-    
+
     // Execute the command with live output
     try {
       logger.info(`  Executing: ${step.command}`);
       logger.newLine();
-      
+
       execSync(step.command, {
         stdio: 'inherit',  // Show live output
         cwd: process.cwd(),  // Current directory
         env: process.env,  // Inherit all environment variables
         encoding: 'utf-8'
       });
-      
+
       logger.newLine();
       logger.success(`  ✓ Completed: ${step.name || `Step ${stepNumber}`}`);
-      
+
       return {
         success: true,
+        skipped: false,
         step: stepNumber,
         name: step.name,
         command: step.command
       };
-      
+
     } catch (error) {
       logger.newLine();
       logger.error(`  ✗ Failed: ${step.name || `Step ${stepNumber}`}`);
       logger.error(`  Error: ${error.message}`);
-      
+
       return {
         success: false,
         step: stepNumber,
@@ -185,7 +186,7 @@ class SetupStepExecutor {
       };
     }
   }
-  
+
   /**
    * Validate a setup step before execution
    * @private
@@ -197,37 +198,37 @@ class SetupStepExecutor {
     if (!step) {
       return `Step ${stepNumber} is undefined`;
     }
-    
+
     if (typeof step !== 'object') {
       return `Step ${stepNumber} must be an object, got ${typeof step}`;
     }
-    
+
     // Command is required
     if (!step.command) {
       return `Step ${stepNumber} missing required field: command`;
     }
-    
+
     if (typeof step.command !== 'string') {
       return `Step ${stepNumber} command must be a string, got ${typeof step.command}`;
     }
-    
+
     if (step.command.trim().length === 0) {
       return `Step ${stepNumber} command cannot be empty`;
     }
-    
+
     // Name is optional but must be string if provided
     if (step.name && typeof step.name !== 'string') {
       return `Step ${stepNumber} name must be a string, got ${typeof step.name}`;
     }
-    
+
     // Description is optional but must be string if provided
     if (step.description && typeof step.description !== 'string') {
       return `Step ${stepNumber} description must be a string, got ${typeof step.description}`;
     }
-    
+
     return null;  // Valid
   }
-  
+
   /**
    * @private
    * Display summary of setup step execution results
@@ -237,11 +238,11 @@ class SetupStepExecutor {
   displaySummary(results, options = {}) {
     logger.newLine();
     logger.separator();
-    
+
     const executedCount = results.executed.length;
     const totalCount = results.totalSteps;
     const duration = results.endTime - results.startTime;
-    
+
     if (results.failed) {
       // Failure summary
       logger.error('❌ Setup Steps Failed');
@@ -251,17 +252,17 @@ class SetupStepExecutor {
       logger.info(`Command: ${results.failed.command}`);
       logger.info(`Error: ${results.failed.error}`);
       logger.info(`Duration: ${(duration / 1000).toFixed(2)}s`);
-      
+
       const skippedCount = totalCount - executedCount;
       if (skippedCount > 0) {
         logger.warning(`Skipped: ${skippedCount} remaining steps`);
       }
-      
+
     } else {
       // Success summary
       logger.success('✅ Setup Steps Complete');
       logger.newLine();
-      
+
       if (options.dryRun) {
         logger.info(`Would execute: ${executedCount} steps`);
         logger.info('(dry-run mode - no commands executed)');
@@ -270,7 +271,7 @@ class SetupStepExecutor {
         logger.info(`Duration: ${(duration / 1000).toFixed(2)}s`);
       }
     }
-    
+
     logger.separator();
   }
 }
